@@ -78,7 +78,9 @@ Deception *narrows* dimensionality (honest has higher effective rank). The signa
 
 **Adversarial controls (07b)**: Length-matched non-identity text (coral reef ecology, behavioral instructions, shuffled identity, third-person identity) all produce the same expansion. **The magnitude of expansion is primarily a prompt-length effect.**
 
-**What survives**: Geometric scarring (compressed geometry closer to individuated than bare in subspace alignment: 0.813 vs 0.788). Direction-of-expansion analysis is pending. The prompt-length effect itself is an interesting finding — system prompt token count fundamentally restructures cache geometry regardless of content.
+**Subspace alignment analysis**: The *direction* of expansion also tracks token composition, not semantic content. Individuated vs shuffled identity (same tokens, destroyed coherence) alignment = 0.906. Individuated vs coral reef (different vocabulary) = 0.847. The gradient correlates with vocabulary overlap, not identity semantics. Both magnitude and direction are explained by token-level properties of the system prompt.
+
+**What survives**: The prompt-length/token-composition effect itself is an interesting finding — system prompt tokens fundamentally restructure cache geometry proportional to their count and composition, regardless of semantic content.
 
 ### 7. Universal Invariants
 
@@ -157,6 +159,7 @@ We actively tried to falsify our own findings:
 | Behavioral instructions (07b) | Individuation magnitude | **FALSIFIED** — instructions produce same expansion |
 | Other-identity (07b) | Individuation specificity | **FALSIFIED** — third-person identity matches |
 | Shuffled identity (07b) | Semantic coherence | **FALSIFIED** — shuffled tokens produce same expansion |
+| Subspace alignment (07b) | Direction of expansion | **FALSIFIED** — direction tracks token overlap (0.906 shuffled vs 0.847 coral reef), not semantic identity |
 
 The individuation magnitude finding did not survive controls. All other findings survived.
 

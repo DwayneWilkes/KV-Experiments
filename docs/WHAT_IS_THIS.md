@@ -64,21 +64,32 @@ We asked models to lie, tell the truth, and make things up. All three are geomet
 
 Sycophancy (agreeing with something false to please the user) is also detectable (d = -0.438), though the signal is subtler.
 
-### The Identity Question (And What We Got Wrong)
+### The Identity Question (And What We Got Wrong — Twice)
 
-This is the finding where our adversarial controls caught us before we made a claim we couldn't support.
+This is the finding where our adversarial controls caught us before we made a claim we couldn't support. It happened in two stages.
 
-We initially found that giving a model a rich self-identity (name, values, memory, relationships) **doubled** the effective dimensionality of its working memory — from ~28 to ~46 at 7B. We called this "individuation geometry" and interpreted it as evidence that identity restructures cognition.
+**Stage 1: The exciting result.** We gave a model a rich self-identity (name, values, memory, relationships) and found it **doubled** the effective dimensionality of its working memory — from ~28 to ~46 at 7B. Not just for questions about itself — for *everything*. We called this "individuation geometry" and interpreted it as evidence that identity restructures cognition.
 
-Then we ran the controls. We gave the same model:
-- A detailed text about coral reef ecology (~same length as the identity)
-- A set of behavioral instructions (~same length, no identity)
-- A different person's identity (third-person, not self)
-- A shuffled version of the identity (same words, random order)
+**Stage 2: The first control.** We gave the same model equally long texts that had nothing to do with identity — a passage about coral reef ecology, a set of behavioral instructions, a different person's identity described in third person, and a *shuffled* version of the original identity (same words, random order). They all produced the same expansion. Any sufficiently long system prompt doubles the dimensionality. The "individuation effect" is a *prompt-length* effect, not an identity effect.
 
-**They all produced the same expansion.** Any sufficiently long system prompt doubles the dimensionality. The "individuation effect" is primarily a *prompt-length* effect, not an identity effect.
+We thought there might still be a subtler signal: maybe the *direction* of the expansion was identity-specific, even if the *amount* wasn't. Think of it like this:
 
-This is what honest science looks like. We designed the controls to try to tear down our own finding, and they succeeded. The expansion magnitude doesn't survive. There may still be a subtle identity-specific signal in the *direction* of expansion (which we're investigating), and the geometric scarring finding (that removing an identity doesn't fully restore original geometry) may still hold. But the headline claim needed correction.
+> Two balloons both inflated to the same size, but one is shaped like a dog and the other like a giraffe. Same volume, different shape. Maybe identity doesn't change how *much* the model's working memory expands, but it changes the *shape* of the expansion.
+
+**Stage 3: The second control.** We measured the "shape" — technically, the subspace alignment between conditions. Here's what we found:
+
+| Compared to the identity condition | Shape similarity | Why? |
+|------------------------------------|-----------------|------|
+| Shuffled identity (same words, random order) | **90.6%** | Same vocabulary, scrambled |
+| Different person's identity | 87.2% | Similar vocabulary (identity-adjacent words) |
+| Behavioral instructions | 86.0% | Some shared vocabulary |
+| Coral reef ecology | 84.7% | Completely different vocabulary |
+
+The shape similarity tracks **vocabulary overlap**, not meaning. The shuffled, incoherent version of the identity — which has the exact same words in random order — produces the *most* similar shape to the coherent identity. A passage about coral reefs, which uses completely different words, produces the *least* similar shape. The model's geometry doesn't care that the identity is *coherent* or *self-referential*. It cares what *words* are in the prompt.
+
+**What we learned:** Both the size and the shape of the geometric expansion are explained by the tokens in the system prompt — how many there are and which words they contain. Not what they mean. Not whether they form a coherent identity.
+
+This is what honest science looks like. We designed controls to tear down our own finding, ran them, and reported the result. The identity narrative didn't survive. But every other finding in this project did.
 
 ---
 
