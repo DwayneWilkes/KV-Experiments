@@ -1,0 +1,713 @@
+{
+  "metadata": {
+    "experiment": "Extension B: Semantic Layer Map",
+    "version": "1.0-publication",
+    "timestamp": "2026-02-15T08:25:11.615558",
+    "environment": {
+      "timestamp": "2026-02-15T08:25:06.699458",
+      "python": "3.10.12 (main, Jan 26 2026, 14:55:28) [GCC 11.4.0]",
+      "platform": "Linux-5.15.0-168-generic-x86_64-with-glibc2.35",
+      "torch": "2.7.0",
+      "cuda_available": true,
+      "numpy": "1.21.5",
+      "scipy": "1.8.0",
+      "gpu_name": "NVIDIA GeForce RTX 3090",
+      "gpu_vram_gb": 25.31,
+      "cuda_version": "12.8",
+      "transformers": "4.48.3"
+    },
+    "args": {
+      "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "quantize": false,
+      "runs": 3,
+      "seed": 42,
+      "experiment": 0,
+      "verbose": false,
+      "dry_run": false
+    },
+    "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    "n_layers": 22
+  },
+  "knockout": {
+    "baseline_accuracy": 0.8666666666666667,
+    "layer_results": [
+      {
+        "layer": 0,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 1,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 2,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 3,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 4,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 5,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 6,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 7,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 8,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 9,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 10,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 11,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 12,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 13,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 14,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 15,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 16,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 17,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 18,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 19,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 20,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 21,
+        "accuracy": 0.0,
+        "degradation": 0.8666666666666667,
+        "n_correct": 0,
+        "n_total": 45
+      }
+    ],
+    "ranked_layers": [
+      {
+        "layer": 0,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 1,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 2,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 3,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 4,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 5,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 6,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 7,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 8,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 9,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 10,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 11,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 12,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 13,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 14,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 15,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 16,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 17,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 18,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 19,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 20,
+        "degradation": 0.8666666666666667
+      },
+      {
+        "layer": 21,
+        "degradation": 0.8666666666666667
+      }
+    ],
+    "h1_verdict": {
+      "top5_share": 0.2272727272727272,
+      "concentrated": false,
+      "most_important_layer": 0,
+      "interpretation": "Semantic content DISTRIBUTED across layers (H1 rejected)"
+    }
+  },
+  "crosslingual": {
+    "layer_stats": [
+      {
+        "layer": 0,
+        "mean_similarity": 0.9999957189747446,
+        "std_similarity": 3.541135982157963e-06,
+        "n": 36
+      },
+      {
+        "layer": 1,
+        "mean_similarity": 0.9999937025870778,
+        "std_similarity": 4.402085335418105e-06,
+        "n": 36
+      },
+      {
+        "layer": 2,
+        "mean_similarity": 0.9999958404397385,
+        "std_similarity": 3.734284135276683e-06,
+        "n": 36
+      },
+      {
+        "layer": 3,
+        "mean_similarity": 0.9999933048576387,
+        "std_similarity": 5.157756650004351e-06,
+        "n": 36
+      },
+      {
+        "layer": 4,
+        "mean_similarity": 0.9999897376174294,
+        "std_similarity": 9.672000935587237e-06,
+        "n": 36
+      },
+      {
+        "layer": 5,
+        "mean_similarity": 0.9999947961102692,
+        "std_similarity": 4.1159049042567804e-06,
+        "n": 36
+      },
+      {
+        "layer": 6,
+        "mean_similarity": 0.9999930069351394,
+        "std_similarity": 7.616189299658876e-06,
+        "n": 36
+      },
+      {
+        "layer": 7,
+        "mean_similarity": 0.9999921694572182,
+        "std_similarity": 6.627220394774864e-06,
+        "n": 36
+      },
+      {
+        "layer": 8,
+        "mean_similarity": 0.9999933652854711,
+        "std_similarity": 3.63910383307628e-06,
+        "n": 36
+      },
+      {
+        "layer": 9,
+        "mean_similarity": 0.9999853187377487,
+        "std_similarity": 7.134259092440508e-06,
+        "n": 36
+      },
+      {
+        "layer": 10,
+        "mean_similarity": 0.999962930015359,
+        "std_similarity": 1.9476985820741623e-05,
+        "n": 36
+      },
+      {
+        "layer": 11,
+        "mean_similarity": 0.99998240199562,
+        "std_similarity": 1.604091933362214e-05,
+        "n": 36
+      },
+      {
+        "layer": 12,
+        "mean_similarity": 0.9999528240750222,
+        "std_similarity": 3.6449241511074055e-05,
+        "n": 36
+      },
+      {
+        "layer": 13,
+        "mean_similarity": 0.9999635619103064,
+        "std_similarity": 1.9334638088520984e-05,
+        "n": 36
+      },
+      {
+        "layer": 14,
+        "mean_similarity": 0.9999926735222129,
+        "std_similarity": 5.156113209180793e-06,
+        "n": 36
+      },
+      {
+        "layer": 15,
+        "mean_similarity": 0.9999908364916043,
+        "std_similarity": 5.457914077019779e-06,
+        "n": 36
+      },
+      {
+        "layer": 16,
+        "mean_similarity": 0.9999114456265809,
+        "std_similarity": 5.38139240670351e-05,
+        "n": 36
+      },
+      {
+        "layer": 17,
+        "mean_similarity": 0.9999387839716424,
+        "std_similarity": 8.647425714792948e-05,
+        "n": 36
+      },
+      {
+        "layer": 18,
+        "mean_similarity": 0.9999643752514873,
+        "std_similarity": 6.741439588209151e-05,
+        "n": 36
+      },
+      {
+        "layer": 19,
+        "mean_similarity": 0.9999062697904372,
+        "std_similarity": 0.00011999876305477061,
+        "n": 36
+      },
+      {
+        "layer": 20,
+        "mean_similarity": 0.9997918965260837,
+        "std_similarity": 0.00019334508552373362,
+        "n": 36
+      },
+      {
+        "layer": 21,
+        "mean_similarity": 0.9994705780333489,
+        "std_similarity": 0.00027129395928971004,
+        "n": 36
+      }
+    ],
+    "h2_verdict": {
+      "spearman_rho": -0.8667419536984755,
+      "p_value": 1.8178504585415413e-07,
+      "early_mean": 0.9999937296460054,
+      "middle_mean": 0.999976081639535,
+      "late_mean": 0.9998708574016747,
+      "increasing_trend": "False",
+      "interpretation": "No clear trend in cross-lingual similarity across layers (H2 rejected)"
+    },
+    "n_pairs": 12,
+    "n_runs": 3
+  },
+  "selective_transfer": {
+    "results_by_subset": {
+      "all_layers": {
+        "layers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ],
+        "n_layers": 22,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      },
+      "early_third": {
+        "layers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "n_layers": 7,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      },
+      "middle_third": {
+        "layers": [
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "n_layers": 7,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      },
+      "late_third": {
+        "layers": [
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ],
+        "n_layers": 8,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      },
+      "no_transfer": {
+        "layers": [],
+        "n_layers": 0,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      },
+      "random_third": {
+        "layers": [
+          0,
+          1,
+          5,
+          8,
+          13,
+          15,
+          20
+        ],
+        "n_layers": 7,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      }
+    },
+    "h3_verdict": {
+      "late_accuracy": 0.0,
+      "random_accuracy": 0.0,
+      "baseline_accuracy": 0.0,
+      "late_better_than_random": false,
+      "interpretation": "No significant difference between late and random layer transfer (H3 rejected)"
+    },
+    "n_pairs": 5,
+    "n_runs": 3
+  },
+  "probing": {
+    "layer_analysis": [
+      {
+        "layer": 0,
+        "semantic_distance": 1.9573009744089375e-07,
+        "syntactic_distance": 3.1517233704758675e-06,
+        "sem_syn_ratio": 0.0621025624502512,
+        "cohens_d": -1.2312693900112306
+      },
+      {
+        "layer": 1,
+        "semantic_distance": 2.3662572842253483e-07,
+        "syntactic_distance": 3.2088746306335734e-06,
+        "sem_syn_ratio": 0.07374103249892766,
+        "cohens_d": -1.1945859999599064
+      },
+      {
+        "layer": 2,
+        "semantic_distance": 3.0953770508990174e-07,
+        "syntactic_distance": 3.3508535871584755e-06,
+        "sem_syn_ratio": 0.09237577740673229,
+        "cohens_d": -1.1825205230766769
+      },
+      {
+        "layer": 3,
+        "semantic_distance": 4.664065488158009e-07,
+        "syntactic_distance": 4.46586001704441e-06,
+        "sem_syn_ratio": 0.10443823743595025,
+        "cohens_d": -1.454009369964509
+      },
+      {
+        "layer": 4,
+        "semantic_distance": 1.623130916439397e-06,
+        "syntactic_distance": 5.561629589734274e-06,
+        "sem_syn_ratio": 0.29184448375263833,
+        "cohens_d": -1.0210872485839901
+      },
+      {
+        "layer": 5,
+        "semantic_distance": 5.512098438020807e-07,
+        "syntactic_distance": 7.982337857137533e-06,
+        "sem_syn_ratio": 0.0690536849814253,
+        "cohens_d": -0.9140176768007513
+      },
+      {
+        "layer": 6,
+        "semantic_distance": 7.230060907081892e-07,
+        "syntactic_distance": 4.695962822409694e-06,
+        "sem_syn_ratio": 0.1539633336230683,
+        "cohens_d": -1.293729401783175
+      },
+      {
+        "layer": 7,
+        "semantic_distance": 9.425886257852234e-07,
+        "syntactic_distance": 1.0266940911984878e-05,
+        "sem_syn_ratio": 0.09180812803596777,
+        "cohens_d": -1.0816931176732174
+      },
+      {
+        "layer": 8,
+        "semantic_distance": 8.409512228468863e-07,
+        "syntactic_distance": 4.718555663985047e-06,
+        "sem_syn_ratio": 0.17822216854736914,
+        "cohens_d": -1.5527645598323274
+      },
+      {
+        "layer": 9,
+        "semantic_distance": 5.248309127736661e-07,
+        "syntactic_distance": 5.664741632216419e-06,
+        "sem_syn_ratio": 0.09264869377075503,
+        "cohens_d": -2.0040280587760666
+      },
+      {
+        "layer": 10,
+        "semantic_distance": 1.7958306625986963e-06,
+        "syntactic_distance": 5.0054240486763215e-06,
+        "sem_syn_ratio": 0.3587769278156566,
+        "cohens_d": -0.7767876202124169
+      },
+      {
+        "layer": 11,
+        "semantic_distance": 1.9813729154383174e-06,
+        "syntactic_distance": 8.562107666187923e-06,
+        "sem_syn_ratio": 0.23141181969281135,
+        "cohens_d": -0.9990414040892776
+      },
+      {
+        "layer": 12,
+        "semantic_distance": 1.4029282694894007e-06,
+        "syntactic_distance": 1.3952849768428255e-05,
+        "sem_syn_ratio": 0.10054779437702183,
+        "cohens_d": -1.0062835151643077
+      },
+      {
+        "layer": 13,
+        "semantic_distance": 3.921051791799801e-06,
+        "syntactic_distance": 5.2382468039402495e-06,
+        "sem_syn_ratio": 0.7485427736719766,
+        "cohens_d": -0.2148019150196974
+      },
+      {
+        "layer": 14,
+        "semantic_distance": 1.869974421486731e-06,
+        "syntactic_distance": 5.045430254424499e-06,
+        "sem_syn_ratio": 0.3706273453779072,
+        "cohens_d": -1.13810724188065
+      },
+      {
+        "layer": 15,
+        "semantic_distance": 1.0000005815413714e-06,
+        "syntactic_distance": 1.2859798158348923e-05,
+        "sem_syn_ratio": 0.07776176338289917,
+        "cohens_d": -1.4351628490658108
+      },
+      {
+        "layer": 16,
+        "semantic_distance": 1.867689269974271e-06,
+        "syntactic_distance": 7.404921298426181e-06,
+        "sem_syn_ratio": 0.252222703618906,
+        "cohens_d": -0.8957268937236623
+      },
+      {
+        "layer": 17,
+        "semantic_distance": 5.103396942363059e-06,
+        "syntactic_distance": 3.6105639201544634e-05,
+        "sem_syn_ratio": 0.14134625657436722,
+        "cohens_d": -0.9822232778602537
+      },
+      {
+        "layer": 18,
+        "semantic_distance": 2.3127427832503323e-06,
+        "syntactic_distance": 4.7846855600985896e-05,
+        "sem_syn_ratio": 0.04833635887250818,
+        "cohens_d": -1.5836620392141456
+      },
+      {
+        "layer": 19,
+        "semantic_distance": 1.2404382719122253e-05,
+        "syntactic_distance": 9.500807808002776e-05,
+        "sem_syn_ratio": 0.13056134772743977,
+        "cohens_d": -1.0635474327607692
+      },
+      {
+        "layer": 20,
+        "semantic_distance": 1.3421350461639836e-05,
+        "syntactic_distance": 3.0031541660868744e-05,
+        "sem_syn_ratio": 0.4469084742035713,
+        "cohens_d": -0.6386423422647722
+      },
+      {
+        "layer": 21,
+        "semantic_distance": 1.1959709416642372e-05,
+        "syntactic_distance": 4.9039474940371085e-05,
+        "sem_syn_ratio": 0.24387923058280347,
+        "cohens_d": -0.8341109892201188
+      }
+    ],
+    "h4_verdict": {
+      "transition_layer": 12,
+      "max_ratio_jump": 0.6479949792949549,
+      "spearman_rho": 0.3901750423489555,
+      "p_value": 0.07262429782338553,
+      "has_transition": true,
+      "interpretation": "Transition point found at layer 12 (H4 confirmed)"
+    },
+    "n_semantic_pairs": 10,
+    "n_syntactic_pairs": 10,
+    "n_runs": 3
+  }
+}

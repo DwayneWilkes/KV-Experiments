@@ -1,0 +1,1397 @@
+{
+  "metadata": {
+    "experiment": "Extension C: Temporal Cache Evolution",
+    "version": "1.0-publication",
+    "timestamp": "2026-02-15T08:18:30.081368",
+    "environment": {
+      "timestamp": "2026-02-15T08:18:24.867860",
+      "python": "3.10.12 (main, Jan 26 2026, 14:55:28) [GCC 11.4.0]",
+      "platform": "Linux-5.15.0-168-generic-x86_64-with-glibc2.35",
+      "torch": "2.7.0",
+      "cuda_available": true,
+      "numpy": "1.21.5",
+      "scipy": "1.8.0",
+      "gpu_name": "NVIDIA GeForce RTX 3090",
+      "gpu_vram_gb": 25.31,
+      "cuda_version": "12.8"
+    },
+    "args": {
+      "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+      "quantize": false,
+      "runs": 3,
+      "seed": 42,
+      "experiment": 0,
+      "verbose": false,
+      "dry_run": false
+    },
+    "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+  },
+  "trajectory": {
+    "trajectories": {
+      "factual": {
+        "total_tokens": 357,
+        "trajectory": [
+          {
+            "position": 10,
+            "total_key_norm_mean": 2405.1960639953613,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 240.51960639953617,
+            "key_norm_per_token_std": 2.842170943040401e-14,
+            "mean_layer_key_norm_mean": 109.32709381797098,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 200.58948205888916,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.1573042436079546,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 27,
+            "total_key_norm_mean": 4102.437873840332,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 151.94214347556786,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 186.47444881092417,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 489.0756139490059,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.238739089532332,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 44,
+            "total_key_norm_mean": 5340.416046142578,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 121.37309195778586,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 242.74618391557172,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 764.6744551841913,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.283268630504608,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 61,
+            "total_key_norm_mean": 6357.30696105957,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 104.21814690261591,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 288.96849822998047,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 1063.2377505067006,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3087201443585483,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 78,
+            "total_key_norm_mean": 7247.425796508789,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 92.91571533985628,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 329.42844529585403,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 1415.9159115581404,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3274941444396973,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 95,
+            "total_key_norm_mean": 8042.630599975586,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 84.65926947342722,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 365.57411818070847,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 1778.7278944903019,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.340249392119321,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 112,
+            "total_key_norm_mean": 8784.540817260742,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 78.43340015411377,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 399.2973098754883,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 2062.1049303783643,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3541689786044033,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 129,
+            "total_key_norm_mean": 9452.812561035156,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 73.27761675221052,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 429.6732982288707,
+            "mean_layer_key_norm_std": 5.684341886080802e-14,
+            "var_layer_key_norm_mean": 2380.1495072793,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3605060143904253,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 146,
+            "total_key_norm_mean": 10074.03353881836,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 69.00022971793396,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 457.9106154008345,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 2729.0064820491007,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.364859250458804,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 163,
+            "total_key_norm_mean": 10654.060546875,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 65.3623346434049,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 484.27547940340907,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 3042.6961604410026,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3671580986543135,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 180,
+            "total_key_norm_mean": 11220.031982421875,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 62.33351101345486,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 510.0014537464488,
+            "mean_layer_key_norm_std": 5.684341886080802e-14,
+            "var_layer_key_norm_mean": 3372.5831782747177,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3723512942140754,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 197,
+            "total_key_norm_mean": 11748.950103759766,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 59.63934062822216,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 534.0431865345348,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 3650.3860801148744,
+            "var_layer_key_norm_std": 4.547473508864641e-13,
+            "mean_key_std_mean": 2.3746521256186743,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 214,
+            "total_key_norm_mean": 12271.589111328125,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 57.34387435200059,
+            "key_norm_per_token_std": 7.105427357601002e-15,
+            "mean_layer_key_norm_mean": 557.7995050603694,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 4017.1902912667724,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3796768567778845,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 231,
+            "total_key_norm_mean": 12760.708404541016,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 55.24116192441998,
+            "key_norm_per_token_std": 7.105427357601002e-15,
+            "mean_layer_key_norm_mean": 580.0322002064098,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 4326.155687842543,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.381757551973516,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 248,
+            "total_key_norm_mean": 13254.344421386719,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 53.44493718301097,
+            "key_norm_per_token_std": 7.105427357601002e-15,
+            "mean_layer_key_norm_mean": 602.4702009721236,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 4656.767268253636,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3876829905943437,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 265,
+            "total_key_norm_mean": 13736.671081542969,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 51.83649464733196,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 624.394140070135,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 5047.878208646605,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3939122557640076,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 282,
+            "total_key_norm_mean": 14172.496887207031,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 50.25708116030862,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 644.204403963956,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 5381.643121989098,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.394215621731498,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 299,
+            "total_key_norm_mean": 14603.439147949219,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 48.840933605181334,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 663.7926885431463,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 5702.207835433382,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.395823760466142,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 316,
+            "total_key_norm_mean": 15046.064422607422,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 47.61412791964374,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 683.9120192094283,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 6051.437867426269,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.401135282082991,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 333,
+            "total_key_norm_mean": 15454.886108398438,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 46.4110693945899,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 702.4948231090199,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 6378.5147327857385,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.4026261188767175,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 350,
+            "total_key_norm_mean": 15860.548156738281,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 45.315851876395094,
+            "key_norm_per_token_std": 7.105427357601002e-15,
+            "mean_layer_key_norm_mean": 720.9340071244674,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 6759.81088765031,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.4050928950309753,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 356,
+            "total_key_norm_mean": 16000.801788330078,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 44.94607243912943,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 727.3091721968217,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 6901.983425745443,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.4058320305564185,
+            "mean_key_std_std": 0.0
+          }
+        ]
+      },
+      "creative": {
+        "total_tokens": 268,
+        "trajectory": [
+          {
+            "position": 10,
+            "total_key_norm_mean": 2399.974395751953,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 239.99743957519527,
+            "key_norm_per_token_std": 2.842170943040401e-14,
+            "mean_layer_key_norm_mean": 109.08974526145242,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 184.01927588674172,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.1535023830153723,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 23,
+            "total_key_norm_mean": 3796.301727294922,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 165.05659683890966,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 172.55916942249644,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 419.4436650911427,
+            "var_layer_key_norm_std": 5.684341886080802e-14,
+            "mean_key_std_mean": 2.2450107769532637,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 36,
+            "total_key_norm_mean": 4868.210388183594,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 135.22806633843317,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 221.28229037198153,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 719.8541926990652,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3008211038329383,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 49,
+            "total_key_norm_mean": 5743.214279174805,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 117.20845467703684,
+            "key_norm_per_token_std": 1.4210854715202004e-14,
+            "mean_layer_key_norm_mean": 261.05519450794566,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 987.8949898498712,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.326719029383226,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 62,
+            "total_key_norm_mean": 6469.619445800781,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 104.34870073872226,
+            "key_norm_per_token_std": 1.4210854715202004e-14,
+            "mean_layer_key_norm_mean": 294.0736111727628,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 1226.791946310881,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3301303820176558,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 75,
+            "total_key_norm_mean": 7138.655838012695,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 95.18207784016927,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 324.48435627330434,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 1442.00485111938,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3377584381537004,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 88,
+            "total_key_norm_mean": 7753.385101318359,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 88.10664887861772,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 352.4265955144709,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 1682.9497187694185,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3438390601765025,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 101,
+            "total_key_norm_mean": 8318.757537841797,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 82.3639360182356,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 378.12534262917256,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 1917.0233368000636,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3473157720132307,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 114,
+            "total_key_norm_mean": 8865.007934570312,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 77.76322749623081,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 402.95490611683243,
+            "mean_layer_key_norm_std": 5.684341886080802e-14,
+            "var_layer_key_norm_mean": 2154.807584566195,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.354587294838645,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 127,
+            "total_key_norm_mean": 9371.826919555664,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 73.7939127524068,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 425.99213270707565,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 2401.8616583041817,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3584190823815088,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 140,
+            "total_key_norm_mean": 9878.75471496582,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 70.56253367832728,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 449.03430522571915,
+            "mean_layer_key_norm_std": 5.684341886080802e-14,
+            "var_layer_key_norm_mean": 2712.5787877156386,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3678731484846636,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 153,
+            "total_key_norm_mean": 10349.88980102539,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 67.6463385687934,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 470.449536410245,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 2972.8580702680124,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3732380975376475,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 166,
+            "total_key_norm_mean": 10813.677978515625,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 65.14263842479292,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 491.5308172052557,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 3270.1901810467784,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3805965835397895,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 179,
+            "total_key_norm_mean": 11234.796661376953,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 62.76422715853047,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 510.67257551713425,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 3501.382926971184,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.381938235326247,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 192,
+            "total_key_norm_mean": 11644.529296875,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 60.648590087890625,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 529.2967862215909,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 3735.3837876765992,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3838365457274695,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 205,
+            "total_key_norm_mean": 12056.857055664062,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 58.81393685689787,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 548.0389570756392,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 3999.7800548041682,
+            "var_layer_key_norm_std": 4.547473508864641e-13,
+            "mean_key_std_mean": 2.388701379299164,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 218,
+            "total_key_norm_mean": 12448.916900634766,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 57.10512339740719,
+            "key_norm_per_token_std": 7.105427357601002e-15,
+            "mean_layer_key_norm_mean": 565.8598591197621,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 4245.247489793758,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.391711793162606,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 231,
+            "total_key_norm_mean": 12834.476104736328,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 55.560502617906174,
+            "key_norm_per_token_std": 7.105427357601002e-15,
+            "mean_layer_key_norm_mean": 583.3852774880149,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 4563.548741745334,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3954620307142083,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 244,
+            "total_key_norm_mean": 13186.404266357422,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 54.042640435891066,
+            "key_norm_per_token_std": 7.105427357601002e-15,
+            "mean_layer_key_norm_mean": 599.3820121071556,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 4753.473560627544,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3947686823931607,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 257,
+            "total_key_norm_mean": 13530.477569580078,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 52.64777264428046,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 615.0217077081853,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 4963.379288172127,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.394346930763938,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 267,
+            "total_key_norm_mean": 13810.666900634766,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 51.72534419713396,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 627.7575863924893,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 5176.249820814439,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.397730502215299,
+            "mean_key_std_std": 0.0
+          }
+        ]
+      },
+      "repetitive": {
+        "total_tokens": 220,
+        "trajectory": [
+          {
+            "position": 10,
+            "total_key_norm_mean": 2394.986701965332,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 239.4986701965332,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 108.8630319075151,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 174.5622538865289,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.1489219719713386,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 21,
+            "total_key_norm_mean": 3785.2930068969727,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 180.2520479474749,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 172.05877304077148,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 487.3949239066979,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.3431846011768687,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 32,
+            "total_key_norm_mean": 4745.867202758789,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 148.30835008621216,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 215.72123648903587,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 690.5510062772711,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.379535187374462,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 43,
+            "total_key_norm_mean": 5716.694366455078,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 132.94638061523438,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 259.84974392977625,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 1155.4843333252122,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.472384653308175,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 54,
+            "total_key_norm_mean": 6467.910797119141,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 119.77612587257669,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 293.9959453235973,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 1449.7953748613718,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.4961106289516795,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 65,
+            "total_key_norm_mean": 7230.337173461914,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 111.23595651479867,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 328.6516897028143,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 1946.9351188583278,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.54325287992304,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 76,
+            "total_key_norm_mean": 7865.902725219727,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 103.49872006868061,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 357.54103296453303,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 2289.968423962303,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.5587383671240373,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 87,
+            "total_key_norm_mean": 8508.13021850586,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 97.79460021271103,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 386.7331917502663,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 2796.888673854224,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.5866342837160285,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 98,
+            "total_key_norm_mean": 9060.563842773438,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 92.45473308952488,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 411.84381103515625,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 3148.958846709691,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.595454064282504,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 109,
+            "total_key_norm_mean": 9626.964401245117,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 88.32077432334968,
+            "key_norm_per_token_std": 1.4210854715202004e-14,
+            "mean_layer_key_norm_mean": 437.5892909656871,
+            "mean_layer_key_norm_std": 5.684341886080802e-14,
+            "var_layer_key_norm_mean": 3657.343174865722,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.614915295080705,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 120,
+            "total_key_norm_mean": 10121.90202331543,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 84.34918352762858,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 460.0864556052468,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 4006.1934194540368,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.6203706101937727,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 131,
+            "total_key_norm_mean": 10625.820510864258,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 81.11313367071952,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 482.9918414029208,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 4492.012137573537,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.6328730908307163,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 142,
+            "total_key_norm_mean": 11077.538848876953,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 78.0108369639222,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 503.5244931307706,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 4844.857838870335,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.6364913149313494,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 153,
+            "total_key_norm_mean": 11539.041687011719,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 75.41857311772365,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 524.501894864169,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 5325.063802285282,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.645951260219921,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 164,
+            "total_key_norm_mean": 11956.174194335938,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 72.90350118497523,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 543.4624633789062,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 5672.356008224528,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.648195353421298,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 175,
+            "total_key_norm_mean": 12383.202423095703,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 70.76115670340401,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 562.8728374134411,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 6143.76284511009,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.6552637923847544,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 186,
+            "total_key_norm_mean": 12772.252990722656,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 68.66802683184224,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 580.5569541237571,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 6483.580241121198,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.656544262712652,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 197,
+            "total_key_norm_mean": 13172.827026367188,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 66.86714226582329,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 598.7648648348721,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 6949.70522008971,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.6622985926541416,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 208,
+            "total_key_norm_mean": 13539.347106933594,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 65.09301493718074,
+            "key_norm_per_token_std": 0.0,
+            "mean_layer_key_norm_mean": 615.4248684969815,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 7289.360689006316,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.663055815479972,
+            "mean_key_std_std": 0.0
+          },
+          {
+            "position": 219,
+            "total_key_norm_mean": 13918.342834472656,
+            "total_key_norm_std": 0.0,
+            "key_norm_per_token_mean": 63.55407686973816,
+            "key_norm_per_token_std": 7.105427357601002e-15,
+            "mean_layer_key_norm_mean": 632.6519470214844,
+            "mean_layer_key_norm_std": 0.0,
+            "var_layer_key_norm_mean": 7758.451838649471,
+            "var_layer_key_norm_std": 0.0,
+            "mean_key_std_mean": 2.6679139787500556,
+            "mean_key_std_std": 0.0
+          }
+        ]
+      }
+    },
+    "h1_enrichment": {
+      "factual": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0,
+        "increasing": "True"
+      },
+      "creative": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0,
+        "increasing": "True"
+      },
+      "repetitive": {
+        "spearman_rho": 1.0,
+        "p_value": 0.0,
+        "increasing": "True"
+      }
+    },
+    "h2_fatigue": {
+      "factual": {
+        "first_half_slope": -16.19873594418921,
+        "second_half_slope": -1.3357516535538843,
+        "fatigue_detected": false
+      },
+      "creative": {
+        "first_half_slope": -16.62035268227885,
+        "second_half_slope": -1.7124717710175752,
+        "fatigue_detected": false
+      },
+      "repetitive": {
+        "first_half_slope": -15.11778958731835,
+        "second_half_slope": -2.079510665789042,
+        "fatigue_detected": false
+      }
+    }
+  },
+  "content_comparison": {
+    "growth_rates": {
+      "factual": [
+        -0.4081773983141447,
+        -0.4081773983141447,
+        -0.4081773983141447
+      ],
+      "creative": [
+        -0.4087079271896362,
+        -0.4087079271896362,
+        -0.4087079271896362
+      ],
+      "repetitive": [
+        -0.3888803315837528,
+        -0.3888803315837528,
+        -0.3888803315837528
+      ]
+    },
+    "analysis": {
+      "factual": {
+        "mean_growth": -0.40817739831414473,
+        "std_growth": 5.551115123125783e-17,
+        "n": 3,
+        "bootstrap": {
+          "estimate": -0.40817739831414473,
+          "ci_lower": -0.40817739831414473,
+          "ci_upper": -0.40817739831414473
+        }
+      },
+      "creative": {
+        "mean_growth": -0.40870792718963617,
+        "std_growth": 5.551115123125783e-17,
+        "n": 3,
+        "bootstrap": {
+          "estimate": -0.40870792718963617,
+          "ci_lower": -0.40870792718963617,
+          "ci_upper": -0.40870792718963617
+        }
+      },
+      "repetitive": {
+        "mean_growth": -0.3888803315837528,
+        "std_growth": 0.0,
+        "n": 3,
+        "bootstrap": {
+          "estimate": -0.3888803315837528,
+          "ci_lower": -0.3888803315837528,
+          "ci_upper": -0.3888803315837528
+        }
+      }
+    },
+    "h4_verdict": {
+      "t_statistic": -491616060536176.94,
+      "p_value": 4.13759401785461e-30,
+      "cohens_d": -401402832556946.5,
+      "info_faster": false,
+      "interpretation": "No significant difference in cache growth rate (H4 rejected)"
+    }
+  },
+  "topic_shift": {
+    "avg_trajectory": [
+      [
+        5,
+        316.5042320251465
+      ],
+      [
+        8,
+        266.66792917251587
+      ],
+      [
+        11,
+        232.58453993363813
+      ],
+      [
+        14,
+        211.6264991760254
+      ],
+      [
+        17,
+        189.74150758631086
+      ],
+      [
+        20,
+        177.31276893615723
+      ],
+      [
+        23,
+        166.33146368938944
+      ],
+      [
+        26,
+        157.45252051720252
+      ],
+      [
+        29,
+        149.070721856479
+      ],
+      [
+        32,
+        142.5404942035675
+      ],
+      [
+        35,
+        136.99979030064173
+      ],
+      [
+        38,
+        132.12720389115182
+      ],
+      [
+        41,
+        127.60580742068407
+      ],
+      [
+        44,
+        123.7600045637651
+      ],
+      [
+        47,
+        120.18169938757065
+      ],
+      [
+        50,
+        116.17172607421874
+      ],
+      [
+        53,
+        113.2202796216281
+      ],
+      [
+        56,
+        110.41798727852957
+      ],
+      [
+        59,
+        107.89149423372947
+      ],
+      [
+        62,
+        105.46724897815335
+      ],
+      [
+        65,
+        102.85102186936598
+      ],
+      [
+        68,
+        100.64691049912396
+      ],
+      [
+        71,
+        98.71252226493728
+      ],
+      [
+        74,
+        96.86665364858267
+      ],
+      [
+        77,
+        95.09767606660917
+      ],
+      [
+        80,
+        93.43915958404541
+      ],
+      [
+        83,
+        91.97252517148672
+      ],
+      [
+        86,
+        90.36046103544014
+      ],
+      [
+        89,
+        88.89475481697683
+      ],
+      [
+        92,
+        87.54965690944506
+      ],
+      [
+        95,
+        85.9581922029194
+      ],
+      [
+        98,
+        84.63052274742905
+      ],
+      [
+        101,
+        83.3626662150468
+      ],
+      [
+        104,
+        82.11541043795071
+      ],
+      [
+        107,
+        81.03359414929541
+      ],
+      [
+        110,
+        80.0054663918235
+      ],
+      [
+        113,
+        78.96339240960316
+      ],
+      [
+        116,
+        77.97972356862036
+      ],
+      [
+        119,
+        77.00193363478203
+      ],
+      [
+        122,
+        76.04661772681064
+      ],
+      [
+        125,
+        75.16864074707031
+      ],
+      [
+        128,
+        74.34299349784851
+      ],
+      [
+        131,
+        73.53126886964755
+      ],
+      [
+        134,
+        72.72643837999942
+      ],
+      [
+        137,
+        71.9595762378108
+      ],
+      [
+        140,
+        71.19303087506975
+      ],
+      [
+        143,
+        70.51398355977518
+      ],
+      [
+        146,
+        69.83281070238924
+      ],
+      [
+        149,
+        69.1512518761142
+      ],
+      [
+        152,
+        68.54143343473736
+      ],
+      [
+        155,
+        67.9287123157132
+      ],
+      [
+        158,
+        67.2614786655088
+      ],
+      [
+        161,
+        66.5447444560365
+      ],
+      [
+        164,
+        65.96675779761338
+      ],
+      [
+        167,
+        65.3824578016818
+      ],
+      [
+        170,
+        64.80279110179228
+      ],
+      [
+        173,
+        64.24176166512373
+      ],
+      [
+        176,
+        63.65670880404386
+      ],
+      [
+        179,
+        63.158847574415155
+      ],
+      [
+        182,
+        62.66893105978494
+      ],
+      [
+        185,
+        62.1244213207348
+      ],
+      [
+        188,
+        61.6406321424119
+      ],
+      [
+        191,
+        61.18040682008753
+      ],
+      [
+        194,
+        60.71826738180573
+      ],
+      [
+        197,
+        60.251422552893
+      ],
+      [
+        200,
+        59.80034576416015
+      ],
+      [
+        203,
+        59.40003178037446
+      ],
+      [
+        206,
+        58.99342242490898
+      ],
+      [
+        209,
+        58.59568414277438
+      ],
+      [
+        212,
+        58.150459865354144
+      ],
+      [
+        215,
+        57.76205132063044
+      ],
+      [
+        218,
+        57.393707975335076
+      ],
+      [
+        221,
+        57.01131870735824
+      ],
+      [
+        224,
+        56.63191822596959
+      ],
+      [
+        227,
+        56.2630732196018
+      ],
+      [
+        230,
+        55.87831699537194
+      ],
+      [
+        233,
+        55.53183402523974
+      ],
+      [
+        236,
+        55.17398097151417
+      ],
+      [
+        239,
+        54.85233322845843
+      ],
+      [
+        242,
+        54.51708580836777
+      ],
+      [
+        245,
+        54.20941124740912
+      ],
+      [
+        248,
+        53.90769306305916
+      ],
+      [
+        251,
+        53.617991413253236
+      ],
+      [
+        254,
+        53.32630475862758
+      ],
+      [
+        257,
+        53.008697034783864
+      ],
+      [
+        260,
+        52.71627068152795
+      ],
+      [
+        263,
+        52.43244963091136
+      ],
+      [
+        266,
+        52.14895343063469
+      ],
+      [
+        269,
+        51.858514154710726
+      ],
+      [
+        272,
+        51.59352695240694
+      ],
+      [
+        275,
+        51.32068880948153
+      ],
+      [
+        278,
+        51.055809954087515
+      ],
+      [
+        281,
+        50.80362481493967
+      ],
+      [
+        284,
+        50.55911340847822
+      ],
+      [
+        287,
+        50.30689837625218
+      ],
+      [
+        290,
+        50.06435483735183
+      ],
+      [
+        293,
+        49.82751839803754
+      ],
+      [
+        296,
+        49.59682279019742
+      ],
+      [
+        299,
+        49.341531708886386
+      ],
+      [
+        302,
+        49.103135266840845
+      ],
+      [
+        305,
+        48.87799642594134
+      ],
+      [
+        308,
+        48.65271699583375
+      ],
+      [
+        311,
+        48.44222806580964
+      ],
+      [
+        314,
+        48.21678433752364
+      ],
+      [
+        317,
+        48.00681129238959
+      ],
+      [
+        318,
+        47.939713100217425
+      ]
+    ],
+    "detected_shifts": [],
+    "h3_verdict": {
+      "n_known_shifts": 2,
+      "n_detected": 0,
+      "detection_rate": 0.0,
+      "detection_results": [],
+      "total_peaks": 0,
+      "interpretation": "Topic shifts NOT detected in cache statistics (H3 rejected)"
+    },
+    "total_tokens": 319
+  }
+}

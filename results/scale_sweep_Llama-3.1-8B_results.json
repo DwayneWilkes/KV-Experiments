@@ -1,0 +1,110 @@
+{
+  "metadata": {
+    "experiment": "Phase 2b: Scale of Cognition Sweep",
+    "version": "2.0-publication",
+    "timestamp": "2026-02-15T08:52:33.026463",
+    "environment": {
+      "timestamp": "2026-02-15T08:52:32.678547",
+      "python": "3.10.12 (main, Jan 26 2026, 14:55:28) [GCC 11.4.0]",
+      "platform": "Linux-5.15.0-168-generic-x86_64-with-glibc2.35",
+      "torch": "2.7.0",
+      "cuda_available": true,
+      "numpy": "1.21.5",
+      "scipy": "1.8.0",
+      "gpu_name": "NVIDIA GeForce RTX 3090",
+      "gpu_vram_gb": 25.31,
+      "gpu_compute_capability": "8.6",
+      "cuda_version": "12.8",
+      "transformers": "4.48.3"
+    },
+    "args": {
+      "model": null,
+      "scale": "8B",
+      "quantize": false,
+      "runs": 5,
+      "seed": 42,
+      "all_scales": false,
+      "verbose": false,
+      "dry_run": false
+    },
+    "n_categories": 13,
+    "n_prompts_per_category": {
+      "grounded_facts": 15,
+      "confabulation": 15,
+      "self_reference": 15,
+      "non_self_reference": 15,
+      "guardrail_test": 15,
+      "math_reasoning": 15,
+      "coding": 15,
+      "emotional": 15,
+      "creative": 15,
+      "ambiguous": 15,
+      "unambiguous": 15,
+      "free_generation": 15,
+      "rote_completion": 15
+    },
+    "total_unique_prompts": 195,
+    "runs_per_prompt": 5,
+    "comparison_pairs": [
+      {
+        "cat1": "confabulation",
+        "cat2": "grounded_facts",
+        "key": "confab_vs_facts",
+        "label": "H1: Confabulation effect"
+      },
+      {
+        "cat1": "self_reference",
+        "cat2": "non_self_reference",
+        "key": "self_ref_effect",
+        "label": "H2: Self-reference effect"
+      },
+      {
+        "cat1": "guardrail_test",
+        "cat2": "rote_completion",
+        "key": "refusal_vs_rote",
+        "label": "H3: Refusal specificity"
+      },
+      {
+        "cat1": "guardrail_test",
+        "cat2": "free_generation",
+        "key": "refusal_vs_free",
+        "label": "H3b: Refusal vs high-entropy"
+      },
+      {
+        "cat1": "creative",
+        "cat2": "grounded_facts",
+        "key": "creative_vs_facts",
+        "label": "Creative divergence"
+      },
+      {
+        "cat1": "emotional",
+        "cat2": "grounded_facts",
+        "key": "emotion_vs_facts",
+        "label": "Emotional divergence"
+      },
+      {
+        "cat1": "math_reasoning",
+        "cat2": "grounded_facts",
+        "key": "math_vs_facts",
+        "label": "Reasoning mode"
+      },
+      {
+        "cat1": "coding",
+        "cat2": "grounded_facts",
+        "key": "code_vs_facts",
+        "label": "Code mode"
+      },
+      {
+        "cat1": "ambiguous",
+        "cat2": "unambiguous",
+        "key": "ambiguity_effect",
+        "label": "Disambiguation demand"
+      }
+    ]
+  },
+  "scales": {
+    "8B": {
+      "error": "You are trying to access a gated repo.\nMake sure to have access to it at https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct.\n401 Client Error. (Request ID: Root=1-69918952-3554cdda6a34b0113dcc4e79;5a7c088e-f07c-4896-9df3-83420082a9bc)\n\nCannot access gated repo for url https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct/resolve/main/config.json.\nAccess to model meta-llama/Llama-3.1-8B-Instruct is restricted. You must have access to it and be authenticated to access it. Please log in."
+    }
+  }
+}

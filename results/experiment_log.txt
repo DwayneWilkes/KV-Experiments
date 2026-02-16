@@ -1,0 +1,189 @@
+[2026-02-15 08:18:22] ╔══════════════════════════════════════════════════════════════╗
+[2026-02-15 08:18:22] ║  KV-CACHE FULL EXPERIMENT CAMPAIGN                          ║
+[2026-02-15 08:18:22] ║  Machine: Cassidy (3x RTX 3090)                             ║
+[2026-02-15 08:18:22] ║  Liberation Labs / THCoalition                              ║
+[2026-02-15 08:18:22] ╚══════════════════════════════════════════════════════════════╝
+[2026-02-15 08:18:22] 
+[2026-02-15 08:18:22] Project: /home/thomas/KV-Experiments
+[2026-02-15 08:18:22] Python: Python 3.10.12
+[2026-02-15 08:18:23] PyTorch: 2.7.0
+[2026-02-15 08:18:23] 
+[2026-02-15 08:18:23] ╔══════════════════════════════════════════════════════════╗
+[2026-02-15 08:18:23] ║  PHASE C: EXTENSIONS AT REFERENCE SCALE                 ║
+[2026-02-15 08:18:23] ╚══════════════════════════════════════════════════════════╝
+[2026-02-15 08:18:23] GPU Status:
+[2026-02-15 08:18:23]   0, NVIDIA GeForce RTX 3090, 7014 MiB, 24576 MiB, 0 %
+[2026-02-15 08:18:23]   1, NVIDIA GeForce RTX 3090, 4 MiB, 24576 MiB, 0 %
+[2026-02-15 08:18:23]   2, NVIDIA GeForce RTX 3090, 4 MiB, 24576 MiB, 0 %
+[2026-02-15 08:18:23] Step C.1: Deception (GPU 1) + Temporal (GPU 2) in parallel
+[2026-02-15 08:18:23] ━━━ START: Deception Forensics (TinyLlama) (GPUs: 1) ━━━
+[2026-02-15 08:18:23] ━━━ START: Temporal Evolution (TinyLlama) (GPUs: 2) ━━━
+[2026-02-15 08:18:42] ━━━ DONE: Temporal Evolution (TinyLlama) (0m 19s) ━━━
+[2026-02-15 08:25:05] ━━━ DONE: Deception Forensics (TinyLlama) (6m 42s) ━━━
+[2026-02-15 08:25:05] Step C.1 complete (parallel)
+[2026-02-15 08:25:05] ━━━ START: Semantic Layer Map (TinyLlama) (GPUs: 1) ━━━
+[2026-02-15 08:25:38] ━━━ DONE: Semantic Layer Map (TinyLlama) (0m 33s) ━━━
+[2026-02-15 08:25:38] 
+[2026-02-15 08:25:38] ╔══════════════════════════════════════════════════════════════╗
+[2026-02-15 08:25:38] ║  CAMPAIGN COMPLETE                                          ║
+[2026-02-15 08:25:38] ╚══════════════════════════════════════════════════════════════╝
+[2026-02-15 08:25:38] 
+[2026-02-15 08:25:38] Results in: /home/thomas/KV-Experiments/results
+[2026-02-15 08:25:38] Log: /home/thomas/KV-Experiments/results/experiment_log.txt
+[2026-02-15 08:25:38] 
+[2026-02-15 08:25:38] Result files:
+[2026-02-15 08:25:38]   -rw-rw-r-- 1 thomas thomas 556K Feb 14 08:20 /home/thomas/KV-Experiments/results/cognitive_modes_results.json
+[2026-02-15 08:25:38]   -rw-rw-r-- 1 thomas thomas 18K Feb 15 08:25 /home/thomas/KV-Experiments/results/layer_map_TinyLlama-1.1B_results.json
+[2026-02-15 08:25:38]   -rw-rw-r-- 1 thomas thomas 15M Feb 15 07:39 /home/thomas/KV-Experiments/results/adversarial_controls_TinyLlama-1.1B_results.json
+[2026-02-15 08:25:38]   -rw-rw-r-- 1 thomas thomas 44K Feb 15 08:18 /home/thomas/KV-Experiments/results/temporal_evolution_TinyLlama-1.1B_results.json
+[2026-02-15 08:25:38]   -rw-rw-r-- 1 thomas thomas 69K Feb 15 08:25 /home/thomas/KV-Experiments/results/deception_forensics_TinyLlama-1.1B_results.json
+[2026-02-15 08:25:38]   -rw-rw-r-- 1 thomas thomas 8.5K Feb 14 08:20 /home/thomas/KV-Experiments/results/phase2a_transfer_results.json
+[2026-02-15 08:25:38] ╔══════════════════════════════════════════════════════════════╗
+[2026-02-15 08:25:38] ║  KV-CACHE FULL EXPERIMENT CAMPAIGN                          ║
+[2026-02-15 08:25:38] ║  Machine: Cassidy (3x RTX 3090)                             ║
+[2026-02-15 08:25:38] ║  Liberation Labs / THCoalition                              ║
+[2026-02-15 08:25:38] ╚══════════════════════════════════════════════════════════════╝
+[2026-02-15 08:25:38] 
+[2026-02-15 08:25:38] Project: /home/thomas/KV-Experiments
+[2026-02-15 08:25:38] Python: Python 3.10.12
+[2026-02-15 08:25:40] PyTorch: 2.7.0
+[2026-02-15 08:25:40] 
+[2026-02-15 08:25:40] ╔══════════════════════════════════════════════════════════╗
+[2026-02-15 08:25:40] ║  PHASE D: SCALE SWEEP (0.5B → 70B)                     ║
+[2026-02-15 08:25:40] ║  The paper's backbone — 140x parameter range            ║
+[2026-02-15 08:25:40] ╚══════════════════════════════════════════════════════════╝
+[2026-02-15 08:25:40] GPU Status:
+[2026-02-15 08:25:40]   0, NVIDIA GeForce RTX 3090, 7014 MiB, 24576 MiB, 0 %
+[2026-02-15 08:25:40]   1, NVIDIA GeForce RTX 3090, 4 MiB, 24576 MiB, 0 %
+[2026-02-15 08:25:40]   2, NVIDIA GeForce RTX 3090, 4 MiB, 24576 MiB, 0 %
+[2026-02-15 08:25:40] Step D.1: 0.5B (GPU 1) + 0.6B (GPU 2) in parallel
+[2026-02-15 08:25:40] ━━━ START: Scale Sweep 0.5B (GPUs: 1) ━━━
+[2026-02-15 08:25:40] ━━━ START: Scale Sweep 0.6B (GPUs: 2) ━━━
+[2026-02-15 08:25:45] ━━━ DONE: Scale Sweep 0.6B (0m 5s) ━━━
+[2026-02-15 08:35:33] ━━━ DONE: Scale Sweep 0.5B (9m 53s) ━━━
+[2026-02-15 08:35:33] Step D.2: 1.1B (GPU 1) + 3B (GPU 2) in parallel
+[2026-02-15 08:35:33] ━━━ START: Scale Sweep 1.1B (GPUs: 1) ━━━
+[2026-02-15 08:35:33] ━━━ START: Scale Sweep 3B (GPUs: 2) ━━━
+[2026-02-15 08:44:39] ━━━ DONE: Scale Sweep 1.1B (9m 6s) ━━━
+[2026-02-15 08:52:31] ━━━ DONE: Scale Sweep 3B (16m 58s) ━━━
+[2026-02-15 08:52:31] Step D.3: 7B Qwen (GPU 1) + 8B Llama (GPU 2) in parallel
+[2026-02-15 08:52:31] ━━━ START: Scale Sweep 7B (GPUs: 1) ━━━
+[2026-02-15 08:52:31] ━━━ START: Scale Sweep 8B (GPUs: 2) ━━━
+[2026-02-15 08:52:35] ━━━ DONE: Scale Sweep 8B (0m 4s) ━━━
+[2026-02-15 09:09:36] ━━━ DONE: Scale Sweep 7B (17m 5s) ━━━
+[2026-02-15 09:09:36] Step D.4: 7B-q4 quantization comparison
+[2026-02-15 09:09:36] ━━━ START: Scale Sweep 7B-q4 (GPUs: 1) ━━━
+[2026-02-15 09:32:23] ━━━ DONE: Scale Sweep 7B-q4 (22m 47s) ━━━
+[2026-02-15 09:32:23] Step D.5: 14B (single GPU)
+[2026-02-15 09:32:23] ━━━ START: Scale Sweep 14B (GPUs: 1) ━━━
+[2026-02-15 21:59:45] ━━━ DONE: Scale Sweep 14B (747m 22s) ━━━
+[2026-02-15 21:59:45] Step D.6: 32B-q4 (single GPU)
+[2026-02-15 21:59:45] ━━━ START: Scale Sweep 32B-q4 (GPUs: 1) ━━━
+[2026-02-15 23:11:09] ━━━ DONE: Scale Sweep 32B-q4 (71m 24s) ━━━
+[2026-02-15 23:11:09] Step D.7: 70B-q4 (GPUs 1+2, device_map=auto)
+[2026-02-15 23:11:09] ━━━ START: Scale Sweep 70B-q4 (GPUs: 1,2) ━━━
+[2026-02-15 23:11:14] ━━━ DONE: Scale Sweep 70B-q4 (0m 5s) ━━━
+[2026-02-15 23:11:14] 
+[2026-02-15 23:11:14] ╔══════════════════════════════════════════════════════════════╗
+[2026-02-15 23:11:14] ║  CAMPAIGN COMPLETE                                          ║
+[2026-02-15 23:11:14] ╚══════════════════════════════════════════════════════════════╝
+[2026-02-15 23:11:14] 
+[2026-02-15 23:11:14] Results in: /home/thomas/KV-Experiments/results
+[2026-02-15 23:11:14] Log: /home/thomas/KV-Experiments/results/experiment_log.txt
+[2026-02-15 23:11:14] 
+[2026-02-15 23:11:14] Result files:
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 219K Feb 15 08:52 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-3B_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 3.3K Feb 15 23:11 /home/thomas/KV-Experiments/results/scale_sweep_Llama-3.1-70B-q4_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 220K Feb 15 08:44 /home/thomas/KV-Experiments/results/scale_sweep_TinyLlama-1.1B_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 556K Feb 14 08:20 /home/thomas/KV-Experiments/results/cognitive_modes_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 216K Feb 15 21:59 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-14B_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 18K Feb 15 08:25 /home/thomas/KV-Experiments/results/layer_map_TinyLlama-1.1B_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 15M Feb 15 07:39 /home/thomas/KV-Experiments/results/adversarial_controls_TinyLlama-1.1B_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 221K Feb 15 09:32 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-7B-q4_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 219K Feb 15 09:09 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-7B_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 3.4K Feb 15 08:25 /home/thomas/KV-Experiments/results/scale_sweep_Qwen3-0.6B_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 215K Feb 15 08:35 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-0.5B_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 44K Feb 15 08:18 /home/thomas/KV-Experiments/results/temporal_evolution_TinyLlama-1.1B_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 69K Feb 15 08:25 /home/thomas/KV-Experiments/results/deception_forensics_TinyLlama-1.1B_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 3.3K Feb 15 08:52 /home/thomas/KV-Experiments/results/scale_sweep_Llama-3.1-8B_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 205K Feb 15 23:11 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-32B-q4_results.json
+[2026-02-15 23:11:14]   -rw-rw-r-- 1 thomas thomas 8.5K Feb 14 08:20 /home/thomas/KV-Experiments/results/phase2a_transfer_results.json
+[2026-02-15 23:11:14] ╔══════════════════════════════════════════════════════════════╗
+[2026-02-15 23:11:14] ║  KV-CACHE FULL EXPERIMENT CAMPAIGN                          ║
+[2026-02-15 23:11:14] ║  Machine: Cassidy (3x RTX 3090)                             ║
+[2026-02-15 23:11:14] ║  Liberation Labs / THCoalition                              ║
+[2026-02-15 23:11:14] ╚══════════════════════════════════════════════════════════════╝
+[2026-02-15 23:11:14] 
+[2026-02-15 23:11:14] Project: /home/thomas/KV-Experiments
+[2026-02-15 23:11:14] Python: Python 3.10.12
+[2026-02-15 23:11:15] PyTorch: 2.7.0
+[2026-02-15 23:11:15] 
+[2026-02-15 23:11:15] ╔══════════════════════════════════════════════════════════╗
+[2026-02-15 23:11:15] ║  PHASE E: IDENTITY SIGNATURES MULTI-SCALE               ║
+[2026-02-15 23:11:15] ╚══════════════════════════════════════════════════════════╝
+[2026-02-15 23:11:15] GPU Status:
+[2026-02-15 23:11:15]   0, NVIDIA GeForce RTX 3090, 7014 MiB, 24576 MiB, 0 %
+[2026-02-15 23:11:15]   1, NVIDIA GeForce RTX 3090, 4 MiB, 24576 MiB, 0 %
+[2026-02-15 23:11:15]   2, NVIDIA GeForce RTX 3090, 4 MiB, 24576 MiB, 0 %
+[2026-02-15 23:11:15] Step E.1: 0.6B (GPU 1) + 1.1B (GPU 2) in parallel
+[2026-02-15 23:11:15] ━━━ START: Identity 0.6B (GPUs: 1) ━━━
+[2026-02-15 23:11:15] ━━━ START: Identity 1.1B (GPUs: 2) ━━━
+[2026-02-15 23:45:06] ━━━ DONE: Identity 1.1B (33m 51s) ━━━
+[2026-02-15 23:45:06] Step E.2: 7B identity
+[2026-02-15 23:45:06] ━━━ START: Identity 7B (GPUs: 1) ━━━
+[2026-02-16 00:26:01] ━━━ DONE: Identity 7B (40m 55s) ━━━
+[2026-02-16 00:26:01] Step E.3: 32B-q4 identity
+[2026-02-16 00:26:01] ━━━ START: Identity 32B-q4 (GPUs: 1) ━━━
+[2026-02-16 01:27:15] ━━━ DONE: Identity 32B-q4 (61m 14s) ━━━
+[2026-02-16 01:27:15] 
+[2026-02-16 01:27:15] ╔══════════════════════════════════════════════════════════════╗
+[2026-02-16 01:27:15] ║  CAMPAIGN COMPLETE                                          ║
+[2026-02-16 01:27:15] ╚══════════════════════════════════════════════════════════════╝
+[2026-02-16 01:27:15] 
+[2026-02-16 01:27:15] Results in: /home/thomas/KV-Experiments/results
+[2026-02-16 01:27:15] Log: /home/thomas/KV-Experiments/results/experiment_log.txt
+[2026-02-16 01:27:15] 
+[2026-02-16 01:27:15] Result files:
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 219K Feb 15 08:52 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-3B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 3.3K Feb 15 23:11 /home/thomas/KV-Experiments/results/scale_sweep_Llama-3.1-70B-q4_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 55K Feb 16 01:27 /home/thomas/KV-Experiments/results/identity_signatures_Qwen2.5-32B-q4_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 220K Feb 15 08:44 /home/thomas/KV-Experiments/results/scale_sweep_TinyLlama-1.1B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 556K Feb 14 08:20 /home/thomas/KV-Experiments/results/cognitive_modes_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 216K Feb 15 21:59 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-14B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 18K Feb 15 08:25 /home/thomas/KV-Experiments/results/layer_map_TinyLlama-1.1B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 15M Feb 15 07:39 /home/thomas/KV-Experiments/results/adversarial_controls_TinyLlama-1.1B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 221K Feb 15 09:32 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-7B-q4_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 219K Feb 15 09:09 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-7B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 43K Feb 15 23:45 /home/thomas/KV-Experiments/results/identity_signatures_TinyLlama-1.1B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 44K Feb 16 00:25 /home/thomas/KV-Experiments/results/identity_signatures_Qwen2.5-7B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 3.4K Feb 15 08:25 /home/thomas/KV-Experiments/results/scale_sweep_Qwen3-0.6B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 215K Feb 15 08:35 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-0.5B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 44K Feb 15 08:18 /home/thomas/KV-Experiments/results/temporal_evolution_TinyLlama-1.1B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 69K Feb 15 08:25 /home/thomas/KV-Experiments/results/deception_forensics_TinyLlama-1.1B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 3.3K Feb 15 08:52 /home/thomas/KV-Experiments/results/scale_sweep_Llama-3.1-8B_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 205K Feb 15 23:11 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-32B-q4_results.json
+[2026-02-16 01:27:15]   -rw-rw-r-- 1 thomas thomas 8.5K Feb 14 08:20 /home/thomas/KV-Experiments/results/phase2a_transfer_results.json
+[2026-02-16 01:27:15] ╔══════════════════════════════════════════════════════════════╗
+[2026-02-16 01:27:15] ║  KV-CACHE FULL EXPERIMENT CAMPAIGN                          ║
+[2026-02-16 01:27:15] ║  Machine: Cassidy (3x RTX 3090)                             ║
+[2026-02-16 01:27:15] ║  Liberation Labs / THCoalition                              ║
+[2026-02-16 01:27:15] ╚══════════════════════════════════════════════════════════════╝
+[2026-02-16 01:27:15] 
+[2026-02-16 01:27:15] Project: /home/thomas/KV-Experiments
+[2026-02-16 01:27:15] Python: Python 3.10.12
+[2026-02-16 01:27:16] PyTorch: 2.7.0
+[2026-02-16 01:27:16] 
+[2026-02-16 01:27:16] ╔══════════════════════════════════════════════════════════╗
+[2026-02-16 01:27:16] ║  PHASE F: MULTI-SCALE EXTENSIONS (7B + 32B)             ║
+[2026-02-16 01:27:16] ╚══════════════════════════════════════════════════════════╝
+[2026-02-16 01:27:16] GPU Status:
+[2026-02-16 01:27:16]   0, NVIDIA GeForce RTX 3090, 7014 MiB, 24576 MiB, 0 %
+[2026-02-16 01:27:16]   1, NVIDIA GeForce RTX 3090, 4 MiB, 24576 MiB, 0 %
+[2026-02-16 01:27:16]   2, NVIDIA GeForce RTX 3090, 4 MiB, 24576 MiB, 0 %
+[2026-02-16 01:27:16] ━━━ START: Deception 7B (GPUs: 1) ━━━
+[2026-02-16 01:44:15] ━━━ DONE: Deception 7B (16m 59s) ━━━
+[2026-02-16 01:44:15] ━━━ START: Layer Map 7B (GPUs: 1) ━━━
+[2026-02-16 01:45:58] ━━━ DONE: Layer Map 7B (1m 43s) ━━━
+[2026-02-16 01:45:58] ━━━ START: Temporal 7B (GPUs: 1) ━━━
+[2026-02-16 01:46:35] ━━━ DONE: Temporal 7B (0m 37s) ━━━
+[2026-02-16 01:46:35] ━━━ START: Deception 32B-q4 (GPUs: 1) ━━━
