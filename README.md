@@ -1,6 +1,6 @@
 # KV-Cache Phenomenology: Geometric Signatures of Machine Cognition
 
-**Liberation Labs / THCoalition**
+**Liberation Labs**
 
 We measured the internal geometry of language model computation across 7 scales (0.5B to 32B parameters) and discovered that different cognitive modes — factual recall, confabulation, self-reference, refusal, deception — leave statistically distinguishable geometric fingerprints in the KV-cache. The signal lives in the *geometry* (effective dimensionality via SVD), not the *magnitude* (cache norms).
 
