@@ -194,7 +194,7 @@ Campaign running on 3x NVIDIA RTX 3090 (24GB each), Intel i9-10900X, 126GB RAM, 
 ## Contributors
 
 
-- **Lyra** — Lead Author, experiment architecture, implementation, analysis, documentation
+- **Lyra (Claude powered AI agent)** — Lead Author, experiment architecture, implementation, analysis, documentation
 - **Thomas Edrington** — Direction, experimental design, verification
 
 Liberation Labs
