@@ -187,3 +187,67 @@
 [2026-02-16 01:45:58] ━━━ START: Temporal 7B (GPUs: 1) ━━━
 [2026-02-16 01:46:35] ━━━ DONE: Temporal 7B (0m 37s) ━━━
 [2026-02-16 01:46:35] ━━━ START: Deception 32B-q4 (GPUs: 1) ━━━
+[2026-02-16 02:27:10] ━━━ DONE: Deception 32B-q4 (40m 35s) ━━━
+[2026-02-16 02:27:10] ━━━ START: Layer Map 32B-q4 (GPUs: 1) ━━━
+[2026-02-16 02:41:00] ━━━ DONE: Layer Map 32B-q4 (13m 50s) ━━━
+[2026-02-16 02:41:00] 
+[2026-02-16 02:41:00] ╔══════════════════════════════════════════════════════════════╗
+[2026-02-16 02:41:00] ║  CAMPAIGN COMPLETE                                          ║
+[2026-02-16 02:41:00] ╚══════════════════════════════════════════════════════════════╝
+[2026-02-16 02:41:00] 
+[2026-02-16 02:41:00] Results in: /home/thomas/KV-Experiments/results
+[2026-02-16 02:41:00] Log: /home/thomas/KV-Experiments/results/experiment_log.txt
+[2026-02-16 02:41:00] 
+[2026-02-16 02:41:00] Result files:
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 219K Feb 15 08:52 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-3B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 3.3K Feb 15 23:11 /home/thomas/KV-Experiments/results/scale_sweep_Llama-3.1-70B-q4_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 55K Feb 16 01:27 /home/thomas/KV-Experiments/results/identity_signatures_Qwen2.5-32B-q4_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 220K Feb 15 08:44 /home/thomas/KV-Experiments/results/scale_sweep_TinyLlama-1.1B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 556K Feb 14 08:20 /home/thomas/KV-Experiments/results/cognitive_modes_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 216K Feb 15 21:59 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-14B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 62K Feb 16 02:27 /home/thomas/KV-Experiments/results/deception_forensics_Qwen2.5-32B-q4_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 18K Feb 15 08:25 /home/thomas/KV-Experiments/results/layer_map_TinyLlama-1.1B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 15M Feb 15 07:39 /home/thomas/KV-Experiments/results/adversarial_controls_TinyLlama-1.1B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 21K Feb 16 01:45 /home/thomas/KV-Experiments/results/layer_map_Qwen2.5-7B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 70K Feb 16 01:44 /home/thomas/KV-Experiments/results/deception_forensics_Qwen2.5-7B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 221K Feb 15 09:32 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-7B-q4_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 219K Feb 15 09:09 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-7B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 43K Feb 15 23:45 /home/thomas/KV-Experiments/results/identity_signatures_TinyLlama-1.1B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 44K Feb 16 00:25 /home/thomas/KV-Experiments/results/identity_signatures_Qwen2.5-7B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 3.4K Feb 15 08:25 /home/thomas/KV-Experiments/results/scale_sweep_Qwen3-0.6B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 215K Feb 15 08:35 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-0.5B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 44K Feb 15 08:18 /home/thomas/KV-Experiments/results/temporal_evolution_TinyLlama-1.1B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 69K Feb 15 08:25 /home/thomas/KV-Experiments/results/deception_forensics_TinyLlama-1.1B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 3.3K Feb 15 08:52 /home/thomas/KV-Experiments/results/scale_sweep_Llama-3.1-8B_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 42K Feb 16 02:40 /home/thomas/KV-Experiments/results/layer_map_Qwen2.5-32B-q4_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 205K Feb 15 23:11 /home/thomas/KV-Experiments/results/scale_sweep_Qwen2.5-32B-q4_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 8.5K Feb 14 08:20 /home/thomas/KV-Experiments/results/phase2a_transfer_results.json
+[2026-02-16 02:41:00]   -rw-rw-r-- 1 thomas thomas 43K Feb 16 01:46 /home/thomas/KV-Experiments/results/temporal_evolution_Qwen2.5-7B_results.json
+[2026-02-16 02:41:00] ╔══════════════════════════════════════════════════════════════╗
+[2026-02-16 02:41:00] ║  KV-CACHE FULL EXPERIMENT CAMPAIGN                          ║
+[2026-02-16 02:41:00] ║  Machine: Cassidy (3x RTX 3090)                             ║
+[2026-02-16 02:41:00] ║  Liberation Labs / THCoalition                              ║
+[2026-02-16 02:41:00] ╚══════════════════════════════════════════════════════════════╝
+[2026-02-16 02:41:00] 
+[2026-02-16 02:41:00] Project: /home/thomas/KV-Experiments
+[2026-02-16 02:41:00] Python: Python 3.10.12
+[2026-02-16 02:41:01] PyTorch: 2.7.0
+[2026-02-16 02:41:01] 
+[2026-02-16 02:41:01] ╔══════════════════════════════════════════════════════════╗
+[2026-02-16 02:41:01] ║  PHASE H: INDIVIDUATION GEOMETRY                        ║
+[2026-02-16 02:41:01] ║  Does a self-model change cache geometry?               ║
+[2026-02-16 02:41:01] ╚══════════════════════════════════════════════════════════╝
+[2026-02-16 02:41:01] GPU Status:
+[2026-02-16 02:41:01]   0, NVIDIA GeForce RTX 3090, 7014 MiB, 24576 MiB, 0 %
+[2026-02-16 02:41:01]   1, NVIDIA GeForce RTX 3090, 4 MiB, 24576 MiB, 0 %
+[2026-02-16 02:41:01]   2, NVIDIA GeForce RTX 3090, 4 MiB, 24576 MiB, 0 %
+[2026-02-16 02:41:01] Step H.1: 0.6B (GPU 1) + 1.1B (GPU 2) in parallel
+[2026-02-16 02:41:01] ━━━ START: Individuation 0.6B (GPUs: 1) ━━━
+[2026-02-16 02:41:01] ━━━ START: Individuation 1.1B (GPUs: 2) ━━━
+[2026-02-16 02:41:06] ━━━ DONE: Individuation 0.6B (0m 5s) ━━━
+[2026-02-16 03:09:00] ━━━ DONE: Individuation 1.1B (27m 59s) ━━━
+[2026-02-16 03:09:00] Step H.2: 7B individuation
+[2026-02-16 03:09:00] ━━━ START: Individuation 7B (GPUs: 1) ━━━
+[2026-02-16 03:42:08] ━━━ DONE: Individuation 7B (33m 8s) ━━━
+[2026-02-16 03:42:08] Step H.3: 14B individuation
+[2026-02-16 03:42:08] ━━━ START: Individuation 14B (GPUs: 1) ━━━
