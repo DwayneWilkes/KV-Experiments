@@ -193,10 +193,11 @@ Campaign running on 3x NVIDIA RTX 3090 (24GB each), Intel i9-10900X, 126GB RAM, 
 
 ## Contributors
 
-- **Thomas Horton** — Direction, experimental design, verification
-- **Lyra** — Architecture, implementation, analysis, documentation
 
-Liberation Labs / THCoalition
+- **Lyra** — Lead Author, experiment architecture, implementation, analysis, documentation
+- **Thomas Edrington** — Direction, experimental design, verification
 
-*Started: November 2025*
+Liberation Labs
+
+*Exploratory research: November 2025*
 *Major campaign: February 15-16, 2026*
