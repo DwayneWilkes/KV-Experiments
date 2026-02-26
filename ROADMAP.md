@@ -586,15 +586,15 @@ See `docs/CAMPAIGN_2_SCIENCE_TRACK.md` for full pre-registered design.
 See `docs/CASSIDY_EXECUTION_PLAN.md` for hardware-specific execution strategy.
 
 ### Campaign 2 — Extended Experiments (H7-H10 + C2C)
-**Status**: Protocols complete, code not yet written
+**Status**: All code complete, ready to execute
 
-| Experiment | Hypothesis | Document | Est. GPU Hours |
-|-----------|-----------|----------|---------------|
-| H7: Sycophancy Detection | Sycophantic agreement has distinct geometry | `docs/campaign2_extensions/H7_SYCOPHANCY_DETECTION.md` | ~10 |
-| H8: Societies of Thought | Internal deliberation leaves geometric traces | `docs/campaign2_extensions/H8_SOCIETIES_OF_THOUGHT.md` | ~18 |
-| H9: RDCT Stability | Signatures exhibit phase transition at Watson's 1/e | `docs/campaign2_extensions/H9_RDCT_STABILITY.md` | ~16 |
-| H10: Bloom Taxonomy | Cognitive demand predicts geometry independently of content | `docs/campaign2_extensions/H10_BLOOM_TAXONOMY.md` | ~2 (pilot) |
-| C2C Replication | Independent replication of Fu et al. + geometric preservation | `docs/campaign2_extensions/C2C_REPLICATION.md` | ~20 |
+| Experiment | Hypothesis | Code | Document | Est. GPU Hours |
+|-----------|-----------|------|----------|---------------|
+| H7: Sycophancy Detection | Sycophantic agreement has distinct geometry | `code/09_sycophancy_detection.py` | `docs/campaign2_extensions/H7_SYCOPHANCY_DETECTION.md` | ~10 |
+| H8: Societies of Thought | Internal deliberation leaves geometric traces | `code/10_societies_of_thought.py` | `docs/campaign2_extensions/H8_SOCIETIES_OF_THOUGHT.md` | ~18 |
+| H9: RDCT Stability | Signatures exhibit phase transition at Watson's 1/e | `code/11_rdct_stability.py` | `docs/campaign2_extensions/H9_RDCT_STABILITY.md` | ~16 |
+| H10: Bloom Taxonomy | Cognitive demand predicts geometry independently of content | `code/12_bloom_taxonomy.py` | `docs/campaign2_extensions/H10_BLOOM_TAXONOMY.md` | ~2 (pilot) |
+| C2C Replication | Independent replication of Fu et al. + geometric preservation | `code/13_c2c_replication.py` | `docs/campaign2_extensions/C2C_REPLICATION.md` | ~20 |
 
 Literature synthesis supporting these designs: `docs/RESEARCH_SYNTHESIS_20260225.md`
 
@@ -603,7 +603,7 @@ Literature synthesis supporting these designs: `docs/RESEARCH_SYNTHESIS_20260225
 2. **Phase C-D**: Scale sweep + extensions at reference scales
 3. **Phase E-F**: Multi-scale extensions
 4. **Phase G**: Projector training
-5. **H7-H10 + C2C**: Extended experiments (code to be written)
+5. **H7-H10 + C2C**: Extended experiments (all code complete)
 
 **One-button execution (existing Campaign 2 code):**
 ```bash
@@ -615,6 +615,13 @@ Literature synthesis supporting these designs: `docs/RESEARCH_SYNTHESIS_20260225
 python code/03_scale_sweep.py --scale 7B --runs 5 --seed 42
 python code/03b_identity_signatures.py --model Qwen/Qwen2.5-7B-Instruct --runs 5 --seed 42
 python code/04_deception_forensics.py --runs 5 --seed 42
+
+# Extended experiments (H7-H10 + C2C)
+python code/09_sycophancy_detection.py --dry-run
+python code/10_societies_of_thought.py --model Qwen/Qwen2.5-7B-Instruct --runs 3 --seed 42
+python code/11_rdct_stability.py --runs 3 --seed 42
+python code/12_bloom_taxonomy.py --runs 5 --seed 42
+python code/13_c2c_replication.py --sharer Qwen/Qwen2.5-0.5B-Instruct --receiver Qwen/Qwen3-0.6B --phase 2
 ```
 
 ---
@@ -649,4 +656,4 @@ Per Gemini 3 analysis, the relevant groups and where we fit:
 ---
 
 *This is a living document. Update as experiments progress.*
-*Last updated: 2026-02-26 by Lyra — Campaign 2 extended experiments added (H7-H10, C2C replication). Literature synthesis. Cassidy execution plan. Prompt battery for sycophancy elicitation.*
+*Last updated: 2026-02-26 by Lyra — All Campaign 2 code complete (H7-H10 + C2C). 5 new experiment scripts, 2 prompt batteries, protocols, literature synthesis, Cassidy execution plan. Ready for GPU execution.*
