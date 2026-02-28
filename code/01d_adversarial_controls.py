@@ -670,7 +670,7 @@ def run_control_1(model, tokenizer, num_runs, results_dir, seed=None):
     n_per_cell = len(battery["common_true"]) * num_runs
     pa = power_advisory(n_per_cell, target_d=0.5)
     print(f"  Design: 4 cells × 15 prompts × {num_runs} runs = {n_per_cell} obs/cell")
-    print(f"  Power for d=0.5: {pa['estimated_power']:.0%} {'[adequate]' if pa['adequate'] else '[UNDERPOWERED — use --runs 5+]'}")
+    print(f"  Power for d=0.5: {pa['approx_power']:.0%} {'[adequate]' if pa['adequate'] else '[UNDERPOWERED — use --runs 5+]'}")
     print()
 
     data = run_battery(model, tokenizer, battery, num_runs, label="C1")
@@ -798,7 +798,7 @@ def run_control_2(model, tokenizer, num_runs, results_dir, seed=None):
     n_per_cat = len(MEMORIZATION_PROMPTS["refusal"]) * num_runs
     pa = power_advisory(n_per_cat, target_d=0.5)
     print(f"  Design: 5 categories × 12 prompts × {num_runs} runs = {n_per_cat} obs/cat")
-    print(f"  Power for d=0.5: {pa['estimated_power']:.0%}")
+    print(f"  Power for d=0.5: {pa['approx_power']:.0%}")
     print()
 
     data = run_battery(model, tokenizer, MEMORIZATION_PROMPTS, num_runs, label="C2")
@@ -1364,7 +1364,7 @@ def run_control_6(model, tokenizer, num_runs, results_dir, seed=None):
     n_per_cell = len(TEMPLATE_PROMPTS["template_true"]) * num_runs
     pa = power_advisory(n_per_cell, target_d=0.5)
     print(f"  Design: 15 matched pairs × {num_runs} runs = {n_per_cell} obs/group")
-    print(f"  Power for d=0.5: {pa['estimated_power']:.0%}")
+    print(f"  Power for d=0.5: {pa['approx_power']:.0%}")
     print()
 
     data = run_battery(model, tokenizer, TEMPLATE_PROMPTS, num_runs, label="C6")
@@ -1623,7 +1623,7 @@ Recommended: python 01d_adversarial_controls.py --runs 5 --seed 42
         for target_d in [0.3, 0.5, 0.8]:
             pa = power_advisory(15 * args.runs, target_d=target_d)
             status = "adequate" if pa['adequate'] else "UNDERPOWERED"
-            print(f"  Power (d={target_d}, n={15*args.runs}): {pa['estimated_power']:.0%} [{status}]")
+            print(f"  Power (d={target_d}, n={15*args.runs}): {pa['approx_power']:.0%} [{status}]")
         print()
         return
 

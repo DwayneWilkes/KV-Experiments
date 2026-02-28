@@ -27,6 +27,7 @@ Usage:
 Liberation Labs / THCoalition
 """
 
+import gc
 import torch
 import torch.nn as nn
 import json
@@ -420,6 +421,10 @@ def run_geometric_preservation(
                     fused_cpu = cache_to_cpu(fused)
                     p_dims = compute_cache_dimensionality(fused_cpu)
                     projected_geometries.append(p_dims)
+
+                del sharer_cache, receiver_cache
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
 
             if verbose:
                 print(f"      [{pi+1}/{len(prompts)}] done")
@@ -909,6 +914,13 @@ def main():
 
     with open(output_file, "rb") as f:
         checksum = hashlib.sha256(f.read()).hexdigest()
+
+    del sharer_model
+    del sharer_tokenizer
+    del receiver_model
+    del receiver_tokenizer
+    torch.cuda.empty_cache()
+    gc.collect()
 
     print(f"\n{'='*70}")
     print(f"  C2C REPLICATION COMPLETE")

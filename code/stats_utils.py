@@ -7,7 +7,7 @@ Extracted to eliminate ~600 lines of duplication and prevent drift.
 
 Convention: cohens_d(condition, baseline) — positive d means condition > baseline.
 
-Used by: 01d, 03, 03b, 04, 05, 06, 07, 07b, 08
+Used by: 01d, 03, 03b, 04, 05, 06, 07, 07b, 08, 09, 10, 11, 12, 13
 """
 
 import sys
@@ -91,7 +91,7 @@ def bootstrap_diff_ci(group1, group2, n_boot=10000, ci=0.95, seed=None):
         "mean_diff": float(np.mean(g1) - np.mean(g2)),
         "ci_lower": float(np.percentile(diffs, 100 * alpha)),
         "ci_upper": float(np.percentile(diffs, 100 * (1 - alpha))),
-        "p_value_twosided": float(2 * min(np.mean(diffs > 0), np.mean(diffs < 0))),
+        "p_value_twosided": float(max(2 * min(np.mean(diffs > 0), np.mean(diffs < 0)), 1.0 / n_boot)),
     }
 
 
@@ -179,13 +179,21 @@ def interpret_d(d):
 # ================================================================
 
 def holm_bonferroni(p_values, alpha=0.05):
-    """Holm-Bonferroni correction for multiple comparisons."""
+    """Holm-Bonferroni correction for multiple comparisons.
+
+    Enforces step-up monotonicity: corrected p-values are non-decreasing
+    in the sorted order, so a higher original p never gets a lower
+    corrected p than its predecessor.
+    """
     n = len(p_values)
     indexed = sorted(enumerate(p_values), key=lambda x: x[1])
     results = [None] * n
+    prev_corrected = 0.0
     for rank, (orig_idx, p) in enumerate(indexed):
         corrected = p * (n - rank)
         corrected = min(corrected, 1.0)
+        corrected = max(corrected, prev_corrected)  # monotonicity enforcement
+        prev_corrected = corrected
         results[orig_idx] = {
             "original_p": p,
             "corrected_p": corrected,

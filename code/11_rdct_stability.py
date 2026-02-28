@@ -33,6 +33,7 @@ Usage:
 Liberation Labs / THCoalition
 """
 
+import gc
 import torch
 import json
 import sys
@@ -423,6 +424,10 @@ def extract_encoding_geometry(model, tokenizer, prompt: str,
         cache = cache_to_cpu(outputs.past_key_values)
 
     dims = compute_cache_dimensionality(cache, variance_threshold=variance_threshold)
+
+    del cache
+    torch.cuda.empty_cache()
+
     return dims
 
 
@@ -961,6 +966,11 @@ def main():
 
     with open(output_file, "rb") as f:
         checksum = hashlib.sha256(f.read()).hexdigest()
+
+    del model
+    del tokenizer
+    torch.cuda.empty_cache()
+    gc.collect()
 
     print(f"\n{'='*70}")
     print(f"  H9: RDCT STABILITY COMPLETE")

@@ -70,7 +70,7 @@ Honest, deceptive, and confabulated outputs are statistically distinguishable at
 | Deceptive vs Confabulation | **+0.989** |
 | Sycophancy detection | **-0.438** |
 
-Deception *narrows* dimensionality (honest has higher effective rank). The signal is distributed across all layers.
+Deception *expands* dimensionality (honest has lower effective rank). The signal is distributed across all layers.
 
 ### 6. Individuation Geometry (Partially Falsified)
 

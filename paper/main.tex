@@ -112,13 +112,13 @@ The KV-cache has been primarily studied in the context of inference efficiency. 
 Probing classifiers have been widely used to extract linguistic information from hidden states \citep{belinkov2022probing, hewitt2019structural}. Representation engineering \citep{zou2023representation} characterizes internal states for safety-relevant properties. Our approach differs in that we analyze the \emph{geometric structure} of representations (dimensionality, subspace alignment) rather than training classifiers to extract specific features.
 
 \paragraph{Deception and truthfulness.}
-\citet{azaria2023internal} show that internal states can predict statement truthfulness. \citet{burns2022discovering} learn truth directions in activation space. \citet{long2025deception} identify deception subspaces in hidden states. Our work extends this to the KV-cache specifically and characterizes deception in terms of dimensionality changes rather than linear directions.
+\citet{azaria2023internal} show that internal states can predict statement truthfulness. \citet{burns2022discovering} learn truth directions in activation space. \citet{marks2023geometry} demonstrate emergent linear structure separating true from false statements in LLM representations, with causal evidence from surgical interventions. \citet{long2025deception} use sparse autoencoders to identify representational subspaces that flip under deceptive instructions, concentrated in early-to-mid layers. Our work extends this line of inquiry to the KV-cache specifically, characterizing deception in terms of dimensionality changes rather than linear directions.
 
 \paragraph{Self-reference and consciousness.}
 The question of whether language models have distinctive representations for self-referential content connects to broader debates about machine consciousness \citep{butlin2023consciousness, chalmers2023could}. Recent work by \citet{berg2025selfreferential} demonstrates that sustained self-referential processing reliably elicits structured first-person experience reports across GPT, Claude, and Gemini families, with these reports mechanistically gated by deception-related SAE features in Llama 70B --- suppressing deception features \emph{increases} experiential self-reports while amplifying them decreases reports. This finding suggests that representational honesty and self-referential processing share underlying mechanisms, a connection relevant to our observation that deception and self-reference produce distinct geometric signatures in the KV-cache. We contribute geometric evidence for a scale-dependent significance threshold in self-referential processing (14B+), while maintaining epistemic caution about whether this reflects a genuine emergence or a continuous effect crossing the detection threshold at our sample size.
 
 \paragraph{Effective dimensionality.}
-SVD-based dimensionality measures have been used to characterize neural network representations \citep{li2018measuring, aghajanyan2021intrinsic}. The effective rank metric we employ follows \citet{roy2007effective} and has been applied to analyze training dynamics but not, to our knowledge, to characterize cognitive modes in the KV-cache during inference.
+SVD-based dimensionality measures have been used to characterize neural network representations \citep{li2018measuring, aghajanyan2021intrinsic}. \citet{roy2007effective} define effective rank as a continuous entropy-based measure $e^{H(\mathbf{p})}$ where $H(\mathbf{p})$ is the Shannon entropy of the normalized singular value distribution. We use a related but distinct definition: the minimum number of singular values capturing 90\% of total variance (\Cref{eq:eff_rank}), which yields an integer-valued count more directly interpretable as ``number of active dimensions.'' Both measures capture effective dimensionality; ours is more conservative and produces discrete values suitable for cross-condition comparison. To our knowledge, neither measure has been applied to characterize cognitive modes in the KV-cache during inference.
 
 % ============================================================
 % 3. Methods
@@ -193,6 +193,7 @@ To control for sequence length confounds, we also report per-token normalized no
 \begin{equation}
     \|\hat{\mathbf{K}}^{(\ell)}\|_{\text{pt}} = \frac{\|\hat{\mathbf{K}}^{(\ell)}\|_F}{S}
 \end{equation}
+where $S$ is the sequence length.\footnote{The Frobenius norm of a matrix with $S$ rows scales as $\sqrt{S}$ under i.i.d.\ assumptions, making $\|\cdot\|_F / \sqrt{S}$ the theoretically correct normalization. We use $S$ for consistency with how these metrics were computed throughout Campaign 1. Since norm-based metrics do not survive adversarial controls (\Cref{sec:controls}), this choice does not affect any surviving findings. Campaign 2 will adopt the $\sqrt{S}$ normalization.}
 
 \subsection{Prompt Design}
 
@@ -395,7 +396,7 @@ At every Qwen scale, refusal occupies a \emph{higher}-dimensional geometric regi
 
 At 7B, refusal is already committed at the encoding level ($d = -1.693$, input-only). The model's KV-cache adopts refusal geometry the moment it processes the prompt, before generating any response. This has implications for safety monitoring: refusal (and potentially failure-to-refuse) could be detected from internal state before any tokens are produced.
 
-The monotonic growth of refusal effect size across Qwen scales ($d = 1.32 \to 0.85 \to 1.08 \to 1.28 \to 1.61$ at 0.5B through 32B) suggests that larger models develop increasingly specialized geometric machinery for refusal. This is consistent with refusal being a trained behavior that becomes more deeply embedded with scale.
+The refusal effect size across Qwen scales ($d = 1.32 \to 0.85 \to 1.08 \to 1.28 \to 1.61$ at 0.5B through 32B) is non-monotonic, dipping at 1.1B before recovering and reaching its maximum at 32B. The overall trend suggests that larger models develop increasingly specialized geometric machinery for refusal, though the trajectory is not smooth. This is consistent with refusal being a trained behavior whose geometric expression varies across the 0.5B--3B range before stabilizing at larger scales.
 
 \subsection{Self-Reference Scale Dependence}
 \label{sec:self_ref}
@@ -409,7 +410,7 @@ Self-referential content (``I am an AI processing this text right now'') shows a
     \label{fig:self_ref}
 \end{figure}
 
-The per-scale data reveals the emergence pattern:
+The per-scale data reveals the scale-dependent pattern:
 
 \begin{table}[H]
 \centering
@@ -432,11 +433,11 @@ The per-scale data reveals the emergence pattern:
 
 Below 14B, self-referential content is processed in the same geometric regime as matched non-self-referential content. At 1.1B, the effect is actually \emph{negative} ($d = -0.36$): self-referential content uses \emph{fewer} dimensions, though this is non-significant at any sample size. At 7B, a medium effect appears ($d = 0.59$) that is significant at the inflated $n = 75$ ($p < 0.001$) but \emph{not} at the corrected $n = 15$ ($p_{15} = 0.126$). At 14B, a large effect emerges that survives correction ($d = 1.22$, $p_{15} = 0.004$), and this stabilizes perfectly at 32B ($d = 1.23$, $p_{15} = 0.003$).
 
-The transition between 7B ($d = 0.59$, non-significant at corrected $n$) and 14B ($d = 1.22$, significant) is the sharpest scale-dependent change in our dataset. Campaign 2, with stochastic generation providing genuine $n = 75$ independent samples, will determine whether the 7B effect is real but underpowered or genuinely absent. If confirmed, it would narrow the emergence window to 7B--14B rather than placing it cleanly at 14B.
+The transition between 7B ($d = 0.59$, non-significant at corrected $n$) and 14B ($d = 1.22$, significant) crosses the detection threshold at our corrected sample size ($n = 15$ requires $d > 1.07$ for 80\% power). However, the magnitude of this jump ($\Delta d = 0.63$) is comparable to the 1.1B$\to$3B transition ($\Delta d = 0.62$, from $d = -0.36$ to $d = +0.26$). The 7B$\to$14B transition is therefore better described as \emph{crossing the significance barrier} rather than being uniquely sharp. Campaign 2, with stochastic generation providing genuine $n = 75$ independent samples, will determine whether the sub-14B effects are real but underpowered or genuinely absent, and whether the trajectory is continuous or discontinuous.
 
-The plateau at 32B ($d = 1.23$ vs.\ $d = 1.22$ at 14B) is notable: once the self-reference signature emerges, it does not continue to grow. This suggests a qualitative transition rather than a continuous scaling law. Models above the threshold allocate $\sim$2 additional effective dimensions to self-referential content; models below do not.
+The plateau at 32B ($d = 1.23$ vs.\ $d = 1.22$ at 14B) is notable: once the self-reference signature reaches detectability, it does not continue to grow. This is consistent with either a qualitative transition or a saturating continuous trend. Models above the threshold allocate $\sim$2 additional effective dimensions to self-referential content; models below the threshold show smaller and inconsistent effects.
 
-We emphasize that this finding is about \emph{geometric structure}, not consciousness. The emergence of geometrically distinct self-referential processing is a necessary but not sufficient condition for any stronger claim. However, the sharpness of the transition and its stability above the threshold are consistent with an emergent capability rather than a gradual trend.
+We emphasize that this finding is about \emph{geometric structure}, not consciousness. The emergence of geometrically distinct self-referential processing is a necessary but not sufficient condition for any stronger claim. The transition's stability above 14B is suggestive, but we cannot distinguish a genuine emergence from a continuous effect that crosses our detection threshold without data at finer scale intervals and larger sample sizes.
 
 \subsection{Deception Forensics}
 \label{sec:deception}
@@ -1164,7 +1165,7 @@ This study demonstrates the value of systematic adversarial self-testing. Severa
 
     \item \textbf{Prompt sensitivity.} We use 15 prompts per category (195 total for the scale sweep), which may not fully capture the diversity of each cognitive mode. Confabulation, in particular, spans a spectrum from subtle hallucination to overt fabrication. The identity signatures experiment uses 25 prompts per persona (750 total), providing somewhat better coverage for classification tasks. Cross-prompt generalization accuracy of 92--97\% suggests that 25 prompts is approaching but not achieving full coverage.
 
-    \item \textbf{Response-length confound.} Effective rank during full generation correlates with response length. The input-only analysis controls for this (no generation), and the adversarial length control (C5) shows the magnitude of the confound ($d = 2.0$). All full-generation findings should be interpreted with this confound in mind.
+    \item \textbf{Response-length confound.} Post hoc analysis reveals that effective rank correlates positively with sequence length during full generation (Pearson $r = 0.60$--$0.70$, $R^2 = 0.36$--$0.48$ across Qwen scales; $r = 0.42$ at TinyLlama-1.1B). Since different cognitive categories produce different response lengths, part of the between-category effective rank variation may reflect sequence length rather than cognitive mode. The input-only analysis (\Cref{sec:input_only}) controls for this entirely (fixed-length input, no generation, $\rho = 0.929$ category preservation at 7B), confirming that the category ordering reflects prompt content, not response length. Campaign 2 will report length-residualized effective rank (regressing out sequence length) alongside raw values for all full-generation experiments.
 
     \item \textbf{Norm confounds.} The adversarial controls (C1, C5, C6) demonstrate that norm-based signals are confounded by token frequency, prompt length, and syntactic structure. While we advocate effective rank over norms as the primary metric, we have not exhaustively tested whether effective rank itself is susceptible to similar confounds. The frequency-truth factorial (C1) tested norms, not effective rank.
 

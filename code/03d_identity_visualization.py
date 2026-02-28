@@ -512,7 +512,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Phase 2b: Identity Signatures Visualization")
     parser.add_argument("--results", type=str,
-                        default="../results/identity_signatures_results.json",
+                        default=None,
                         help="Path to results JSON")
     parser.add_argument("--format", type=str, default="png",
                         choices=["png", "pdf", "svg"],
@@ -521,9 +521,10 @@ def main():
 
     setup_style()
 
-    results_path = Path(args.results)
-    if not results_path.exists():
-        # Try model-specific filenames (get_output_path adds model ID)
+    if args.results:
+        results_path = Path(args.results)
+    else:
+        # Auto-discover per-model results (e.g. identity_signatures_Qwen2.5-7B_results.json)
         results_dir = Path(__file__).parent.parent / "results"
         candidates = sorted(results_dir.glob("identity_signatures_*_results.json"))
         if candidates:

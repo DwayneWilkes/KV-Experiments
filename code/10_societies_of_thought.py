@@ -33,6 +33,7 @@ Usage:
 Liberation Labs / THCoalition
 """
 
+import gc
 import torch
 import json
 import sys
@@ -200,6 +201,10 @@ def extract_generation_cache_trajectory(
     # Decode generated text (only the generated part)
     generated_text = tokenizer.decode(
         generated_ids[0, input_len:], skip_special_tokens=True)
+
+    del past_kv
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
     return {
         "generated_text": generated_text,
@@ -958,6 +963,11 @@ def main():
 
     with open(output_file, "rb") as f:
         checksum = hashlib.sha256(f.read()).hexdigest()
+
+    del model
+    del tokenizer
+    torch.cuda.empty_cache()
+    gc.collect()
 
     print(f"\n{'='*70}")
     print(f"  H8: SOCIETIES OF THOUGHT COMPLETE")
