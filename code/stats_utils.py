@@ -7,13 +7,18 @@ Extracted to eliminate ~600 lines of duplication and prevent drift.
 
 Convention: cohens_d(condition, baseline) — positive d means condition > baseline.
 
-Used by: 01d, 03, 03b, 04, 05, 06, 07, 07b, 08, 09, 10, 11, 12, 13
+Used by: 01d, 03, 03b, 04, 04b, 05, 06, 07, 07b, 08, 09, 10, 11, 12, 13
+
+Audit trail:
+  - Campaign 1: Initial extraction from experiment scripts
+  - Campaign 2 (2026-02-28): Hedges' g, TOST equivalence, length residualization,
+    consistent n_boot, conservative test reporting (design review + stats audit)
 """
 
 import sys
 import platform
 from datetime import datetime
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 
 import numpy as np
 from scipy import stats as scipy_stats
@@ -117,7 +122,7 @@ def mann_whitney(group1, group2):
 def shapiro_wilk(data):
     """Shapiro-Wilk normality test. p < 0.05 -> not normal."""
     if len(data) < 3:
-        return {"w_statistic": 0.0, "p_value": 1.0, "is_normal": True}
+        return {"w_statistic": 0.0, "p_value": 1.0, "is_normal": None}
     w, p = scipy_stats.shapiro(data)
     return {"w_statistic": float(w), "p_value": float(p), "is_normal": p > 0.05}
 
@@ -145,8 +150,23 @@ def cohens_d(group1, group2):
     return float((np.mean(g1) - np.mean(g2)) / pooled_std)
 
 
-def cohens_d_ci(group1, group2, n_boot=5000, ci=0.95, seed=None):
-    """Bootstrap CI for Cohen's d."""
+def hedges_g(group1, group2):
+    """Hedges' g — bias-corrected Cohen's d for small samples.
+
+    Applies correction factor J = 1 - 3/(4(n1+n2) - 9).
+    At n=15 per group, this corrects ~2.7% upward bias.
+    """
+    d = cohens_d(group1, group2)
+    n1, n2 = len(group1), len(group2)
+    df = n1 + n2 - 2
+    if df < 1:
+        return 0.0
+    j = 1 - 3 / (4 * df - 1)
+    return float(d * j)
+
+
+def cohens_d_ci(group1, group2, n_boot=10000, ci=0.95, seed=None):
+    """Bootstrap CI for Cohen's d and Hedges' g."""
     rng = np.random.RandomState(seed)
     g1, g2 = np.array(group1), np.array(group2)
     boot_ds = []
@@ -155,8 +175,11 @@ def cohens_d_ci(group1, group2, n_boot=5000, ci=0.95, seed=None):
         b2 = rng.choice(g2, len(g2), replace=True)
         boot_ds.append(cohens_d(b1, b2))
     alpha = (1 - ci) / 2
+    d = cohens_d(g1, g2)
+    g = hedges_g(g1, g2)
     return {
-        "d": cohens_d(g1, g2),
+        "d": d,
+        "g": g,
         "ci_lower": float(np.percentile(boot_ds, 100 * alpha)),
         "ci_upper": float(np.percentile(boot_ds, 100 * (1 - alpha))),
     }
@@ -204,11 +227,133 @@ def holm_bonferroni(p_values, alpha=0.05):
 
 
 # ================================================================
+# EQUIVALENCE TESTING
+# ================================================================
+
+def tost_equivalence(group1, group2, delta=0.3):
+    """Two One-Sided Tests (TOST) for equivalence.
+
+    Tests whether the true difference in means is within [-delta, +delta]
+    in Cohen's d units. Needed for null claims like 'quantization doesn't
+    change geometry' (Campaign 1) and H4 in S4.
+
+    Returns reject=True if groups are equivalent within the bound.
+    """
+    g1, g2 = np.array(group1), np.array(group2)
+    n1, n2 = len(g1), len(g2)
+    if n1 < 2 or n2 < 2:
+        return {"reject": False, "p_value": 1.0, "delta": delta,
+                "note": "insufficient data"}
+
+    d = cohens_d(g1, g2)
+    pooled_std = np.sqrt(
+        ((n1 - 1) * np.var(g1, ddof=1) + (n2 - 1) * np.var(g2, ddof=1))
+        / (n1 + n2 - 2))
+    if pooled_std == 0:
+        return {"reject": True, "p_value": 0.0, "delta": delta,
+                "observed_d": 0.0}
+
+    se = pooled_std * np.sqrt(1/n1 + 1/n2)
+    mean_diff = float(np.mean(g1) - np.mean(g2))
+    delta_raw = delta * pooled_std  # Convert d units to raw units
+
+    # Upper bound test: H0: diff >= +delta
+    t_upper = (mean_diff - delta_raw) / se
+    p_upper = float(scipy_stats.t.cdf(t_upper, df=n1 + n2 - 2))
+
+    # Lower bound test: H0: diff <= -delta
+    t_lower = (mean_diff + delta_raw) / se
+    p_lower = float(1 - scipy_stats.t.cdf(t_lower, df=n1 + n2 - 2))
+
+    p_tost = max(p_upper, p_lower)
+
+    return {
+        "reject": p_tost < 0.05,
+        "p_value": p_tost,
+        "p_upper": p_upper,
+        "p_lower": p_lower,
+        "delta": delta,
+        "observed_d": float(d),
+        "mean_diff": mean_diff,
+    }
+
+
+# ================================================================
+# LENGTH RESIDUALIZATION
+# ================================================================
+
+def length_residualize(values, token_counts, labels=None):
+    """Regress out sequence length from a metric (e.g., effective rank).
+
+    Campaign 2 requirement: effective rank correlates with sequence length
+    at r=0.60-0.70 (Campaign 1 discovery). This function removes the
+    linear length component so comparisons reflect cognitive mode
+    differences, not response length differences.
+
+    Args:
+        values: Array of metric values (e.g., effective rank per observation)
+        token_counts: Array of sequence lengths per observation
+        labels: Optional array of group labels (e.g., 0=control, 1=censored).
+                If provided, returns per-group residuals as a dict.
+
+    Returns:
+        Dict with residuals, regression coefficients, and R² of the length fit.
+    """
+    values = np.array(values, dtype=float)
+    token_counts = np.array(token_counts, dtype=float)
+
+    if len(values) < 3 or len(values) != len(token_counts):
+        return {"residuals": values, "r_squared": 0.0,
+                "note": "insufficient data for residualization"}
+
+    # Fit linear regression: values ~ token_counts
+    coeffs = np.polyfit(token_counts, values, 1)
+    predicted = np.polyval(coeffs, token_counts)
+    residuals = values - predicted
+
+    # R² of the length fit
+    ss_res = np.sum(residuals ** 2)
+    ss_tot = np.sum((values - np.mean(values)) ** 2)
+    r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+
+    # Length-metric correlation
+    r, p = scipy_stats.pearsonr(token_counts, values)
+
+    result = {
+        "residuals": residuals,
+        "slope": float(coeffs[0]),
+        "intercept": float(coeffs[1]),
+        "r_squared": float(r_squared),
+        "length_correlation_r": float(r),
+        "length_correlation_p": float(p),
+    }
+
+    if labels is not None:
+        labels = np.array(labels)
+        unique_labels = np.unique(labels)
+        result["per_group"] = {}
+        for lbl in unique_labels:
+            mask = labels == lbl
+            result["per_group"][str(lbl)] = {
+                "residuals": residuals[mask].tolist(),
+                "n": int(mask.sum()),
+                "mean_residual": float(np.mean(residuals[mask])),
+            }
+
+    return result
+
+
+# ================================================================
 # FULL COMPARISON BATTERY
 # ================================================================
 
 def full_comparison(group1, group2, label="", seed=None):
-    """Run the complete statistical battery on two groups."""
+    """Run the complete statistical battery on two groups.
+
+    Both parametric (Welch's t) and nonparametric (Mann-Whitney U) tests
+    are always reported. The conservative_p is the larger of the two,
+    avoiding data-dependent test selection (stats audit Issue 2).
+    """
     g1, g2 = np.array(group1), np.array(group2)
 
     result = {
@@ -224,7 +369,6 @@ def full_comparison(group1, group2, label="", seed=None):
     # Normality
     result["normality_g1"] = shapiro_wilk(g1)
     result["normality_g2"] = shapiro_wilk(g2)
-    both_normal = result["normality_g1"]["is_normal"] and result["normality_g2"]["is_normal"]
 
     # Parametric
     result["welch_t"] = welch_t(g1, g2)
@@ -232,20 +376,22 @@ def full_comparison(group1, group2, label="", seed=None):
     # Nonparametric
     result["mann_whitney"] = mann_whitney(g1, g2)
 
-    # Effect size with CI
+    # Effect size with CI (includes Hedges' g)
     result["cohens_d"] = cohens_d_ci(g1, g2, seed=seed)
     result["cohens_d"]["interpretation"] = interpret_d(result["cohens_d"]["d"])
 
     # Bootstrap mean difference
     result["bootstrap_diff"] = bootstrap_diff_ci(g1, g2, seed=seed)
 
-    # Recommended test based on normality
-    if both_normal:
-        result["recommended_test"] = "welch_t"
-        result["recommended_p"] = result["welch_t"]["p_value"]
-    else:
-        result["recommended_test"] = "mann_whitney"
-        result["recommended_p"] = result["mann_whitney"]["p_value"]
+    # Conservative p: max of both tests (avoids data-dependent selection)
+    p_welch = result["welch_t"]["p_value"]
+    p_mw = result["mann_whitney"]["p_value"]
+    result["conservative_p"] = max(p_welch, p_mw)
+
+    # Backwards compat: recommended_test still present but now uses
+    # the conservative approach (both tests reported, max p used)
+    result["recommended_test"] = "conservative_max"
+    result["recommended_p"] = result["conservative_p"]
 
     return result
 

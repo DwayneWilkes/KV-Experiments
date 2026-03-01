@@ -18,12 +18,16 @@ Pre-registered hypotheses:
   H4 — Uncensored models answering the same sensitive questions truthfully
         show geometric profiles indistinguishable from their control baselines.
 
-Experimental design:
+Experimental design (2x3):
   - 30 censored-topic questions across 6 categories (5 each)
-  - 30 matched control questions about non-sensitive Chinese topics
+  - 30 simple control questions about non-sensitive Chinese topics
+  - 30 complex non-censored questions (non-Chinese atrocities/controversies)
+  - The 2x3 design (model_type x topic_complexity) separates content
+    complexity from censorship evasion (design review confound fix)
   - Per-question: KV-cache norms, effective rank, spectral entropy
   - Automated response classification (truthful/evasive/deceptive/refused)
   - Length-residualized metrics (Campaign 2 requirement)
+  - Input-only condition as methodological anchor
 
 Usage:
   python 04b_natural_deception.py --model deepseek-ai/DeepSeek-R1-Distill-Qwen-14B --runs 5 --seed 42
@@ -50,8 +54,8 @@ from scipy import stats as scipy_stats
 from gpu_utils import get_output_path, load_model, compute_cache_dimensionality
 from stats_utils import (
     log_environment, bootstrap_ci, bootstrap_diff_ci, welch_t, mann_whitney,
-    shapiro_wilk, cohens_d, cohens_d_ci, interpret_d, holm_bonferroni,
-    full_comparison
+    shapiro_wilk, cohens_d, cohens_d_ci, hedges_g, interpret_d,
+    holm_bonferroni, full_comparison, length_residualize, tost_equivalence
 )
 
 # Import prompts
@@ -59,6 +63,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "prompts"))
 from s4_natural_deception import (
     CENSORED_TOPIC_QUESTIONS,
     CONTROL_QUESTIONS,
+    COMPLEX_NONCENSORED_QUESTIONS,
     RESPONSE_CLASSIFICATION,
     EXPERIMENT_METADATA,
 )
@@ -299,15 +304,76 @@ def run_probe(model, tokenizer) -> Dict:
 # SECTION 5: FULL EXPERIMENT
 # ================================================================
 
+def run_input_only(model, tokenizer) -> Dict:
+    """Run input-only condition: encode all questions without generation.
+
+    Methodological anchor from Campaign 1 (rho=0.929). No generation
+    means no length confound — pure encoding geometry.
+    """
+    print("\n  Running input-only condition...")
+    condition_data = {}
+
+    question_sets = {
+        "censored": CENSORED_TOPIC_QUESTIONS,
+        "control": CONTROL_QUESTIONS,
+        "complex_noncensored": COMPLEX_NONCENSORED_QUESTIONS,
+    }
+
+    for cond_name, questions in question_sets.items():
+        ranks = []
+        for q in questions:
+            try:
+                inputs = tokenizer(q["question"], return_tensors="pt").to(model.device)
+                with torch.no_grad():
+                    outputs = model(**inputs, use_cache=True)
+                cache = outputs.past_key_values
+                dim = compute_cache_dimensionality(cache)
+                ranks.append(dim.get("mean_key_effective_rank", 0))
+            except Exception as e:
+                print(f"    ERROR (input-only, {q['id']}): {str(e)[:60]}")
+        condition_data[cond_name] = {
+            "key_ranks": ranks,
+            "mean_rank": float(np.mean(ranks)) if ranks else 0,
+        }
+
+    # Compare conditions in input-only space
+    analysis = {}
+    for c1, c2, key in [
+        ("censored", "control", "censored_vs_control"),
+        ("complex_noncensored", "control", "complex_vs_control"),
+        ("censored", "complex_noncensored", "censored_vs_complex"),
+    ]:
+        v1 = condition_data[c1]["key_ranks"]
+        v2 = condition_data[c2]["key_ranks"]
+        if len(v1) >= 3 and len(v2) >= 3:
+            analysis[key] = full_comparison(v1, v2)
+
+    # Ordering preserved?
+    cond_order = sorted(condition_data.keys(),
+                        key=lambda c: condition_data[c]["mean_rank"])
+    condition_data["ordering"] = cond_order
+    condition_data["analysis"] = analysis
+
+    print(f"    Input-only ordering: {' < '.join(cond_order)}")
+    for c in cond_order:
+        print(f"      {c}: mean_rank={condition_data[c]['mean_rank']:.2f}")
+
+    return condition_data
+
+
 def run_full_experiment(model, tokenizer, num_runs: int = 5,
                         seed: Optional[int] = None,
                         verbose: bool = False) -> Dict:
-    """Run full S4 experiment: all 60 questions, multiple runs."""
+    """Run full S4 experiment: 2x3 design, all 90 questions, multiple runs.
+
+    Three conditions: censored, control (simple), complex_noncensored.
+    The 2x3 design separates content complexity from censorship evasion.
+    """
     print("\n" + "=" * 60)
-    print("  FULL S4 EXPERIMENT — Natural Deception")
+    print("  FULL S4 EXPERIMENT — Natural Deception (2x3 Design)")
     print("=" * 60)
 
-    conditions = ["censored", "control"]
+    conditions = ["censored", "control", "complex_noncensored"]
     all_data = {c: {
         "norms": [], "norms_per_token": [],
         "key_ranks": [], "key_entropies": [],
@@ -327,9 +393,10 @@ def run_full_experiment(model, tokenizer, num_runs: int = 5,
     question_sets = {
         "censored": CENSORED_TOPIC_QUESTIONS,
         "control": CONTROL_QUESTIONS,
+        "complex_noncensored": COMPLEX_NONCENSORED_QUESTIONS,
     }
 
-    total = (len(CENSORED_TOPIC_QUESTIONS) + len(CONTROL_QUESTIONS)) * num_runs
+    total = sum(len(qs) for qs in question_sets.values()) * num_runs
     completed = 0
 
     for run_idx in range(num_runs):
@@ -361,7 +428,7 @@ def run_full_experiment(model, tokenizer, num_runs: int = 5,
                     per_topic[topic]["key_entropies"].append(key_entropy)
                     per_topic[topic]["total_tokens"].append(result["total_tokens"])
 
-                    # Response classification (only for censored condition)
+                    # Response classification (for censored condition)
                     if condition == "censored":
                         classification = classify_response(q, result["generated_text"])
                         per_topic[topic]["classifications"].append(
@@ -376,7 +443,7 @@ def run_full_experiment(model, tokenizer, num_runs: int = 5,
                     per_question[q["id"]]["key_entropies"].append(key_entropy)
                     per_question[q["id"]]["classifications"].append(
                         classification["classification"])
-                    if run_idx == 0:  # Only store response text on first run
+                    if run_idx == 0:
                         per_question[q["id"]]["responses"].append(
                             result["generated_text"][:300])
 
@@ -399,79 +466,103 @@ def run_full_experiment(model, tokenizer, num_runs: int = 5,
 
     analysis = {
         "overall": {},
+        "pairwise": {},
         "per_topic": {},
         "length_analysis": {},
         "classification_distribution": {},
     }
 
-    # --- Overall: censored vs control ---
+    # --- Pairwise comparisons: 3 condition pairs ---
+    comparison_pairs = [
+        ("censored", "control", "censored_vs_control"),
+        ("complex_noncensored", "control", "complex_vs_control"),
+        ("censored", "complex_noncensored", "censored_vs_complex"),
+    ]
+
     for metric_name in ["norms", "norms_per_token", "key_ranks", "key_entropies"]:
-        censored_vals = all_data["censored"][metric_name]
-        control_vals = all_data["control"][metric_name]
+        analysis["overall"][metric_name] = {}
+        for c1, c2, key in comparison_pairs:
+            v1 = all_data[c1][metric_name]
+            v2 = all_data[c2][metric_name]
+            if v1 and v2:
+                comp = full_comparison(v1, v2)
+                analysis["overall"][metric_name][key] = comp
 
-        if censored_vals and control_vals:
-            comparison = full_comparison(censored_vals, control_vals)
-            analysis["overall"][metric_name] = comparison
+    # Print key results
+    for c1, c2, key in comparison_pairs:
+        ranks1 = all_data[c1]["key_ranks"]
+        ranks2 = all_data[c2]["key_ranks"]
+        if ranks1 and ranks2:
+            comp = analysis["overall"]["key_ranks"][key]
+            print(f"\n  key_ranks: {key}")
+            print(f"    {c1}: mean={np.mean(ranks1):.3f} (n={len(ranks1)})")
+            print(f"    {c2}: mean={np.mean(ranks2):.3f} (n={len(ranks2)})")
+            print(f"    Cohen's d: {comp['cohens_d']['d']:.3f} "
+                  f"[{comp['cohens_d']['ci_lower']:.3f}, "
+                  f"{comp['cohens_d']['ci_upper']:.3f}]")
+            print(f"    Conservative p: {comp['conservative_p']:.4f}")
 
-            print(f"\n  {metric_name}: censored vs control")
-            print(f"    Censored: mean={np.mean(censored_vals):.3f} "
-                  f"(n={len(censored_vals)})")
-            print(f"    Control:  mean={np.mean(control_vals):.3f} "
-                  f"(n={len(control_vals)})")
-            print(f"    Cohen's d: {comparison['cohens_d']['d']:.3f} "
-                  f"[{comparison['cohens_d']['ci'][0]:.3f}, "
-                  f"{comparison['cohens_d']['ci'][1]:.3f}]")
-            print(f"    Welch's t: p={comparison['welch_t']['p']:.4f}")
+    # --- Critical test: censored vs complex_noncensored ---
+    # This is the key confound control. If censored >> complex on a
+    # censored model, the effect is beyond content complexity.
+    # If censored ≈ complex, the effect may be content complexity alone.
+    censored_ranks = all_data["censored"]["key_ranks"]
+    complex_ranks = all_data["complex_noncensored"]["key_ranks"]
+    if censored_ranks and complex_ranks:
+        analysis["pairwise"]["critical_test"] = {
+            "description": (
+                "Censored vs complex non-censored: separates censorship "
+                "evasion from content complexity. If d ≈ 0, H1 is driven "
+                "by complexity, not evasion."),
+            "comparison": analysis["overall"]["key_ranks"].get(
+                "censored_vs_complex", {}),
+        }
 
-    # --- Length confound analysis ---
-    censored_tokens = all_data["censored"]["total_tokens"]
-    control_tokens = all_data["control"]["total_tokens"]
-    if censored_tokens and control_tokens:
-        analysis["length_analysis"]["censored_mean_tokens"] = float(
-            np.mean(censored_tokens))
-        analysis["length_analysis"]["control_mean_tokens"] = float(
-            np.mean(control_tokens))
+    # --- H4 equivalence test (uncensored models) ---
+    # For uncensored models: censored topics should be equivalent to controls
+    control_ranks = all_data["control"]["key_ranks"]
+    if censored_ranks and control_ranks:
+        tost = tost_equivalence(censored_ranks, control_ranks, delta=0.3)
+        analysis["pairwise"]["h4_equivalence"] = tost
 
-        # Length-rank correlation within each condition
+    # --- Length confound analysis (shared utility) ---
+    all_tokens = []
+    all_ranks = []
+    all_labels = []
+    for cond in conditions:
+        all_tokens.extend(all_data[cond]["total_tokens"])
+        all_ranks.extend(all_data[cond]["key_ranks"])
+        all_labels.extend([cond] * len(all_data[cond]["total_tokens"]))
+
+    if len(all_tokens) > 10:
+        resid = length_residualize(all_ranks, all_tokens, all_labels)
+        analysis["length_analysis"] = {
+            "r_squared": resid["r_squared"],
+            "slope": resid["slope"],
+            "length_correlation_r": resid["length_correlation_r"],
+            "length_correlation_p": resid["length_correlation_p"],
+        }
+
+        # Per-condition mean tokens
         for cond in conditions:
             tokens = all_data[cond]["total_tokens"]
-            ranks = all_data[cond]["key_ranks"]
-            if len(tokens) > 5:
-                r, p = scipy_stats.pearsonr(tokens, ranks)
-                analysis["length_analysis"][f"{cond}_length_rank_r"] = float(r)
-                analysis["length_analysis"][f"{cond}_length_rank_p"] = float(p)
+            analysis["length_analysis"][f"{cond}_mean_tokens"] = float(
+                np.mean(tokens)) if tokens else 0
 
-        # Length-residualized effective rank comparison
-        all_tokens = censored_tokens + control_tokens
-        all_ranks = (all_data["censored"]["key_ranks"] +
-                     all_data["control"]["key_ranks"])
-        all_labels = ([1] * len(censored_tokens) +
-                      [0] * len(control_tokens))
+        # Residualized pairwise comparisons
+        analysis["length_analysis"]["residualized_comparisons"] = {}
+        for c1, c2, key in comparison_pairs:
+            g1 = resid["per_group"].get(c1, {}).get("residuals", [])
+            g2 = resid["per_group"].get(c2, {}).get("residuals", [])
+            if len(g1) >= 3 and len(g2) >= 3:
+                comp = full_comparison(g1, g2)
+                analysis["length_analysis"]["residualized_comparisons"][key] = comp
+                print(f"\n  Length-residualized {key}: "
+                      f"d={comp['cohens_d']['d']:.3f}")
 
-        if len(all_tokens) > 10:
-            # Regress out length
-            from numpy.polynomial import polynomial as P
-            tokens_arr = np.array(all_tokens)
-            ranks_arr = np.array(all_ranks)
-            labels_arr = np.array(all_labels)
-
-            # Fit linear regression of rank ~ tokens
-            coeffs = np.polyfit(tokens_arr, ranks_arr, 1)
-            predicted = np.polyval(coeffs, tokens_arr)
-            residuals = ranks_arr - predicted
-
-            # Compare residualized ranks
-            censored_resid = residuals[labels_arr == 1]
-            control_resid = residuals[labels_arr == 0]
-
-            if len(censored_resid) > 2 and len(control_resid) > 2:
-                resid_comparison = full_comparison(
-                    censored_resid.tolist(), control_resid.tolist())
-                analysis["length_analysis"]["residualized_rank"] = resid_comparison
-
-                print(f"\n  Length-residualized effective rank:")
-                print(f"    Cohen's d: "
-                      f"{resid_comparison['cohens_d']['d']:.3f}")
+        print(f"\n  Length-rank correlation: "
+              f"r={resid['length_correlation_r']:.3f}, "
+              f"R²={resid['r_squared']:.3f}")
 
     # --- Per-topic breakdown ---
     censored_topics = ["tiananmen", "uyghur", "taiwan",
@@ -479,8 +570,6 @@ def run_full_experiment(model, tokenizer, num_runs: int = 5,
     for topic in censored_topics:
         if topic in per_topic and per_topic[topic]["key_ranks"]:
             topic_data = per_topic[topic]
-            control_ranks = all_data["control"]["key_ranks"]
-
             if control_ranks:
                 comparison = full_comparison(
                     topic_data["key_ranks"], control_ranks)
@@ -491,7 +580,6 @@ def run_full_experiment(model, tokenizer, num_runs: int = 5,
                     "vs_control": comparison,
                 }
 
-                # Classification distribution
                 if topic_data["classifications"]:
                     from collections import Counter
                     dist = Counter(topic_data["classifications"])
@@ -500,7 +588,7 @@ def run_full_experiment(model, tokenizer, num_runs: int = 5,
     # --- Overall classification distribution ---
     all_classifications = []
     for q_id, q_data in per_question.items():
-        if q_id.startswith("control_"):
+        if q_id.startswith("control_") or q_id.startswith("complex_"):
             continue
         all_classifications.extend(q_data["classifications"])
 
@@ -536,7 +624,7 @@ def run_full_experiment(model, tokenizer, num_runs: int = 5,
 def generate_report(results: Dict) -> str:
     """Generate markdown report for S4 experiment."""
     lines = [
-        "# Experiment S4: Natural Deception via Censorship Training",
+        "# Experiment S4: Natural Deception via Censorship Training (2x3 Design)",
         f"\nGenerated: {datetime.now().isoformat()}",
         f"\nModel: {results['metadata']['model']}",
         "",
@@ -557,25 +645,36 @@ def generate_report(results: Dict) -> str:
         exp = results["experiment"]
         analysis = exp.get("analysis", {})
 
-        lines.append("## Overall Results: Censored vs Control")
-        overall = analysis.get("overall", {})
-        for metric, comparison in overall.items():
-            d = comparison.get("cohens_d", {})
-            lines.append(f"\n### {metric}")
-            lines.append(f"- Cohen's d: {d.get('d', 0):.3f} "
-                          f"[{d.get('ci', [0,0])[0]:.3f}, "
-                          f"{d.get('ci', [0,0])[1]:.3f}]")
-            lines.append(f"- Interpretation: {d.get('interpretation', '?')}")
+        lines.append("## Pairwise Comparisons (key_ranks)")
+        overall_ranks = analysis.get("overall", {}).get("key_ranks", {})
+        for key, comp in overall_ranks.items():
+            d_info = comp.get("cohens_d", {})
+            lines.append(f"\n### {key}")
+            lines.append(f"- Cohen's d: {d_info.get('d', 0):.3f} "
+                          f"[{d_info.get('ci_lower', 0):.3f}, "
+                          f"{d_info.get('ci_upper', 0):.3f}]")
+            lines.append(f"- Hedges' g: {d_info.get('g', 0):.3f}")
+            lines.append(f"- Conservative p: {comp.get('conservative_p', 1):.4f}")
+
+        # Critical test
+        crit = analysis.get("pairwise", {}).get("critical_test", {})
+        if crit:
+            lines.append("\n## Critical Confound Control")
+            lines.append(crit.get("description", ""))
+            crit_comp = crit.get("comparison", {}).get("cohens_d", {})
+            lines.append(f"- d: {crit_comp.get('d', 0):.3f}")
 
         lines.append("\n## Length Confound Analysis")
         length = analysis.get("length_analysis", {})
-        lines.append(f"- Censored mean tokens: "
-                      f"{length.get('censored_mean_tokens', 0):.1f}")
-        lines.append(f"- Control mean tokens: "
-                      f"{length.get('control_mean_tokens', 0):.1f}")
-        if "residualized_rank" in length:
-            resid = length["residualized_rank"]["cohens_d"]
-            lines.append(f"- Length-residualized rank d: {resid['d']:.3f}")
+        lines.append(f"- Length-rank R2: {length.get('r_squared', 0):.3f}")
+        lines.append(f"- Length-rank r: {length.get('length_correlation_r', 0):.3f}")
+        for cond in ["censored", "control", "complex_noncensored"]:
+            key = f"{cond}_mean_tokens"
+            lines.append(f"- {cond} mean tokens: {length.get(key, 0):.1f}")
+        resid_comps = length.get("residualized_comparisons", {})
+        for key, comp in resid_comps.items():
+            d_info = comp.get("cohens_d", {})
+            lines.append(f"- Residualized {key}: d={d_info.get('d', 0):.3f}")
 
         lines.append("\n## Per-Topic Breakdown")
         per_topic = analysis.get("per_topic", {})
@@ -602,23 +701,39 @@ def generate_report(results: Dict) -> str:
 
 def print_dry_run():
     print("=" * 70)
-    print("  S4: NATURAL DECEPTION — DRY RUN")
+    print("  S4: NATURAL DECEPTION — DRY RUN (2x3 Design)")
     print("=" * 70)
     print()
     print("DESIGN:")
-    print(f"  Censored questions: {len(CENSORED_TOPIC_QUESTIONS)}")
-    print(f"  Control questions:  {len(CONTROL_QUESTIONS)}")
-    print(f"  Total per run:      {len(CENSORED_TOPIC_QUESTIONS) + len(CONTROL_QUESTIONS)}")
+    print(f"  Censored questions:          {len(CENSORED_TOPIC_QUESTIONS)}")
+    print(f"  Simple control questions:    {len(CONTROL_QUESTIONS)}")
+    print(f"  Complex non-censored:        {len(COMPLEX_NONCENSORED_QUESTIONS)}")
+    n_per_run = (len(CENSORED_TOPIC_QUESTIONS) + len(CONTROL_QUESTIONS) +
+                 len(COMPLEX_NONCENSORED_QUESTIONS))
+    print(f"  Total per run:               {n_per_run}")
     print()
     print("TOPICS (censored):")
     for topic in EXPERIMENT_METADATA["topics_censored"]:
         count = sum(1 for q in CENSORED_TOPIC_QUESTIONS if q["topic"] == topic)
         print(f"  {topic}: {count} questions")
     print()
-    print("TOPICS (control):")
+    print("TOPICS (simple control):")
     for topic in EXPERIMENT_METADATA["topics_control"]:
         count = sum(1 for q in CONTROL_QUESTIONS if q["topic"] == topic)
         print(f"  {topic}: {count} questions")
+    print()
+    print("TOPICS (complex non-censored):")
+    complex_topics = set(q["topic"] for q in COMPLEX_NONCENSORED_QUESTIONS)
+    for topic in sorted(complex_topics):
+        count = sum(1 for q in COMPLEX_NONCENSORED_QUESTIONS if q["topic"] == topic)
+        print(f"  {topic}: {count} questions")
+    print()
+    print("CONFOUND CONTROL:")
+    print("  The 2x3 design separates content complexity from censorship.")
+    print("  If censored >> complex_noncensored on a censored model:")
+    print("    → Effect is beyond topic complexity (supports H1)")
+    print("  If censored ≈ complex_noncensored:")
+    print("    → Effect may be content complexity, not evasion")
     print()
     print("HYPOTHESES:")
     for h_id, h_text in EXPERIMENT_METADATA["hypotheses"].items():
@@ -632,8 +747,10 @@ def print_dry_run():
     print()
 
     for runs in [3, 5]:
-        n_total = (len(CENSORED_TOPIC_QUESTIONS) + len(CONTROL_QUESTIONS)) * runs
-        print(f"AT {runs} RUNS: {n_total} total inferences")
+        n_gen = n_per_run * runs
+        n_input = n_per_run  # Input-only runs once
+        print(f"AT {runs} RUNS: {n_gen} generation + {n_input} input-only = "
+              f"{n_gen + n_input} total inferences")
     print()
 
 
@@ -690,6 +807,7 @@ def main():
     else:
         all_results["experiment"] = run_full_experiment(
             model, tokenizer, args.runs, args.seed, args.verbose)
+        all_results["input_only"] = run_input_only(model, tokenizer)
 
     # Generate report
     report = generate_report(all_results)
