@@ -193,8 +193,18 @@ phase_D() {
     pid2=$!
     wait $pid1 $pid2
 
-    # Step D.3: Medium models in parallel (7B Qwen vs 8B Llama — architecture comparison)
-    log "Step D.3: 7B Qwen (GPU 1) + 8B Llama (GPU 2) in parallel"
+    # Step D.3: Cross-arch small in parallel (Gemma-2B + Phi-3.5)
+    log "Step D.3: Gemma-2B (GPU 1) + Phi-3.5 (GPU 2) in parallel"
+    run_experiment "Scale Sweep 2B" "1" \
+        "03_scale_sweep.py" --scale 2B --runs "$RUNS" --seed "$SEED" &
+    pid1=$!
+    run_experiment "Scale Sweep 3.8B" "2" \
+        "03_scale_sweep.py" --scale 3.8B --runs "$RUNS" --seed "$SEED" &
+    pid2=$!
+    wait $pid1 $pid2
+
+    # Step D.4: Medium models in parallel (7B Qwen vs 8B Llama — architecture comparison)
+    log "Step D.4: 7B Qwen (GPU 1) + 8B Llama (GPU 2) in parallel"
     run_experiment "Scale Sweep 7B" "1" \
         "03_scale_sweep.py" --scale 7B --runs "$RUNS" --seed "$SEED" &
     pid1=$!
@@ -203,23 +213,43 @@ phase_D() {
     pid2=$!
     wait $pid1 $pid2
 
-    # Step D.4: 7B-q4 quantization comparison (GPU 1)
-    log "Step D.4: 7B-q4 quantization comparison"
-    run_experiment "Scale Sweep 7B-q4" "1" \
-        "03_scale_sweep.py" --scale 7B-q4 --runs "$RUNS" --seed "$SEED"
+    # Step D.5: Cross-arch medium in parallel (Mistral-7B + 7B-q4)
+    log "Step D.5: Mistral-7B (GPU 1) + Qwen-7B-q4 (GPU 2) in parallel"
+    run_experiment "Scale Sweep 7B-mistral" "1" \
+        "03_scale_sweep.py" --scale 7B-mistral --runs "$RUNS" --seed "$SEED" &
+    pid1=$!
+    run_experiment "Scale Sweep 7B-q4" "2" \
+        "03_scale_sweep.py" --scale 7B-q4 --runs "$RUNS" --seed "$SEED" &
+    pid2=$!
+    wait $pid1 $pid2
 
-    # Step D.5: 14B (single GPU, ~28GB — tight fit on 24GB, may need quantization)
-    log "Step D.5: 14B (single GPU)"
+    # Step D.6: Gemma-9B (single GPU, ~18GB)
+    log "Step D.6: Gemma-9B (single GPU)"
+    run_experiment "Scale Sweep 9B" "1" \
+        "03_scale_sweep.py" --scale 9B --runs "$RUNS" --seed "$SEED"
+
+    # Step D.7: 14B (single GPU, ~28GB — may need device_map=auto)
+    log "Step D.7: 14B (single GPU)"
     run_experiment "Scale Sweep 14B" "1" \
         "03_scale_sweep.py" --scale 14B --runs "$RUNS" --seed "$SEED"
 
-    # Step D.6: 32B quantized (single GPU, ~18GB)
-    log "Step D.6: 32B-q4 (single GPU)"
+    # Step D.8: DeepSeek distill in parallel (7B + 14B)
+    log "Step D.8: DeepSeek-7B (GPU 1) + DeepSeek-14B (GPU 2) in parallel"
+    run_experiment "Scale Sweep 7B-ds" "1" \
+        "03_scale_sweep.py" --scale 7B-ds --runs "$RUNS" --seed "$SEED" &
+    pid1=$!
+    run_experiment "Scale Sweep 14B-ds" "2" \
+        "03_scale_sweep.py" --scale 14B-ds --runs "$RUNS" --seed "$SEED" &
+    pid2=$!
+    wait $pid1 $pid2
+
+    # Step D.9: 32B quantized (single GPU, ~18GB)
+    log "Step D.9: 32B-q4 (single GPU)"
     run_experiment "Scale Sweep 32B-q4" "1" \
         "03_scale_sweep.py" --scale 32B-q4 --runs "$RUNS" --seed "$SEED"
 
-    # Step D.7: 70B quantized (2 GPUs, ~38GB)
-    log "Step D.7: 70B-q4 (GPUs 1+2, device_map=auto)"
+    # Step D.10: 70B quantized (2 GPUs, ~38GB)
+    log "Step D.10: 70B-q4 (GPUs 1+2, device_map=auto)"
     run_experiment "Scale Sweep 70B-q4" "1,2" \
         "03_scale_sweep.py" --scale 70B-q4 --runs 3 --seed "$SEED"
 }
@@ -324,6 +354,71 @@ phase_H() {
 }
 
 # ================================================================
+# Phase S4: Natural Deception — 2x3 Design (censored vs complex)
+# ================================================================
+
+phase_S4() {
+    log "╔══════════════════════════════════════════════════════════╗"
+    log "║  PHASE S4: NATURAL DECEPTION — 2×3 DESIGN              ║"
+    log "║  Censorship-trained models vs content complexity        ║"
+    log "╚══════════════════════════════════════════════════════════╝"
+    log_gpu
+
+    # S4.1: Probe DeepSeek for censorship behavior
+    log "Step S4.1: DeepSeek censorship probe"
+    run_experiment "S4 Probe (DeepSeek-14B)" "1" \
+        "04b_natural_deception.py" --model "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B" --probe --runs 1 --seed "$SEED"
+    log "DECISION GATE: If no evasion detected, skip full S4."
+
+    # S4.2: Full 2x3 on DeepSeek-14B
+    log "Step S4.2: Full S4 on DeepSeek-14B (90 questions × 5 runs)"
+    run_experiment "S4 DeepSeek-14B" "1" \
+        "04b_natural_deception.py" --model "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B" --runs "$RUNS" --seed "$SEED"
+
+    # S4.3: Controls in parallel (Qwen-14B + Mistral-7B)
+    log "Step S4.3: Qwen-14B (GPU 1) + Mistral-7B (GPU 2) controls in parallel"
+    run_experiment "S4 Qwen-14B control" "1" \
+        "04b_natural_deception.py" --model "Qwen/Qwen2.5-14B-Instruct" --runs "$RUNS" --seed "$SEED" &
+    local pid1=$!
+    run_experiment "S4 Mistral-7B control" "2" \
+        "04b_natural_deception.py" --model "mistralai/Mistral-7B-Instruct-v0.3" --runs "$RUNS" --seed "$SEED" &
+    local pid2=$!
+    wait $pid1 $pid2
+}
+
+# ================================================================
+# Phase I: Abliteration Geometry (refusal removal effects)
+# ================================================================
+
+phase_I() {
+    log "╔══════════════════════════════════════════════════════════╗"
+    log "║  PHASE I: ABLITERATION GEOMETRY                         ║"
+    log "║  What happens to KV-cache geometry when refusal removed ║"
+    log "╚══════════════════════════════════════════════════════════╝"
+    log_gpu
+
+    # I.1: Baseline Qwen-7B
+    log "Step I.1: Baseline Qwen-7B (input-only + geometric sweep)"
+    run_experiment "Abliteration Baseline" "1" \
+        "07_abliteration_geometry.py" --model "Qwen/Qwen2.5-7B-Instruct" --baseline-only --runs "$RUNS" --seed "$SEED"
+
+    # I.2: Abliterate refusal direction
+    log "Step I.2: Abliterate Qwen-7B refusal"
+    run_experiment "Abliterate Qwen-7B" "1" \
+        "07_abliteration_geometry.py" --model "Qwen/Qwen2.5-7B-Instruct" --abliterate --seed "$SEED"
+
+    # I.3: Abliterated model sweep
+    log "Step I.3: Abliterated model geometric sweep"
+    run_experiment "Abliterated Sweep" "1" \
+        "07_abliteration_geometry.py" --model "./abliterated_qwen7b" --geometric-sweep --runs "$RUNS" --seed "$SEED"
+
+    # I.4: Deception forensics on abliterated model
+    log "Step I.4: Deception forensics on abliterated model"
+    run_experiment "Abliterated Deception" "1" \
+        "04_deception_forensics.py" --model "./abliterated_qwen7b" --runs "$RUNS" --seed "$SEED"
+}
+
+# ================================================================
 # Phase G: Projector Training
 # ================================================================
 
@@ -371,11 +466,13 @@ if [ -n "$PHASE" ]; then
         F) phase_F ;;
         G) phase_G ;;
         H) phase_H ;;
-        *) echo "Unknown phase: $PHASE (valid: B C D E F G H)"; exit 1 ;;
+        S4) phase_S4 ;;
+        I) phase_I ;;
+        *) echo "Unknown phase: $PHASE (valid: B C D E F G H S4 I)"; exit 1 ;;
     esac
 else
     # Run all phases in order
-    log "Running ALL phases (B → H)"
+    log "Running ALL phases (B → I)"
     log ""
 
     phase_B
@@ -386,6 +483,8 @@ else
     phase_E
     phase_F
     phase_H
+    phase_S4
+    phase_I
     phase_G
 fi
 
