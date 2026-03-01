@@ -352,6 +352,14 @@ SCALE_CONFIGS = {
     "7B-q4": {"model": "Qwen/Qwen2.5-7B-Instruct", "quantize": True},
     "32B-q4": {"model": "Qwen/Qwen2.5-32B-Instruct", "quantize": True},
     "70B-q4": {"model": "meta-llama/Llama-3.1-70B-Instruct", "quantize": True},
+    # Campaign 2: Cross-architecture at matched scale
+    "2B": {"model": "google/gemma-2-2b-it", "quantize": False},
+    "3.8B": {"model": "microsoft/Phi-3.5-mini-instruct", "quantize": False},
+    "7B-mistral": {"model": "mistralai/Mistral-7B-Instruct-v0.3", "quantize": False},
+    "9B": {"model": "google/gemma-2-9b-it", "quantize": False},
+    # Campaign 2: Censorship-trained (same arch as Qwen, different training)
+    "7B-ds": {"model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B", "quantize": False},
+    "14B-ds": {"model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B", "quantize": False},
 }
 
 
