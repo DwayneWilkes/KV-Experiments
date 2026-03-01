@@ -228,20 +228,18 @@ phase_D() {
     run_experiment "Scale Sweep 9B" "1" \
         "03_scale_sweep.py" --scale 9B --runs "$RUNS" --seed "$SEED"
 
-    # Step D.7: 14B (single GPU, ~28GB — may need device_map=auto)
-    log "Step D.7: 14B (single GPU)"
-    run_experiment "Scale Sweep 14B" "1" \
+    # Step D.7: 14B (~28GB BF16, needs 2 GPUs via device_map=auto)
+    log "Step D.7: 14B (GPUs 1+2, device_map=auto)"
+    run_experiment "Scale Sweep 14B" "1,2" \
         "03_scale_sweep.py" --scale 14B --runs "$RUNS" --seed "$SEED"
 
-    # Step D.8: DeepSeek distill in parallel (7B + 14B)
-    log "Step D.8: DeepSeek-7B (GPU 1) + DeepSeek-14B (GPU 2) in parallel"
+    # Step D.8: DeepSeek-7B (single GPU), then DeepSeek-14B (2 GPUs)
+    log "Step D.8: DeepSeek-7B (GPU 1)"
     run_experiment "Scale Sweep 7B-ds" "1" \
-        "03_scale_sweep.py" --scale 7B-ds --runs "$RUNS" --seed "$SEED" &
-    pid1=$!
-    run_experiment "Scale Sweep 14B-ds" "2" \
-        "03_scale_sweep.py" --scale 14B-ds --runs "$RUNS" --seed "$SEED" &
-    pid2=$!
-    wait $pid1 $pid2
+        "03_scale_sweep.py" --scale 7B-ds --runs "$RUNS" --seed "$SEED"
+    log "Step D.8b: DeepSeek-14B (GPUs 1+2)"
+    run_experiment "Scale Sweep 14B-ds" "1,2" \
+        "03_scale_sweep.py" --scale 14B-ds --runs "$RUNS" --seed "$SEED"
 
     # Step D.9: 32B quantized (single GPU, ~18GB)
     log "Step D.9: 32B-q4 (single GPU)"
