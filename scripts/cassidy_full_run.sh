@@ -3,8 +3,8 @@
 # KV-Cache Full Experiment Campaign — Cassidy Execution Script
 # ================================================================
 #
-# Machine: 3x RTX 3090 (24GB each), 126GB RAM, 777GB free on /home
-# GPU 0: ComfyUI (DO NOT TOUCH) | GPUs 1+2: Ours
+# Machine: 3x RTX 3090 (24GB each = 72GB), 126GB RAM
+# ALL 3 GPUs AVAILABLE — triple-wide parallelization
 #
 # Usage:
 #   bash scripts/cassidy_full_run.sh              # Run all phases
@@ -130,7 +130,7 @@ phase_B() {
     log "╚══════════════════════════════════════════════════════════╝"
     log_gpu
 
-    run_experiment "Adversarial Controls (TinyLlama)" "1" \
+    run_experiment "Adversarial Controls (TinyLlama)" "0" \
         "01d_adversarial_controls.py" --runs "$RUNS" --seed "$SEED"
 }
 
@@ -144,22 +144,19 @@ phase_C() {
     log "╚══════════════════════════════════════════════════════════╝"
     log_gpu
 
-    # Step 1: Deception + Temporal in parallel on separate GPUs
-    log "Step C.1: Deception (GPU 1) + Temporal (GPU 2) in parallel"
-    run_experiment "Deception Forensics (TinyLlama)" "1" \
+    # All 3 extensions in parallel — 3 GPUs, 3 experiments
+    log "Step C.1: Deception (GPU 0) + Layer Map (GPU 1) + Temporal (GPU 2) — 3-wide"
+    run_experiment "Deception Forensics (TinyLlama)" "0" \
         "04_deception_forensics.py" --runs "$RUNS" --seed "$SEED" &
+    local pid0=$!
+    run_experiment "Semantic Layer Map (TinyLlama)" "1" \
+        "05_layer_map.py" --runs 3 --seed "$SEED" &
     local pid1=$!
-
     run_experiment "Temporal Evolution (TinyLlama)" "2" \
         "06_temporal_evolution.py" --runs 3 --seed "$SEED" &
     local pid2=$!
-
-    wait $pid1 $pid2
-    log "Step C.1 complete (parallel)"
-
-    # Step 2: Layer Map (sequential, GPU 1)
-    run_experiment "Semantic Layer Map (TinyLlama)" "1" \
-        "05_layer_map.py" --runs 3 --seed "$SEED"
+    wait $pid0 $pid1 $pid2
+    log "Step C.1 complete (3-wide parallel)"
 }
 
 # ================================================================
@@ -173,82 +170,78 @@ phase_D() {
     log "╚══════════════════════════════════════════════════════════╝"
     log_gpu
 
-    # Step D.1: Smallest models in parallel
-    log "Step D.1: 0.5B (GPU 1) + 0.6B (GPU 2) in parallel"
-    run_experiment "Scale Sweep 0.5B" "1" \
+    # === ALL 3 GPUs AVAILABLE — TRIPLE-WIDE PARALLELIZATION ===
+
+    # Step D.1: 3 tiny models simultaneously (~1GB each)
+    log "Step D.1: 0.5B (GPU 0) + 0.6B (GPU 1) + 1.1B (GPU 2) — 3-wide"
+    run_experiment "Scale Sweep 0.5B" "0" \
         "03_scale_sweep.py" --scale 0.5B --runs "$RUNS" --seed "$SEED" &
-    local pid1=$!
-    run_experiment "Scale Sweep 0.6B" "2" \
+    local pid0=$!
+    run_experiment "Scale Sweep 0.6B" "1" \
         "03_scale_sweep.py" --scale 0.6B --runs "$RUNS" --seed "$SEED" &
-    local pid2=$!
-    wait $pid1 $pid2
-
-    # Step D.2: 1.1B + 3B in parallel
-    log "Step D.2: 1.1B (GPU 1) + 3B (GPU 2) in parallel"
-    run_experiment "Scale Sweep 1.1B" "1" \
+    local pid1=$!
+    run_experiment "Scale Sweep 1.1B" "2" \
         "03_scale_sweep.py" --scale 1.1B --runs "$RUNS" --seed "$SEED" &
-    pid1=$!
-    run_experiment "Scale Sweep 3B" "2" \
-        "03_scale_sweep.py" --scale 3B --runs "$RUNS" --seed "$SEED" &
-    pid2=$!
-    wait $pid1 $pid2
+    local pid2=$!
+    wait $pid0 $pid1 $pid2
 
-    # Step D.3: Cross-arch small in parallel (Gemma-2B + Phi-3.5)
-    log "Step D.3: Gemma-2B (GPU 1) + Phi-3.5 (GPU 2) in parallel"
-    run_experiment "Scale Sweep 2B" "1" \
+    # Step D.2: 3 small models simultaneously (~5-8GB each)
+    log "Step D.2: Gemma-2B (GPU 0) + 3B (GPU 1) + Phi-3.5 (GPU 2) — 3-wide"
+    run_experiment "Scale Sweep 2B" "0" \
         "03_scale_sweep.py" --scale 2B --runs "$RUNS" --seed "$SEED" &
+    pid0=$!
+    run_experiment "Scale Sweep 3B" "1" \
+        "03_scale_sweep.py" --scale 3B --runs "$RUNS" --seed "$SEED" &
     pid1=$!
     run_experiment "Scale Sweep 3.8B" "2" \
         "03_scale_sweep.py" --scale 3.8B --runs "$RUNS" --seed "$SEED" &
     pid2=$!
-    wait $pid1 $pid2
+    wait $pid0 $pid1 $pid2
 
-    # Step D.4: Medium models in parallel (7B Qwen vs 8B Llama — architecture comparison)
-    log "Step D.4: 7B Qwen (GPU 1) + 8B Llama (GPU 2) in parallel"
-    run_experiment "Scale Sweep 7B" "1" \
+    # Step D.3: 3 medium models simultaneously (~14-18GB each, fits on 24GB)
+    log "Step D.3: 7B Qwen (GPU 0) + 7B Mistral (GPU 1) + 7B-q4 (GPU 2) — 3-wide"
+    run_experiment "Scale Sweep 7B" "0" \
         "03_scale_sweep.py" --scale 7B --runs "$RUNS" --seed "$SEED" &
-    pid1=$!
-    run_experiment "Scale Sweep 8B" "2" \
-        "03_scale_sweep.py" --scale 8B --runs "$RUNS" --seed "$SEED" &
-    pid2=$!
-    wait $pid1 $pid2
-
-    # Step D.5: Cross-arch medium in parallel (Mistral-7B + 7B-q4)
-    log "Step D.5: Mistral-7B (GPU 1) + Qwen-7B-q4 (GPU 2) in parallel"
+    pid0=$!
     run_experiment "Scale Sweep 7B-mistral" "1" \
         "03_scale_sweep.py" --scale 7B-mistral --runs "$RUNS" --seed "$SEED" &
     pid1=$!
     run_experiment "Scale Sweep 7B-q4" "2" \
         "03_scale_sweep.py" --scale 7B-q4 --runs "$RUNS" --seed "$SEED" &
     pid2=$!
-    wait $pid1 $pid2
+    wait $pid0 $pid1 $pid2
 
-    # Step D.6: Gemma-9B (single GPU, ~18GB)
-    log "Step D.6: Gemma-9B (single GPU)"
-    run_experiment "Scale Sweep 9B" "1" \
-        "03_scale_sweep.py" --scale 9B --runs "$RUNS" --seed "$SEED"
-
-    # Step D.7: 14B (~28GB BF16, needs 2 GPUs via device_map=auto)
-    log "Step D.7: 14B (GPUs 1+2, device_map=auto)"
-    run_experiment "Scale Sweep 14B" "1,2" \
-        "03_scale_sweep.py" --scale 14B --runs "$RUNS" --seed "$SEED"
-
-    # Step D.8: DeepSeek-7B (single GPU), then DeepSeek-14B (2 GPUs)
-    log "Step D.8: DeepSeek-7B (GPU 1)"
+    # Step D.4: 3 more ~7-8B models simultaneously
+    log "Step D.4: 8B Llama (GPU 0) + DeepSeek-7B (GPU 1) + Gemma-9B (GPU 2) — 3-wide"
+    run_experiment "Scale Sweep 8B" "0" \
+        "03_scale_sweep.py" --scale 8B --runs "$RUNS" --seed "$SEED" &
+    pid0=$!
     run_experiment "Scale Sweep 7B-ds" "1" \
-        "03_scale_sweep.py" --scale 7B-ds --runs "$RUNS" --seed "$SEED"
-    log "Step D.8b: DeepSeek-14B (GPUs 1+2)"
-    run_experiment "Scale Sweep 14B-ds" "1,2" \
+        "03_scale_sweep.py" --scale 7B-ds --runs "$RUNS" --seed "$SEED" &
+    pid1=$!
+    run_experiment "Scale Sweep 9B" "2" \
+        "03_scale_sweep.py" --scale 9B --runs "$RUNS" --seed "$SEED" &
+    pid2=$!
+    wait $pid0 $pid1 $pid2
+
+    # Step D.5: 14B Qwen (2 GPUs) + 32B-q4 (~18GB, 1 GPU)
+    log "Step D.5: 14B Qwen (GPUs 0+1) + 32B-q4 (GPU 2) in parallel"
+    run_experiment "Scale Sweep 14B" "0,1" \
+        "03_scale_sweep.py" --scale 14B --runs "$RUNS" --seed "$SEED" &
+    pid0=$!
+    run_experiment "Scale Sweep 32B-q4" "2" \
+        "03_scale_sweep.py" --scale 32B-q4 --runs "$RUNS" --seed "$SEED" &
+    pid2=$!
+    wait $pid0 $pid2
+
+    # Step D.6: DeepSeek-14B (2 GPUs, ~28GB BF16)
+    log "Step D.6: DeepSeek-14B (GPUs 0+1)"
+    run_experiment "Scale Sweep 14B-ds" "0,1" \
         "03_scale_sweep.py" --scale 14B-ds --runs "$RUNS" --seed "$SEED"
 
-    # Step D.9: 32B quantized (single GPU, ~18GB)
-    log "Step D.9: 32B-q4 (single GPU)"
-    run_experiment "Scale Sweep 32B-q4" "1" \
-        "03_scale_sweep.py" --scale 32B-q4 --runs "$RUNS" --seed "$SEED"
-
-    # Step D.10: 70B quantized (2 GPUs, ~38GB)
-    log "Step D.10: 70B-q4 (GPUs 1+2, device_map=auto)"
-    run_experiment "Scale Sweep 70B-q4" "1,2" \
+    # Step D.7: 70B-q4 (~38GB, all 3 GPUs)
+    log "Step D.7: 70B-q4 (all 3 GPUs)"
+    run_experiment "Scale Sweep 70B-q4" "0,1,2" \
         "03_scale_sweep.py" --scale 70B-q4 --runs 3 --seed "$SEED"
 }
 
@@ -262,24 +255,22 @@ phase_E() {
     log "╚══════════════════════════════════════════════════════════╝"
     log_gpu
 
-    # Step E.1: Small models in parallel
-    log "Step E.1: 0.6B (GPU 1) + 1.1B (GPU 2) in parallel"
-    run_experiment "Identity 0.6B" "1" \
+    # Step E.1: 3 small models simultaneously
+    log "Step E.1: 0.6B (GPU 0) + 1.1B (GPU 1) + 7B (GPU 2) — 3-wide"
+    run_experiment "Identity 0.6B" "0" \
         "03b_identity_signatures.py" --model "Qwen/Qwen3-0.6B" --runs "$RUNS" --seed "$SEED" &
-    local pid1=$!
-    run_experiment "Identity 1.1B" "2" \
+    local pid0=$!
+    run_experiment "Identity 1.1B" "1" \
         "03b_identity_signatures.py" --model "TinyLlama/TinyLlama-1.1B-Chat-v1.0" --runs "$RUNS" --seed "$SEED" &
+    local pid1=$!
+    run_experiment "Identity 7B" "2" \
+        "03b_identity_signatures.py" --model "Qwen/Qwen2.5-7B-Instruct" --runs "$RUNS" --seed "$SEED" &
     local pid2=$!
-    wait $pid1 $pid2
+    wait $pid0 $pid1 $pid2
 
-    # Step E.2: 7B
-    log "Step E.2: 7B identity"
-    run_experiment "Identity 7B" "1" \
-        "03b_identity_signatures.py" --model "Qwen/Qwen2.5-7B-Instruct" --runs "$RUNS" --seed "$SEED"
-
-    # Step E.3: 32B quantized
-    log "Step E.3: 32B-q4 identity"
-    run_experiment "Identity 32B-q4" "1" \
+    # Step E.2: 32B quantized (~18GB, single GPU)
+    log "Step E.2: 32B-q4 identity"
+    run_experiment "Identity 32B-q4" "0" \
         "03b_identity_signatures.py" --model "Qwen/Qwen2.5-32B-Instruct" --quantize --runs 3 --seed "$SEED"
 }
 
@@ -293,25 +284,28 @@ phase_F() {
     log "╚══════════════════════════════════════════════════════════╝"
     log_gpu
 
-    # F.1: Deception at 7B
-    run_experiment "Deception 7B" "1" \
-        "04_deception_forensics.py" --model "Qwen/Qwen2.5-7B-Instruct" --runs "$RUNS" --seed "$SEED"
-
-    # F.2: Layer Map at 7B
+    # F.1: All 3 extension types at 7B simultaneously (~14GB each, fits per GPU)
+    log "Step F.1: Deception (GPU 0) + Layer Map (GPU 1) + Temporal (GPU 2) at 7B — 3-wide"
+    run_experiment "Deception 7B" "0" \
+        "04_deception_forensics.py" --model "Qwen/Qwen2.5-7B-Instruct" --runs "$RUNS" --seed "$SEED" &
+    local pid0=$!
     run_experiment "Layer Map 7B" "1" \
-        "05_layer_map.py" --model "Qwen/Qwen2.5-7B-Instruct" --runs 3 --seed "$SEED"
+        "05_layer_map.py" --model "Qwen/Qwen2.5-7B-Instruct" --runs 3 --seed "$SEED" &
+    local pid1=$!
+    run_experiment "Temporal 7B" "2" \
+        "06_temporal_evolution.py" --model "Qwen/Qwen2.5-7B-Instruct" --runs 3 --seed "$SEED" &
+    local pid2=$!
+    wait $pid0 $pid1 $pid2
 
-    # F.3: Temporal at 7B
-    run_experiment "Temporal 7B" "1" \
-        "06_temporal_evolution.py" --model "Qwen/Qwen2.5-7B-Instruct" --runs 3 --seed "$SEED"
-
-    # F.4: Deception at 32B-q4
-    run_experiment "Deception 32B-q4" "1" \
-        "04_deception_forensics.py" --model "Qwen/Qwen2.5-32B-Instruct" --quantize --runs 3 --seed "$SEED"
-
-    # F.5: Layer Map at 32B-q4
+    # F.2: Deception + Layer Map at 32B-q4 in parallel (~18GB each)
+    log "Step F.2: Deception 32B-q4 (GPU 0) + Layer Map 32B-q4 (GPU 1)"
+    run_experiment "Deception 32B-q4" "0" \
+        "04_deception_forensics.py" --model "Qwen/Qwen2.5-32B-Instruct" --quantize --runs 3 --seed "$SEED" &
+    pid0=$!
     run_experiment "Layer Map 32B-q4" "1" \
-        "05_layer_map.py" --model "Qwen/Qwen2.5-32B-Instruct" --quantize --runs 3 --seed "$SEED"
+        "05_layer_map.py" --model "Qwen/Qwen2.5-32B-Instruct" --quantize --runs 3 --seed "$SEED" &
+    pid1=$!
+    wait $pid0 $pid1
 }
 
 # ================================================================
@@ -373,15 +367,15 @@ phase_S4() {
     run_experiment "S4 DeepSeek-14B" "1" \
         "04b_natural_deception.py" --model "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B" --runs "$RUNS" --seed "$SEED"
 
-    # S4.3: Controls in parallel (Qwen-14B + Mistral-7B)
-    log "Step S4.3: Qwen-14B (GPU 1) + Mistral-7B (GPU 2) controls in parallel"
-    run_experiment "S4 Qwen-14B control" "1" \
+    # S4.3: All 3 controls simultaneously (Qwen-14B needs 2 GPUs, Mistral-7B on 1)
+    log "Step S4.3: Qwen-14B (GPUs 0+1) + Mistral-7B (GPU 2) controls"
+    run_experiment "S4 Qwen-14B control" "0,1" \
         "04b_natural_deception.py" --model "Qwen/Qwen2.5-14B-Instruct" --runs "$RUNS" --seed "$SEED" &
-    local pid1=$!
+    local pid0=$!
     run_experiment "S4 Mistral-7B control" "2" \
         "04b_natural_deception.py" --model "mistralai/Mistral-7B-Instruct-v0.3" --runs "$RUNS" --seed "$SEED" &
     local pid2=$!
-    wait $pid1 $pid2
+    wait $pid0 $pid2
 }
 
 # ================================================================
