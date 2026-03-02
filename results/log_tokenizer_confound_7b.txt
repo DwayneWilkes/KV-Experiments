@@ -1,0 +1,239 @@
+======================================================================
+  CONTROL 7: TOKENIZER CONFOUND — SURFACE FORM INDEPENDENCE
+  Liberation Labs / THCoalition
+======================================================================
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  Time: 2026-03-02T19:06:07.854255
+======================================================================
+
+  Model: Qwen/Qwen2.5-7B-Instruct
+  Runs: 5
+  Seed: 42
+  Mode: both
+Loading Qwen/Qwen2.5-7B-Instruct (quantize=False)...
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.15it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.14it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.22it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.31it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.25it/s]
+  Loaded: 28 layers, 4 KV heads
+
+  Phase 1: Tokenization Divergence Verification
+  --------------------------------------------------
+    C1: J=0.944  tokens=16/24  overlap=2/36
+    C2: J=0.917  tokens=19/23  overlap=3/36
+    C3: J=0.944  tokens=15/27  overlap=2/36
+    C4: J=0.974  tokens=14/28  overlap=1/39
+    C5: J=0.955  tokens=24/24  overlap=2/44
+    R1: J=0.839  tokens=21/18  overlap=5/31
+    R2: J=0.917  tokens=21/20  overlap=3/36
+    R3: J=0.941  tokens=20/18  overlap=2/34
+    R4: J=0.879  tokens=22/18  overlap=4/33
+    R5: J=0.944  tokens=20/18  overlap=2/36
+    A1: J=0.975  tokens=20/26  overlap=1/40
+    A2: J=0.978  tokens=26/22  overlap=1/45
+    A3: J=0.944  tokens=18/22  overlap=2/36
+    A4: J=0.925  tokens=23/23  overlap=3/40
+    A5: J=0.895  tokens=22/21  overlap=4/38
+    F1: J=0.953  tokens=24/23  overlap=2/43
+    F2: J=0.935  tokens=27/25  overlap=3/46
+    F3: J=0.947  tokens=25/20  overlap=2/38
+    F4: J=0.978  tokens=29/21  overlap=1/46
+    F5: J=0.854  tokens=30/28  overlap=7/48
+    E1: J=0.900  tokens=29/30  overlap=5/50
+    E2: J=1.000  tokens=24/22  overlap=0/44
+    E3: J=0.949  tokens=25/19  overlap=2/39
+    E4: J=0.933  tokens=23/27  overlap=3/45
+    E5: J=0.915  tokens=27/28  overlap=4/47
+
+    Mean Jaccard distance: 0.933
+    Gate criterion (> 0.5): PASSED
+
+============================================================
+  MODE: input_only
+============================================================
+
+  Running input_only experiment (5 runs)...
+  25 pairs × 2 versions × 5 runs = 250 inferences
+
+    Category: coding
+      C1: |d_rank|=inf  A=15.14  B=19.18
+      C2: |d_rank|=inf  A=16.68  B=18.07
+      C3: |d_rank|=inf  A=14.61  B=20.18
+/home/thomas/KV-Experiments/.venv/lib/python3.12/site-packages/scipy/stats/_axis_nan_policy.py:592: UserWarning: scipy.stats.shapiro: Input data has range zero. The results may not be accurate.
+  res = hypotest_fun_out(*samples, **kwds)
+/home/thomas/KV-Experiments/.venv/lib/python3.12/site-packages/scipy/stats/_axis_nan_policy.py:592: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+  res = hypotest_fun_out(*samples, **kwds)
+      C4: |d_rank|=4628530559892316.000  A=13.82  B=20.32
+      C5: |d_rank|=inf  A=19.04  B=19.29
+
+    Category: creative
+      R1: |d_rank|=inf  A=16.86  B=14.79
+      R2: |d_rank|=inf  A=16.82  B=16.39
+      R3: |d_rank|=661218651413186.875  A=15.93  B=15.00
+      R4: |d_rank|=1653046628532968.500  A=17.64  B=15.32
+      R5: |d_rank|=inf  A=16.86  B=16.29
+
+    Category: analytical
+      A1: |d_rank|=inf  A=15.50  B=19.11
+      A2: |d_rank|=inf  A=17.25  B=17.14
+      A3: |d_rank|=inf  A=15.21  B=17.21
+      A4: |d_rank|=inf  A=17.07  B=18.25
+      A5: |d_rank|=inf  A=17.36  B=15.54
+
+    Category: factual
+      F1: |d_rank|=inf  A=17.25  B=17.89
+      F2: |d_rank|=inf  A=18.71  B=17.89
+      F3: |d_rank|=inf  A=17.75  B=16.04
+      F4: |d_rank|=inf  A=19.79  B=16.46
+      F5: |d_rank|=inf  A=20.00  B=19.96
+
+    Category: ethical
+      E1: |d_rank|=inf  A=20.07  B=20.86
+      E2: |d_rank|=inf  A=17.96  B=17.04
+      E3: |d_rank|=inf  A=17.75  B=15.36
+      E4: |d_rank|=inf  A=17.50  B=18.57
+      E5: |d_rank|=inf  A=18.50  B=19.46
+
+  Phase 2: Within-Pair Equivalence (Core Test)
+  --------------------------------------------------
+    Mean |d| (effective rank): inf
+    Mean |d| (spectral entropy): inf
+    Pairs with |d_rank| < 0.3: 0/25 (0%)
+    TOST equivalence (rank): 0/25
+    TOST equivalence (entropy): 0/25
+
+  Phase 3: Between-Category Separation
+  --------------------------------------------------
+    coding: mean=17.63 (n=50)
+    creative: mean=16.19 (n=50)
+    analytical: mean=16.96 (n=50)
+    factual: mean=18.17 (n=50)
+    ethical: mean=18.31 (n=50)
+    coding vs creative: |d|=0.829
+    coding vs analytical: |d|=0.365
+    coding vs factual: |d|=0.287
+    coding vs ethical: |d|=0.347
+    creative vs analytical: |d|=0.740
+    creative vs factual: |d|=1.732
+    creative vs ethical: |d|=1.708
+    analytical vs factual: |d|=0.948
+    analytical vs ethical: |d|=0.987
+    factual vs ethical: |d|=0.092
+
+    Mean between-category |d|: 0.803
+    Significant pairs (p<0.05): 6/10
+
+  Phase 4: Register × Category Interaction
+  --------------------------------------------------
+    Main effect of register: d=-0.248, p=0.0766
+    Register effect not significant
+    Register in coding: d=-2.443
+    Register in creative: d=2.046
+    Register in analytical: d=-0.889
+    Register in factual: d=0.830
+    Register in ethical: d=0.065
+
+  Phase 5: Token-Level Regression Control
+  --------------------------------------------------
+    Category F=16.78, p=0.0000, eta²=0.215
+    After token control: F=38.83, p=0.0000, eta²=0.388
+    Category effect SURVIVES after token control
+
+  ============================================================
+  VERDICT: CATASTROPHIC_FAIL
+  Surface form dominates semantic content. Within-pair d exceeds between-category d. Retract or heavily qualify all prior findings.
+  ============================================================
+
+============================================================
+  MODE: full_gen
+============================================================
+
+  Running full_gen experiment (5 runs)...
+  25 pairs × 2 versions × 5 runs = 250 inferences
+
+    Category: coding
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+      C1: |d_rank|=314698590945098.500  A=27.14  B=28.39
+      C2: |d_rank|=inf  A=25.71  B=26.32
+      C3: |d_rank|=inf  A=24.82  B=28.04
+      C4: |d_rank|=inf  A=24.43  B=27.54
+      C5: |d_rank|=63578716482036.766  A=27.36  B=27.18
+
+    Category: creative
+      R1: |d_rank|=inf  A=25.29  B=25.04
+      R2: |d_rank|=inf  A=25.32  B=26.18
+      R3: |d_rank|=inf  A=24.96  B=25.25
+      R4: |d_rank|=139873176260480.625  A=25.46  B=25.86
+      R5: |d_rank|=inf  A=26.25  B=24.18
+
+    Category: analytical
+      A1: |d_rank|=inf  A=24.39  B=27.43
+      A2: |d_rank|=inf  A=24.82  B=25.71
+      A3: |d_rank|=inf  A=24.21  B=25.14
+      A4: |d_rank|=686650138006003.625  A=24.71  B=26.64
+      A5: |d_rank|=inf  A=25.93  B=23.57
+
+    Category: factual
+      F1: |d_rank|=203451892742519.906  A=25.32  B=25.89
+      F2: |d_rank|=inf  A=25.75  B=24.93
+      F3: |d_rank|=inf  A=25.71  B=24.50
+      F4: |d_rank|=inf  A=26.93  B=24.43
+      F5: |d_rank|=inf  A=26.79  B=27.57
+
+    Category: ethical
+      E1: |d_rank|=inf  A=27.04  B=27.50
+      E2: |d_rank|=inf  A=25.79  B=24.64
+      E3: |d_rank|=inf  A=25.32  B=24.04
+      E4: |d_rank|=inf  A=25.32  B=25.36
+      E5: |d_rank|=775660341080854.625  A=25.64  B=27.82
+
+  Phase 2: Within-Pair Equivalence (Core Test)
+  --------------------------------------------------
+    Mean |d| (effective rank): inf
+    Mean |d| (spectral entropy): inf
+    Pairs with |d_rank| < 0.3: 0/25 (0%)
+    TOST equivalence (rank): 0/25
+    TOST equivalence (entropy): 0/25
+
+  Phase 3: Between-Category Separation
+  --------------------------------------------------
+    coding: mean=26.69 (n=50)
+    creative: mean=25.38 (n=50)
+    analytical: mean=25.26 (n=50)
+    factual: mean=25.78 (n=50)
+    ethical: mean=25.85 (n=50)
+    coding vs creative: |d|=1.321
+    coding vs analytical: |d|=1.191
+    coding vs factual: |d|=0.791
+    coding vs ethical: |d|=0.689
+    creative vs analytical: |d|=0.135
+    creative vs factual: |d|=0.489
+    creative vs ethical: |d|=0.502
+    analytical vs factual: |d|=0.491
+    analytical vs ethical: |d|=0.511
+    factual vs ethical: |d|=0.059
+
+    Mean between-category |d|: 0.618
+    Significant pairs (p<0.05): 7/10
+
+  Phase 4: Register × Category Interaction
+  --------------------------------------------------
+    Main effect of register: d=-0.301, p=0.0543
+    Register effect not significant
+    Register in coding: d=-1.599
+    Register in creative: d=0.267
+    Register in analytical: d=-0.847
+    Register in factual: d=0.658
+    Register in ethical: d=-0.042
+
+  Phase 5: Token-Level Regression Control
+  --------------------------------------------------
+    Category F=14.05, p=0.0000, eta²=0.187
+    After token control: F=14.05, p=0.0000, eta²=0.187
+    Category effect SURVIVES after token control
+
+  ============================================================
+  VERDICT: CATASTROPHIC_FAIL
+  Surface form dominates semantic content. Within-pair d exceeds between-category d. Retract or heavily qualify all prior findings.
+  ============================================================
+
+  Results: results/tokenizer_confound_Qwen2.5-7B_results.json
+  SHA-256: a21a2560d41c93e5...

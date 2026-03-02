@@ -11,6 +11,36 @@ import torch
 from pathlib import Path
 
 
+# --- Monkey-patch non-iterable cache types (HybridCache for Gemma-2, etc.) ---
+# HybridCache extends Cache (not DynamicCache) and lacks __iter__/__getitem__.
+# This makes it behave identically to DynamicCache: yields (key, value) tuples.
+try:
+    from transformers.cache_utils import HybridCache
+    if not hasattr(HybridCache, "__iter__"):
+        def _hybrid_cache_iter(self):
+            for i in range(len(self.key_cache)):
+                yield (self.key_cache[i], self.value_cache[i])
+        HybridCache.__iter__ = _hybrid_cache_iter
+    if not hasattr(HybridCache, "__len__"):
+        HybridCache.__len__ = lambda self: len(self.key_cache)
+    if not hasattr(HybridCache, "__getitem__"):
+        HybridCache.__getitem__ = lambda self, idx: (self.key_cache[idx], self.value_cache[idx])
+except ImportError:
+    pass
+
+
+def normalize_cache(cache):
+    """Convert any cache type to a list of (key, value) tuples.
+
+    Handles DynamicCache, HybridCache, and legacy tuple-of-tuples.
+    Use this when you need an explicit list rather than relying on iteration.
+    """
+    if hasattr(cache, "key_cache") and hasattr(cache, "value_cache"):
+        return [(cache.key_cache[i], cache.value_cache[i])
+                for i in range(len(cache.key_cache))]
+    return list(cache)
+
+
 def model_id_from_name(model_name: str) -> str:
     """Extract a short, filesystem-safe identifier from a HuggingFace model name.
 

@@ -448,7 +448,7 @@ def run_classification(fingerprint_data: Dict,
         ),
         "logistic_regression": make_pipeline(
             StandardScaler(), LogisticRegression(
-                random_state=seed, max_iter=5000, multi_class="multinomial"
+                random_state=seed, max_iter=5000
             )
         ),
     }

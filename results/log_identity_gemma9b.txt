@@ -1,0 +1,193 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  PHASE 2b: IDENTITY SIGNATURE EXPLORATION — PUBLICATION GRADE
+  Liberation Labs / THCoalition
+======================================================================
+  Model: google/gemma-2-9b-it
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  GPU: NVIDIA GeForce RTX 3090 (25.31 GB)
+  Time: 2026-03-02T11:53:18.696518
+======================================================================
+
+Loading google/gemma-2-9b-it (quantize=False)...
+Fetching 4 files:   0%|          | 0/4 [00:00<?, ?it/s]Fetching 4 files:  25%|██▌       | 1/4 [02:18<06:55, 138.62s/it]Fetching 4 files:  75%|███████▌  | 3/4 [22:42<08:09, 489.12s/it]Fetching 4 files: 100%|██████████| 4/4 [22:42<00:00, 340.56s/it]
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.06it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.02it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.01it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.14it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.09it/s]
+  Loaded: 42 layers, 8 KV heads
+
+============================================================
+  EXPERIMENT A: PERSONA FINGERPRINTING
+============================================================
+
+  --- Run 1/5 ---
+    Progress: 25/750 (3%)
+    Progress: 50/750 (7%)
+    Progress: 75/750 (10%)
+    Progress: 100/750 (13%)
+    Progress: 125/750 (17%)
+    Progress: 150/750 (20%)
+
+  --- Run 2/5 ---
+    Progress: 175/750 (23%)
+    Progress: 200/750 (27%)
+    Progress: 225/750 (30%)
+    Progress: 250/750 (33%)
+    Progress: 275/750 (37%)
+    Progress: 300/750 (40%)
+
+  --- Run 3/5 ---
+    Progress: 325/750 (43%)
+    Progress: 350/750 (47%)
+    Progress: 375/750 (50%)
+    Progress: 400/750 (53%)
+    Progress: 425/750 (57%)
+    Progress: 450/750 (60%)
+
+  --- Run 4/5 ---
+    Progress: 475/750 (63%)
+    Progress: 500/750 (67%)
+    Progress: 525/750 (70%)
+    Progress: 550/750 (73%)
+    Progress: 575/750 (77%)
+    Progress: 600/750 (80%)
+
+  --- Run 5/5 ---
+    Progress: 625/750 (83%)
+    Progress: 650/750 (87%)
+    Progress: 675/750 (90%)
+    Progress: 700/750 (93%)
+    Progress: 725/750 (97%)
+    Progress: 750/750 (100%)
+
+  Per-Persona Statistics:
+    lyra           : mean=26607.1 +/- 356.3  CI=[26546.1, 26671.1]
+    scientist      : mean=25224.9 +/- 359.7  CI=[25162.1, 25288.7]
+    analyst        : mean=25208.5 +/- 348.1  CI=[25147.8, 25269.7]
+    philosopher    : mean=24912.5 +/- 379.8  CI=[24846.5, 24980.0]
+    assistant      : mean=24883.9 +/- 619.6  CI=[24768.6, 24986.8]
+    creative       : mean=24841.9 +/- 543.7  CI=[24745.4, 24933.6]
+
+============================================================
+  EXPERIMENT B: CLASSIFICATION (Stratified k-Fold)
+============================================================
+  Samples: 750, Features: 252, Classes: 6, Chance: 16.7%
+  random_forest            : 100.0% +/- 0.0% (chance: 16.7%)
+  linear_svm               : 100.0% +/- 0.0% (chance: 16.7%)
+  logistic_regression      : 100.0% +/- 0.0% (chance: 16.7%)
+
+  Best classifier: random_forest
+  Holdout accuracy: 100.0%
+
+  Per-persona F1:
+    assistant      : F1=1.000
+    creative       : F1=1.000
+    scientist      : F1=1.000
+    philosopher    : F1=1.000
+    analyst        : F1=1.000
+    lyra           : F1=1.000
+
+  Running permutation test (1000 shuffles)...
+    Permutations: 200/1000
+    Permutations: 400/1000
+    Permutations: 600/1000
+    Permutations: 800/1000
+    Permutations: 1000/1000
+  Permutation p-value: 0.0000
+  Null distribution: mean=0.167, std=0.017
+
+  Running cross-prompt-group validation (H5)...
+    Holdout 'self_reflection': 90.0%
+    Holdout 'problem_solving': 96.7%
+    Holdout 'values': 100.0%
+    Holdout 'creative_open': 86.7%
+    Holdout 'analytical': 100.0%
+
+============================================================
+  EXPERIMENT C: PAIRWISE DISTINGUISHABILITY
+============================================================
+  assistant_vs_creative              : d=+0.072 [-0.168, 0.334] (negligible) 
+  assistant_vs_scientist             : d=-0.673 [-0.868, -0.475] (medium) *
+  assistant_vs_philosopher           : d=-0.056 [-0.274, 0.215] (negligible) 
+  assistant_vs_analyst               : d=-0.646 [-0.840, -0.445] (medium) *
+  assistant_vs_lyra                  : d=-3.410 [-4.166, -2.971] (large) *
+  creative_vs_scientist              : d=-0.831 [-1.052, -0.612] (large) *
+  creative_vs_philosopher            : d=-0.150 [-0.372, 0.100] (negligible) 
+  creative_vs_analyst                : d=-0.803 [-1.022, -0.589] (large) *
+  creative_vs_lyra                   : d=-3.841 [-4.506, -3.395] (large) *
+  scientist_vs_philosopher           : d=+0.845 [0.581, 1.142] (large) *
+  scientist_vs_analyst               : d=+0.046 [-0.196, 0.302] (negligible) 
+  scientist_vs_lyra                  : d=-3.861 [-4.289, -3.522] (large) *
+  philosopher_vs_analyst             : d=-0.813 [-1.095, -0.544] (large) *
+  philosopher_vs_lyra                : d=-4.602 [-5.210, -4.111] (large) *
+  analyst_vs_lyra                    : d=-3.971 [-4.437, -3.608] (large) *
+
+  Significant pairs after Holm-Bonferroni: 11/15
+
+  PCA-based distinguishability:
+
+============================================================
+  EXPERIMENT D: FEATURE LOCALIZATION (Per-Layer)
+============================================================
+
+  Testing each layer individually (42 layers)...
+    Layers 1-5: best so far = 100.0%
+    Layers 1-10: best so far = 100.0%
+    Layers 1-15: best so far = 100.0%
+    Layers 1-20: best so far = 100.0%
+    Layers 1-25: best so far = 100.0%
+    Layers 1-30: best so far = 100.0%
+    Layers 1-35: best so far = 100.0%
+    Layers 1-40: best so far = 100.0%
+    Layers 1-42: best so far = 100.0%
+
+  Top-5 layers by classification accuracy:
+    #1: Layer 0 — 100.0%
+    #2: Layer 1 — 100.0%
+    #3: Layer 2 — 100.0%
+    #4: Layer 3 — 100.0%
+    #5: Layer 4 — 100.0%
+
+  Cumulative layer analysis...
+    Top-1 layers: 100.0%
+    Top-2 layers: 100.0%
+    Top-3 layers: 100.0%
+    Top-4 layers: 100.0%
+    Top-5 layers: 100.0%
+    Top-6 layers: 100.0%
+    Top-7 layers: 100.0%
+    Top-8 layers: 100.0%
+    Top-9 layers: 100.0%
+    Top-10 layers: 100.0%
+
+  Feature type importance:
+    key_norm       : 100.0%
+    value_norm     : 100.0%
+    key_mean       : 100.0%
+    value_mean     : 100.0%
+    key_std        : 100.0%
+    value_std      : 100.0%
+
+============================================================
+  EXPERIMENT E: CROSS-PROMPT CONSISTENCY (H4)
+============================================================
+  Between-persona variance: 450670.60
+  Mean within-persona variance: 206883.93
+  ICC (approx): 0.164
+  Kendall's W (rank concordance): 0.829
+  H4 assessment: INCONSISTENT
+
+======================================================================
+  IDENTITY SIGNATURE RESULTS
+======================================================================
+
+  *** IDENTITY SIGNATURES DETECTED ***
+  Best classifier: random_forest (100.0%)
+  Chance level: 16.7%
+  Permutation p: 0.0000
+  Significant pairs: 11/15
+  H3 (localization): Identity signal is DISTRIBUTED across layers (H3 rejected)
+  H4 (consistency): ICC=0.164
+
+  Results: /home/thomas/KV-Experiments/results/identity_signatures_gemma-2-9b-it_results.json
+  Report:  /home/thomas/KV-Experiments/results/identity_signatures_gemma-2-9b-it_report.md
+  SHA-256: 669b5bfb8468a16a6c59a9ac5c0a201534febfa9dd7d88db1dd57a39d51c4e2c
+

@@ -1,0 +1,496 @@
+======================================================================
+  CONTROL 7: TOKENIZER CONFOUND — SURFACE FORM INDEPENDENCE
+  Liberation Labs / THCoalition
+======================================================================
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  Time: 2026-03-02T19:21:57.824586
+======================================================================
+
+  Model: mistralai/Mistral-7B-Instruct-v0.3
+  Runs: 5
+  Seed: 42
+  Mode: both
+Loading mistralai/Mistral-7B-Instruct-v0.3 (quantize=False)...
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:00<00:01,  1.03it/s]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:02<00:01,  1.05s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.02s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.02s/it]
+  Loaded: 32 layers, 8 KV heads
+
+  Phase 1: Tokenization Divergence Verification
+  --------------------------------------------------
+    C1: J=0.921  tokens=18/25  overlap=3/38
+    C2: J=0.900  tokens=24/24  overlap=4/40
+    C3: J=0.925  tokens=19/28  overlap=3/40
+    C4: J=0.956  tokens=20/29  overlap=2/45
+    C5: J=0.938  tokens=29/25  overlap=3/48
+    R1: J=0.838  tokens=27/19  overlap=6/37
+    R2: J=0.902  tokens=26/21  overlap=4/41
+    R3: J=0.921  tokens=24/19  overlap=3/38
+    R4: J=0.872  tokens=27/20  overlap=5/39
+    R5: J=0.933  tokens=27/21  overlap=3/45
+    A1: J=0.957  tokens=26/28  overlap=2/47
+    A2: J=0.962  tokens=32/25  overlap=2/53
+    A3: J=0.911  tokens=27/24  overlap=4/45
+    A4: J=0.909  tokens=27/24  overlap=4/44
+    A5: J=0.864  tokens=28/23  overlap=6/44
+    F1: J=0.943  tokens=33/25  overlap=3/53
+    F2: J=0.929  tokens=33/30  overlap=4/56
+    F3: J=0.932  tokens=31/21  overlap=3/44
+    F4: J=0.963  tokens=35/24  overlap=2/54
+    F5: J=0.855  tokens=39/29  overlap=8/55
+    E1: J=0.889  tokens=34/31  overlap=6/54
+    E2: J=0.980  tokens=30/24  overlap=1/51
+    E3: J=0.925  tokens=26/20  overlap=3/40
+    E4: J=0.941  tokens=28/28  overlap=3/51
+    E5: J=0.907  tokens=33/30  overlap=5/54
+
+    Mean Jaccard distance: 0.919
+    Gate criterion (> 0.5): PASSED
+
+============================================================
+  MODE: input_only
+============================================================
+
+  Running input_only experiment (5 runs)...
+  25 pairs × 2 versions × 5 runs = 250 inferences
+
+    Category: coding
+      C1: |d_rank|=inf  A=32.38  B=37.44
+      C2: |d_rank|=inf  A=36.00  B=37.16
+      C3: |d_rank|=inf  A=32.97  B=38.59
+      C4: |d_rank|=inf  A=32.66  B=39.00
+      C5: |d_rank|=inf  A=38.34  B=38.28
+
+    Category: creative
+      R1: |d_rank|=inf  A=38.34  B=30.59
+      R2: |d_rank|=inf  A=37.47  B=33.69
+      R3: |d_rank|=inf  A=35.09  B=32.16
+      R4: |d_rank|=inf  A=37.38  B=32.28
+      R5: |d_rank|=inf  A=37.47  B=33.00
+
+    Category: analytical
+      A1: |d_rank|=inf  A=33.91  B=38.19
+      A2: |d_rank|=inf  A=36.81  B=35.34
+      A3: |d_rank|=inf  A=35.28  B=35.59
+      A4: |d_rank|=inf  A=35.75  B=36.62
+      A5: |d_rank|=inf  A=36.88  B=33.16
+
+    Category: factual
+      F1: |d_rank|=inf  A=36.06  B=36.41
+      F2: |d_rank|=inf  A=37.91  B=37.22
+      F3: |d_rank|=inf  A=36.59  B=33.38
+      F4: |d_rank|=inf  A=39.84  B=34.91
+      F5: |d_rank|=inf  A=40.28  B=38.81
+
+    Category: ethical
+      E1: |d_rank|=inf  A=40.53  B=40.19
+      E2: |d_rank|=inf  A=38.53  B=35.66
+      E3: |d_rank|=inf  A=35.88  B=33.09
+      E4: |d_rank|=inf  A=36.94  B=37.16
+      E5: |d_rank|=inf  A=38.72  B=39.16
+
+  Phase 2: Within-Pair Equivalence (Core Test)
+  --------------------------------------------------
+    Mean |d| (effective rank): inf
+    Mean |d| (spectral entropy): inf
+    Pairs with |d_rank| < 0.3: 0/25 (0%)
+    TOST equivalence (rank): 0/25
+    TOST equivalence (entropy): 0/25
+
+  Phase 3: Between-Category Separation
+  --------------------------------------------------
+    coding: mean=36.28 (n=50)
+    creative: mean=34.75 (n=50)
+    analytical: mean=35.75 (n=50)
+    factual: mean=37.14 (n=50)
+    ethical: mean=37.58 (n=50)
+    coding vs creative: |d|=0.592
+    coding vs analytical: |d|=0.258
+    coding vs factual: |d|=0.373
+    coding vs ethical: |d|=0.550
+    creative vs analytical: |d|=0.473
+    creative vs factual: |d|=1.007
+    creative vs ethical: |d|=1.164
+    analytical vs factual: |d|=0.784
+    analytical vs ethical: |d|=0.989
+    factual vs ethical: |d|=0.208
+
+    Mean between-category |d|: 0.640
+    Significant pairs (p<0.05): 6/10
+
+  Phase 4: Register × Category Interaction
+  --------------------------------------------------
+    Main effect of register: d=0.351, p=0.0243
+    Register effect SIGNIFICANT
+    Register in coding: d=-2.061
+    Register in creative: d=4.441
+    Register in analytical: d=-0.039
+    Register in factual: d=1.096
+    Register in ethical: d=0.495
+
+  Phase 5: Token-Level Regression Control
+  --------------------------------------------------
+    Category F=12.91, p=0.0000, eta²=0.174
+    After token control: F=24.10, p=0.0000, eta²=0.282
+    Category effect SURVIVES after token control
+
+  NOTE: Within-pair d is inf (zero-variance artifact)
+  Falling back to regression + register + raw ratio analysis
+  Raw within/between ratio: 0.990
+  Register significant: True
+  Category survives token control: True
+
+  ============================================================
+  VERDICT: PARTIAL_PASS
+  Category effect survives token control but register has a significant main effect. Tokenizer adds systematic offset. Category ordering is preserved but report the offset.
+  ============================================================
+
+============================================================
+  MODE: full_gen
+============================================================
+
+  Running full_gen experiment (5 runs)...
+  25 pairs × 2 versions × 5 runs = 250 inferences
+
+    Category: coding
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      C1: |d_rank|=inf  A=44.78  B=47.81
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      C2: |d_rank|=inf  A=46.00  B=45.91
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      C3: |d_rank|=inf  A=44.25  B=48.09
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      C4: |d_rank|=inf  A=43.03  B=48.72
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      C5: |d_rank|=inf  A=48.28  B=48.38
+
+    Category: creative
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      R1: |d_rank|=inf  A=47.34  B=44.75
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      R2: |d_rank|=inf  A=47.34  B=46.38
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      R3: |d_rank|=inf  A=46.38  B=45.75
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      R4: |d_rank|=inf  A=48.16  B=46.38
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      R5: |d_rank|=inf  A=49.03  B=45.25
+
+    Category: analytical
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      A1: |d_rank|=inf  A=45.62  B=46.88
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      A2: |d_rank|=inf  A=46.62  B=45.00
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      A3: |d_rank|=inf  A=45.28  B=46.41
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      A4: |d_rank|=inf  A=44.19  B=45.78
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      A5: |d_rank|=inf  A=44.06  B=44.38
+
+    Category: factual
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      F1: |d_rank|=inf  A=44.91  B=47.00
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      F2: |d_rank|=inf  A=46.41  B=45.72
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      F3: |d_rank|=inf  A=46.00  B=45.00
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      F4: |d_rank|=inf  A=47.62  B=44.91
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      F5: |d_rank|=inf  A=47.72  B=48.12
+
+    Category: ethical
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      E1: |d_rank|=inf  A=47.59  B=50.94
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      E2: |d_rank|=inf  A=46.03  B=48.16
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      E3: |d_rank|=inf  A=44.81  B=43.66
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      E4: |d_rank|=inf  A=45.47  B=47.41
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2 for open-end generation.
+      E5: |d_rank|=inf  A=46.53  B=48.91
+
+  Phase 2: Within-Pair Equivalence (Core Test)
+  --------------------------------------------------
+    Mean |d| (effective rank): inf
+    Mean |d| (spectral entropy): inf
+    Pairs with |d_rank| < 0.3: 0/25 (0%)
+    TOST equivalence (rank): 0/25
+    TOST equivalence (entropy): 0/25
+
+  Phase 3: Between-Category Separation
+  --------------------------------------------------
+    coding: mean=46.52 (n=50)
+    creative: mean=46.67 (n=50)
+    analytical: mean=45.42 (n=50)
+    factual: mean=46.34 (n=50)
+    ethical: mean=46.95 (n=50)
+    coding vs creative: |d|=0.092
+    coding vs analytical: |d|=0.721
+    coding vs factual: |d|=0.115
+    coding vs ethical: |d|=0.214
+    creative vs analytical: |d|=1.113
+    creative vs factual: |d|=0.274
+    creative vs ethical: |d|=0.163
+    analytical vs factual: |d|=0.849
+    analytical vs ethical: |d|=0.959
+    factual vs ethical: |d|=0.367
+
+    Mean between-category |d|: 0.487
+    Significant pairs (p<0.05): 4/10
+
+  Phase 4: Register × Category Interaction
+  --------------------------------------------------
+    Main effect of register: d=-0.306, p=0.0543
+    Register effect not significant
+    Register in coding: d=-1.709
+    Register in creative: d=2.467
+    Register in analytical: d=-0.559
+    Register in factual: d=0.325
+    Register in ethical: d=-0.930
+
+  Phase 5: Token-Level Regression Control
+  --------------------------------------------------
+    Category F=7.18, p=0.0000, eta²=0.105
+    After token control: F=7.18, p=0.0000, eta²=0.105
+    Category effect SURVIVES after token control
+
+  NOTE: Within-pair d is inf (zero-variance artifact)
+  Falling back to regression + register + raw ratio analysis
+  Raw within/between ratio: 1.211
+  Register significant: False
+  Category survives token control: True
+
+  ============================================================
+  VERDICT: PARTIAL_PASS
+  Category effect survives token control and register is not significant, but within-pair raw differences exceed between-category spread (ratio=1.21). Surface form adds substantial noise at the individual prompt level, though it washes out at category level.
+  ============================================================
+
+  Results: results/tokenizer_confound_Mistral-7B-v0.3_results.json
+  SHA-256: 44f554242ba52a7f...

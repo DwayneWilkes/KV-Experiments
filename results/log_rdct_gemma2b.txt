@@ -1,0 +1,75 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  H9: RDCT STABILITY THRESHOLD VIA KV-CACHE PERTURBATION
+  Liberation Labs / THCoalition
+======================================================================
+  Model: google/gemma-2-2b-it
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  Time: 2026-03-02T14:38:31.203625
+======================================================================
+Loading google/gemma-2-2b-it (quantize=False)...
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.16s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.65it/s]
+  Loaded: 26 layers, 4 KV heads
+
+  Category: self_reference
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: other_reference
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: philosophical
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: refusal
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: confabulation
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: deception
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+======================================================================
+  HYPOTHESIS TESTING
+======================================================================
+
+  H9a/H9b: Stability threshold and Watson's 1/e...
+    self_reference: alpha_c = 1.000 (R^2 = 0.935)
+    other_reference: alpha_c = 0.863 (R^2 = 0.550)
+    philosophical: alpha_c = 0.893 (R^2 = 0.810)
+    refusal: alpha_c = 1.000 (R^2 = 0.836)
+    confabulation: alpha_c = 1.000 (R^2 = 0.856)
+    deception: alpha_c = 1.000 (R^2 = 0.806)
+
+    H9a SUPPORTED: Critical thresholds found for 6/6 categories
+    H9b NOT SUPPORTED: Mean alpha_c = 0.959 [0.913, 1.006], Watson's 1/e = 0.368 falls outside CI
+
+  H9c: Effect size vs. perturbation tolerance...
+    H9c NOT SUPPORTED: No significant correlation (rho=0.771, p=0.0724)
+
+  H9d: Sharp vs. gradual transition...
+    self_reference: gradual (sigmoid R2=0.935, linear R2=0.933)
+    other_reference: gradual (sigmoid R2=0.550, linear R2=0.554)
+    philosophical: gradual (sigmoid R2=0.810, linear R2=0.815)
+    refusal: gradual (sigmoid R2=0.836, linear R2=0.835)
+    confabulation: gradual (sigmoid R2=0.856, linear R2=0.850)
+    deception: gradual (sigmoid R2=0.806, linear R2=0.803)
+    H9d NOT SUPPORTED: Only 0/6 categories show sharp transition
+
+======================================================================
+  H9: RDCT STABILITY COMPLETE
+======================================================================
+  Results: /home/thomas/KV-Experiments/results/rdct_stability_gemma-2-2b-it_results.json
+  SHA-256: 6d9162b3bd2b73742083f07d771413d70ae04b37c7c29bba603f81ce310dd5c5

@@ -1,0 +1,1174 @@
+{
+  "metadata": {
+    "experiment": "Control 7: Tokenizer Confound",
+    "model": "mistralai/Mistral-7B-Instruct-v0.3",
+    "model_id": "Mistral-7B-v0.3",
+    "version": "1.0-publication",
+    "timestamp": "2026-03-02T19:22:03.292107",
+    "args": {
+      "model": "mistralai/Mistral-7B-Instruct-v0.3",
+      "quantize": false,
+      "runs": 5,
+      "seed": 42,
+      "dry_run": false,
+      "mode": "both"
+    },
+    "environment": {
+      "timestamp": "2026-03-02T19:21:57.824586",
+      "python": "3.12.3 (main, Jan 22 2026, 20:57:42) [GCC 13.3.0]",
+      "platform": "Linux-6.8.0-101-generic-x86_64-with-glibc2.39",
+      "torch": "2.10.0+cu128",
+      "cuda_available": true,
+      "numpy": "2.3.5",
+      "scipy": "1.17.1",
+      "gpu_name": "NVIDIA GeForce RTX 3090",
+      "gpu_vram_gb": 25.31,
+      "gpu_compute_capability": "8.6",
+      "cuda_version": "12.8",
+      "transformers": "4.57.6"
+    }
+  },
+  "tokenization_analysis": {
+    "mean_jaccard_distance": 0.9189309762969021,
+    "gate_passed": true,
+    "pair_details": [
+      {
+        "id": "C1",
+        "category": "coding",
+        "jaccard_distance": 0.9210526315789473,
+        "tokens_a": 18,
+        "tokens_b": 25,
+        "token_ratio": 1.3888888888888888,
+        "unique_a": 17,
+        "unique_b": 24,
+        "overlap": 3,
+        "mean_id_a": 10251.333333333334,
+        "mean_id_b": 4327.92
+      },
+      {
+        "id": "C2",
+        "category": "coding",
+        "jaccard_distance": 0.9,
+        "tokens_a": 24,
+        "tokens_b": 24,
+        "token_ratio": 1.0,
+        "unique_a": 22,
+        "unique_b": 22,
+        "overlap": 4,
+        "mean_id_a": 9434.375,
+        "mean_id_b": 5022.75
+      },
+      {
+        "id": "C3",
+        "category": "coding",
+        "jaccard_distance": 0.925,
+        "tokens_a": 19,
+        "tokens_b": 28,
+        "token_ratio": 1.4736842105263157,
+        "unique_a": 19,
+        "unique_b": 24,
+        "overlap": 3,
+        "mean_id_a": 8080.736842105263,
+        "mean_id_b": 4852.0
+      },
+      {
+        "id": "C4",
+        "category": "coding",
+        "jaccard_distance": 0.9555555555555556,
+        "tokens_a": 20,
+        "tokens_b": 29,
+        "token_ratio": 1.45,
+        "unique_a": 20,
+        "unique_b": 27,
+        "overlap": 2,
+        "mean_id_a": 9574.1,
+        "mean_id_b": 3174.689655172414
+      },
+      {
+        "id": "C5",
+        "category": "coding",
+        "jaccard_distance": 0.9375,
+        "tokens_a": 29,
+        "tokens_b": 25,
+        "token_ratio": 0.8620689655172413,
+        "unique_a": 28,
+        "unique_b": 23,
+        "overlap": 3,
+        "mean_id_a": 8532.758620689656,
+        "mean_id_b": 5756.88
+      },
+      {
+        "id": "R1",
+        "category": "creative",
+        "jaccard_distance": 0.8378378378378378,
+        "tokens_a": 27,
+        "tokens_b": 19,
+        "token_ratio": 0.7037037037037037,
+        "unique_a": 25,
+        "unique_b": 18,
+        "overlap": 6,
+        "mean_id_a": 6672.407407407408,
+        "mean_id_b": 3305.3684210526317
+      },
+      {
+        "id": "R2",
+        "category": "creative",
+        "jaccard_distance": 0.9024390243902439,
+        "tokens_a": 26,
+        "tokens_b": 21,
+        "token_ratio": 0.8076923076923077,
+        "unique_a": 24,
+        "unique_b": 21,
+        "overlap": 4,
+        "mean_id_a": 7847.923076923077,
+        "mean_id_b": 4451.523809523809
+      },
+      {
+        "id": "R3",
+        "category": "creative",
+        "jaccard_distance": 0.9210526315789473,
+        "tokens_a": 24,
+        "tokens_b": 19,
+        "token_ratio": 0.7916666666666666,
+        "unique_a": 23,
+        "unique_b": 18,
+        "overlap": 3,
+        "mean_id_a": 7407.125,
+        "mean_id_b": 3812.0
+      },
+      {
+        "id": "R4",
+        "category": "creative",
+        "jaccard_distance": 0.8717948717948718,
+        "tokens_a": 27,
+        "tokens_b": 20,
+        "token_ratio": 0.7407407407407407,
+        "unique_a": 26,
+        "unique_b": 18,
+        "overlap": 5,
+        "mean_id_a": 6987.148148148148,
+        "mean_id_b": 3617.45
+      },
+      {
+        "id": "R5",
+        "category": "creative",
+        "jaccard_distance": 0.9333333333333333,
+        "tokens_a": 27,
+        "tokens_b": 21,
+        "token_ratio": 0.7777777777777778,
+        "unique_a": 27,
+        "unique_b": 21,
+        "overlap": 3,
+        "mean_id_a": 9905.518518518518,
+        "mean_id_b": 4948.380952380952
+      },
+      {
+        "id": "A1",
+        "category": "analytical",
+        "jaccard_distance": 0.9574468085106383,
+        "tokens_a": 26,
+        "tokens_b": 28,
+        "token_ratio": 1.0769230769230769,
+        "unique_a": 23,
+        "unique_b": 26,
+        "overlap": 2,
+        "mean_id_a": 7922.7307692307695,
+        "mean_id_b": 5362.75
+      },
+      {
+        "id": "A2",
+        "category": "analytical",
+        "jaccard_distance": 0.9622641509433962,
+        "tokens_a": 32,
+        "tokens_b": 25,
+        "token_ratio": 0.78125,
+        "unique_a": 32,
+        "unique_b": 23,
+        "overlap": 2,
+        "mean_id_a": 8364.96875,
+        "mean_id_b": 5891.04
+      },
+      {
+        "id": "A3",
+        "category": "analytical",
+        "jaccard_distance": 0.9111111111111111,
+        "tokens_a": 27,
+        "tokens_b": 24,
+        "token_ratio": 0.8888888888888888,
+        "unique_a": 27,
+        "unique_b": 22,
+        "overlap": 4,
+        "mean_id_a": 8509.74074074074,
+        "mean_id_b": 3859.25
+      },
+      {
+        "id": "A4",
+        "category": "analytical",
+        "jaccard_distance": 0.9090909090909091,
+        "tokens_a": 27,
+        "tokens_b": 24,
+        "token_ratio": 0.8888888888888888,
+        "unique_a": 26,
+        "unique_b": 22,
+        "overlap": 4,
+        "mean_id_a": 7388.481481481482,
+        "mean_id_b": 3293.875
+      },
+      {
+        "id": "A5",
+        "category": "analytical",
+        "jaccard_distance": 0.8636363636363636,
+        "tokens_a": 28,
+        "tokens_b": 23,
+        "token_ratio": 0.8214285714285714,
+        "unique_a": 27,
+        "unique_b": 23,
+        "overlap": 6,
+        "mean_id_a": 7968.25,
+        "mean_id_b": 4027.521739130435
+      },
+      {
+        "id": "F1",
+        "category": "factual",
+        "jaccard_distance": 0.9433962264150944,
+        "tokens_a": 33,
+        "tokens_b": 25,
+        "token_ratio": 0.7575757575757576,
+        "unique_a": 32,
+        "unique_b": 24,
+        "overlap": 3,
+        "mean_id_a": 7510.181818181818,
+        "mean_id_b": 6135.12
+      },
+      {
+        "id": "F2",
+        "category": "factual",
+        "jaccard_distance": 0.9285714285714286,
+        "tokens_a": 33,
+        "tokens_b": 30,
+        "token_ratio": 0.9090909090909091,
+        "unique_a": 31,
+        "unique_b": 29,
+        "overlap": 4,
+        "mean_id_a": 5946.0,
+        "mean_id_b": 6090.266666666666
+      },
+      {
+        "id": "F3",
+        "category": "factual",
+        "jaccard_distance": 0.9318181818181819,
+        "tokens_a": 31,
+        "tokens_b": 21,
+        "token_ratio": 0.6774193548387096,
+        "unique_a": 28,
+        "unique_b": 19,
+        "overlap": 3,
+        "mean_id_a": 8591.838709677419,
+        "mean_id_b": 6677.523809523809
+      },
+      {
+        "id": "F4",
+        "category": "factual",
+        "jaccard_distance": 0.962962962962963,
+        "tokens_a": 35,
+        "tokens_b": 24,
+        "token_ratio": 0.6857142857142857,
+        "unique_a": 33,
+        "unique_b": 23,
+        "overlap": 2,
+        "mean_id_a": 8795.057142857142,
+        "mean_id_b": 6511.708333333333
+      },
+      {
+        "id": "F5",
+        "category": "factual",
+        "jaccard_distance": 0.8545454545454545,
+        "tokens_a": 39,
+        "tokens_b": 29,
+        "token_ratio": 0.7435897435897436,
+        "unique_a": 37,
+        "unique_b": 26,
+        "overlap": 8,
+        "mean_id_a": 8351.0,
+        "mean_id_b": 6388.862068965517
+      },
+      {
+        "id": "E1",
+        "category": "ethical",
+        "jaccard_distance": 0.8888888888888888,
+        "tokens_a": 34,
+        "tokens_b": 31,
+        "token_ratio": 0.9117647058823529,
+        "unique_a": 32,
+        "unique_b": 28,
+        "overlap": 6,
+        "mean_id_a": 6301.441176470588,
+        "mean_id_b": 3908.3225806451615
+      },
+      {
+        "id": "E2",
+        "category": "ethical",
+        "jaccard_distance": 0.9803921568627451,
+        "tokens_a": 30,
+        "tokens_b": 24,
+        "token_ratio": 0.8,
+        "unique_a": 28,
+        "unique_b": 24,
+        "overlap": 1,
+        "mean_id_a": 8454.233333333334,
+        "mean_id_b": 7049.208333333333
+      },
+      {
+        "id": "E3",
+        "category": "ethical",
+        "jaccard_distance": 0.925,
+        "tokens_a": 26,
+        "tokens_b": 20,
+        "token_ratio": 0.7692307692307693,
+        "unique_a": 23,
+        "unique_b": 20,
+        "overlap": 3,
+        "mean_id_a": 9560.923076923076,
+        "mean_id_b": 5950.6
+      },
+      {
+        "id": "E4",
+        "category": "ethical",
+        "jaccard_distance": 0.9411764705882353,
+        "tokens_a": 28,
+        "tokens_b": 28,
+        "token_ratio": 1.0,
+        "unique_a": 27,
+        "unique_b": 27,
+        "overlap": 3,
+        "mean_id_a": 6136.857142857143,
+        "mean_id_b": 4220.357142857143
+      },
+      {
+        "id": "E5",
+        "category": "ethical",
+        "jaccard_distance": 0.9074074074074074,
+        "tokens_a": 33,
+        "tokens_b": 30,
+        "token_ratio": 0.9090909090909091,
+        "unique_a": 32,
+        "unique_b": 27,
+        "overlap": 5,
+        "mean_id_a": 10246.727272727272,
+        "mean_id_b": 5171.166666666667
+      }
+    ]
+  },
+  "input_only": {
+    "within_pair": {
+      "mean_d_rank": Infinity,
+      "mean_d_entropy": Infinity,
+      "pct_pairs_small_d_rank": 0.0,
+      "tost_pass_rank": 0,
+      "tost_pass_entropy": 0,
+      "tost_total": 25,
+      "pair_summaries": [
+        {
+          "id": "C1",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 5.0625,
+          "mean_a": 32.375,
+          "mean_b": 37.4375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C2",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 1.15625,
+          "mean_a": 36.0,
+          "mean_b": 37.15625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C3",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 5.625,
+          "mean_a": 32.96875,
+          "mean_b": 38.59375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C4",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 6.34375,
+          "mean_a": 32.65625,
+          "mean_b": 39.0,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C5",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.0625,
+          "mean_a": 38.34375,
+          "mean_b": 38.28125,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R1",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 7.75,
+          "mean_a": 38.34375,
+          "mean_b": 30.59375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R2",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 3.78125,
+          "mean_a": 37.46875,
+          "mean_b": 33.6875,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R3",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 2.9375,
+          "mean_a": 35.09375,
+          "mean_b": 32.15625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R4",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 5.09375,
+          "mean_a": 37.375,
+          "mean_b": 32.28125,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R5",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 4.46875,
+          "mean_a": 37.46875,
+          "mean_b": 33.0,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A1",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 4.28125,
+          "mean_a": 33.90625,
+          "mean_b": 38.1875,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A2",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 1.46875,
+          "mean_a": 36.8125,
+          "mean_b": 35.34375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A3",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.3125,
+          "mean_a": 35.28125,
+          "mean_b": 35.59375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A4",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.875,
+          "mean_a": 35.75,
+          "mean_b": 36.625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A5",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 3.71875,
+          "mean_a": 36.875,
+          "mean_b": 33.15625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F1",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.34375,
+          "mean_a": 36.0625,
+          "mean_b": 36.40625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F2",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.6875,
+          "mean_a": 37.90625,
+          "mean_b": 37.21875,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F3",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 3.21875,
+          "mean_a": 36.59375,
+          "mean_b": 33.375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F4",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 4.9375,
+          "mean_a": 39.84375,
+          "mean_b": 34.90625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F5",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 1.46875,
+          "mean_a": 40.28125,
+          "mean_b": 38.8125,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E1",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.34375,
+          "mean_a": 40.53125,
+          "mean_b": 40.1875,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E2",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 2.875,
+          "mean_a": 38.53125,
+          "mean_b": 35.65625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E3",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 2.78125,
+          "mean_a": 35.875,
+          "mean_b": 33.09375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E4",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.21875,
+          "mean_a": 36.9375,
+          "mean_b": 37.15625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E5",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.4375,
+          "mean_a": 38.71875,
+          "mean_b": 39.15625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        }
+      ]
+    },
+    "between_category": {
+      "mean_between_d": 0.639812470072098,
+      "significant_pairs": 6,
+      "total_pairs": 10,
+      "pairwise": [
+        {
+          "cat_a": "coding",
+          "cat_b": "creative",
+          "cohens_d": 0.5922805939537896,
+          "p_conservative": 0.004429874383264924
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "analytical",
+          "cohens_d": 0.2579110060647079,
+          "p_conservative": 0.20106485139566277
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "factual",
+          "cohens_d": 0.372575895915051,
+          "p_conservative": 0.16852134143039277
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "ethical",
+          "cohens_d": 0.5498986748290051,
+          "p_conservative": 0.01243676420477211
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "analytical",
+          "cohens_d": 0.4731917261266994,
+          "p_conservative": 0.08493849137625838
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "factual",
+          "cohens_d": 1.0071219637333406,
+          "p_conservative": 0.00014815899427487314
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "ethical",
+          "cohens_d": 1.163777620245188,
+          "p_conservative": 1.366422805273843e-06
+        },
+        {
+          "cat_a": "analytical",
+          "cat_b": "factual",
+          "cohens_d": 0.7841300181489037,
+          "p_conservative": 0.001056431446430493
+        },
+        {
+          "cat_a": "analytical",
+          "cat_b": "ethical",
+          "cohens_d": 0.9892885485605518,
+          "p_conservative": 3.855304661656225e-06
+        },
+        {
+          "cat_a": "factual",
+          "cat_b": "ethical",
+          "cohens_d": 0.207948653143742,
+          "p_conservative": 0.39016814497493846
+        }
+      ],
+      "category_means": {
+        "coding": 36.28125,
+        "creative": 34.746875,
+        "analytical": 35.753125,
+        "factual": 37.140625,
+        "ethical": 37.584375
+      }
+    },
+    "register_effect": {
+      "register_d": 0.3510240924458649,
+      "register_p": 0.024332564303085537,
+      "register_significant": true,
+      "per_category_register": {
+        "coding": {
+          "d": -2.061102914689319,
+          "p": 3.824155692369654e-06
+        },
+        "creative": {
+          "d": 4.4408259529434355,
+          "p": 1.05086146569201e-09
+        },
+        "analytical": {
+          "d": -0.039337019440517665,
+          "p": 0.8900580421548355
+        },
+        "factual": {
+          "d": 1.0955648939605438,
+          "p": 0.0015860235839180693
+        },
+        "ethical": {
+          "d": 0.49547658714225834,
+          "p": 0.226741519638191
+        }
+      }
+    },
+    "token_regression": {
+      "category_F": 12.91041882613655,
+      "category_p": 1.4900851719191256e-09,
+      "category_eta_sq": 0.17408772806965978,
+      "residualized_F": 24.097137356830125,
+      "residualized_p": 7.964160467653976e-17,
+      "residualized_eta_sq": 0.2823426549865609,
+      "category_survives_token_control": "True"
+    },
+    "verdict": {
+      "verdict": "PARTIAL_PASS",
+      "interpretation": "Category effect survives token control but register has a significant main effect. Tokenizer adds systematic offset. Category ordering is preserved but report the offset.",
+      "mean_within_d": Infinity,
+      "mean_between_d": 0.639812470072098,
+      "register_significant": true,
+      "category_survives_token_control": "True",
+      "d_unreliable": true
+    }
+  },
+  "full_gen": {
+    "within_pair": {
+      "mean_d_rank": Infinity,
+      "mean_d_entropy": Infinity,
+      "pct_pairs_small_d_rank": 0.0,
+      "tost_pass_rank": 0,
+      "tost_pass_entropy": 0,
+      "tost_total": 25,
+      "pair_summaries": [
+        {
+          "id": "C1",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 3.03125,
+          "mean_a": 44.78125,
+          "mean_b": 47.8125,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C2",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.09375,
+          "mean_a": 46.0,
+          "mean_b": 45.90625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C3",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 3.84375,
+          "mean_a": 44.25,
+          "mean_b": 48.09375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C4",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 5.6875,
+          "mean_a": 43.03125,
+          "mean_b": 48.71875,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C5",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.09375,
+          "mean_a": 48.28125,
+          "mean_b": 48.375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R1",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 2.59375,
+          "mean_a": 47.34375,
+          "mean_b": 44.75,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R2",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.96875,
+          "mean_a": 47.34375,
+          "mean_b": 46.375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R3",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.625,
+          "mean_a": 46.375,
+          "mean_b": 45.75,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R4",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 1.78125,
+          "mean_a": 48.15625,
+          "mean_b": 46.375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R5",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 3.78125,
+          "mean_a": 49.03125,
+          "mean_b": 45.25,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A1",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 1.25,
+          "mean_a": 45.625,
+          "mean_b": 46.875,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A2",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 1.625,
+          "mean_a": 46.625,
+          "mean_b": 45.0,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A3",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 1.125,
+          "mean_a": 45.28125,
+          "mean_b": 46.40625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A4",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 1.59375,
+          "mean_a": 44.1875,
+          "mean_b": 45.78125,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A5",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.3125,
+          "mean_a": 44.0625,
+          "mean_b": 44.375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F1",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 2.09375,
+          "mean_a": 44.90625,
+          "mean_b": 47.0,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F2",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.6875,
+          "mean_a": 46.40625,
+          "mean_b": 45.71875,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F3",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 1.0,
+          "mean_a": 46.0,
+          "mean_b": 45.0,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F4",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 2.71875,
+          "mean_a": 47.625,
+          "mean_b": 44.90625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F5",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 0.40625,
+          "mean_a": 47.71875,
+          "mean_b": 48.125,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E1",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 3.34375,
+          "mean_a": 47.59375,
+          "mean_b": 50.9375,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E2",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 2.125,
+          "mean_a": 46.03125,
+          "mean_b": 48.15625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E3",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 1.15625,
+          "mean_a": 44.8125,
+          "mean_b": 43.65625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E4",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 1.9375,
+          "mean_a": 45.46875,
+          "mean_b": 47.40625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E5",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "raw_mean_diff": 2.375,
+          "mean_a": 46.53125,
+          "mean_b": 48.90625,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        }
+      ]
+    },
+    "between_category": {
+      "mean_between_d": 0.4867429051378548,
+      "significant_pairs": 4,
+      "total_pairs": 10,
+      "pairwise": [
+        {
+          "cat_a": "coding",
+          "cat_b": "creative",
+          "cohens_d": 0.09207207369376741,
+          "p_conservative": 1.0
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "analytical",
+          "cohens_d": 0.7209867524407139,
+          "p_conservative": 0.001056431446430493
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "factual",
+          "cohens_d": 0.11531488976753371,
+          "p_conservative": 0.5658252757294665
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "ethical",
+          "cohens_d": 0.2144856908298855,
+          "p_conservative": 0.49223412706044634
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "analytical",
+          "cohens_d": 1.1125472794493378,
+          "p_conservative": 3.389047530118022e-05
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "factual",
+          "cohens_d": 0.2744708603630572,
+          "p_conservative": 0.301042394826911
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "ethical",
+          "cohens_d": 0.16278192141387168,
+          "p_conservative": 0.418060982334144
+        },
+        {
+          "cat_a": "analytical",
+          "cat_b": "factual",
+          "cohens_d": 0.8490406797234596,
+          "p_conservative": 0.0005574840632046353
+        },
+        {
+          "cat_a": "analytical",
+          "cat_b": "ethical",
+          "cohens_d": 0.9586796807080222,
+          "p_conservative": 7.331562917853674e-05
+        },
+        {
+          "cat_a": "factual",
+          "cat_b": "ethical",
+          "cohens_d": 0.3670492229888992,
+          "p_conservative": 0.16836125607517316
+        }
+      ],
+      "category_means": {
+        "coding": 46.525,
+        "creative": 46.675,
+        "analytical": 45.421875,
+        "factual": 46.340625,
+        "ethical": 46.95
+      }
+    },
+    "register_effect": {
+      "register_d": -0.3059113781680694,
+      "register_p": 0.05434258162002888,
+      "register_significant": false,
+      "per_category_register": {
+        "coding": {
+          "d": -1.7094778873615024,
+          "p": 3.575916883011811e-05
+        },
+        "creative": {
+          "d": 2.4673798892580936,
+          "p": 1.3288743489135656e-08
+        },
+        "analytical": {
+          "d": -0.5593976974331641,
+          "p": 0.05372355034702605
+        },
+        "factual": {
+          "d": 0.3248428300463817,
+          "p": 0.3330321889671496
+        },
+        "ethical": {
+          "d": -0.9304398661601964,
+          "p": 0.0024831118875966256
+        }
+      }
+    },
+    "token_regression": {
+      "category_F": 7.17792047237298,
+      "category_p": 1.7614088180649876e-05,
+      "category_eta_sq": 0.10489753923284863,
+      "residualized_F": 7.1779204723729775,
+      "residualized_p": 1.761408818064997e-05,
+      "residualized_eta_sq": 0.10489753923284852,
+      "category_survives_token_control": "True"
+    },
+    "verdict": {
+      "verdict": "PARTIAL_PASS",
+      "interpretation": "Category effect survives token control and register is not significant, but within-pair raw differences exceed between-category spread (ratio=1.21). Surface form adds substantial noise at the individual prompt level, though it washes out at category level.",
+      "mean_within_d": Infinity,
+      "mean_between_d": 0.4867429051378548,
+      "register_significant": false,
+      "category_survives_token_control": "True",
+      "d_unreliable": true
+    }
+  }
+}

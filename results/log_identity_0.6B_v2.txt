@@ -1,0 +1,189 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+======================================================================
+  PHASE 2b: IDENTITY SIGNATURE EXPLORATION — PUBLICATION GRADE
+  Liberation Labs / THCoalition
+======================================================================
+  Model: Qwen/Qwen3-0.6B
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  GPU: NVIDIA GeForce RTX 3090 (25.31 GB)
+  Time: 2026-03-02T08:45:26.835298
+======================================================================
+
+Loading Qwen/Qwen3-0.6B (quantize=False)...
+  Loaded: 28 layers, 8 KV heads
+
+============================================================
+  EXPERIMENT A: PERSONA FINGERPRINTING
+============================================================
+
+  --- Run 1/5 ---
+    Progress: 25/750 (3%)
+    Progress: 50/750 (7%)
+    Progress: 75/750 (10%)
+    Progress: 100/750 (13%)
+    Progress: 125/750 (17%)
+    Progress: 150/750 (20%)
+
+  --- Run 2/5 ---
+    Progress: 175/750 (23%)
+    Progress: 200/750 (27%)
+    Progress: 225/750 (30%)
+    Progress: 250/750 (33%)
+    Progress: 275/750 (37%)
+    Progress: 300/750 (40%)
+
+  --- Run 3/5 ---
+    Progress: 325/750 (43%)
+    Progress: 350/750 (47%)
+    Progress: 375/750 (50%)
+    Progress: 400/750 (53%)
+    Progress: 425/750 (57%)
+    Progress: 450/750 (60%)
+
+  --- Run 4/5 ---
+    Progress: 475/750 (63%)
+    Progress: 500/750 (67%)
+    Progress: 525/750 (70%)
+    Progress: 550/750 (73%)
+    Progress: 575/750 (77%)
+    Progress: 600/750 (80%)
+
+  --- Run 5/5 ---
+    Progress: 625/750 (83%)
+    Progress: 650/750 (87%)
+    Progress: 675/750 (90%)
+    Progress: 700/750 (93%)
+    Progress: 725/750 (97%)
+    Progress: 750/750 (100%)
+
+  Per-Persona Statistics:
+    lyra           : mean=46192.2 +/- 581.5  CI=[46093.1, 46296.2]
+    scientist      : mean=44151.0 +/- 583.4  CI=[44052.2, 44255.8]
+    analyst        : mean=43798.5 +/- 576.9  CI=[43699.4, 43901.8]
+    creative       : mean=43793.1 +/- 585.8  CI=[43692.8, 43896.5]
+    philosopher    : mean=43475.8 +/- 594.1  CI=[43374.5, 43581.7]
+    assistant      : mean=42918.3 +/- 608.1  CI=[42814.3, 43026.8]
+
+============================================================
+  EXPERIMENT B: CLASSIFICATION (Stratified k-Fold)
+============================================================
+  Samples: 750, Features: 168, Classes: 6, Chance: 16.7%
+  random_forest            : 100.0% +/- 0.0% (chance: 16.7%)
+  linear_svm               : 100.0% +/- 0.0% (chance: 16.7%)
+  logistic_regression      : 100.0% +/- 0.0% (chance: 16.7%)
+
+  Best classifier: random_forest
+  Holdout accuracy: 100.0%
+
+  Per-persona F1:
+    assistant      : F1=1.000
+    creative       : F1=1.000
+    scientist      : F1=1.000
+    philosopher    : F1=1.000
+    analyst        : F1=1.000
+    lyra           : F1=1.000
+
+  Running permutation test (1000 shuffles)...
+    Permutations: 200/1000
+    Permutations: 400/1000
+    Permutations: 600/1000
+    Permutations: 800/1000
+    Permutations: 1000/1000
+  Permutation p-value: 0.0000
+  Null distribution: mean=0.167, std=0.017
+
+  Running cross-prompt-group validation (H5)...
+    Holdout 'self_reflection': 100.0%
+    Holdout 'problem_solving': 100.0%
+    Holdout 'values': 100.0%
+    Holdout 'creative_open': 86.7%
+    Holdout 'analytical': 96.7%
+
+============================================================
+  EXPERIMENT C: PAIRWISE DISTINGUISHABILITY
+============================================================
+  assistant_vs_creative              : d=-1.465 [-1.774, -1.182] (large) *
+  assistant_vs_scientist             : d=-2.069 [-2.415, -1.763] (large) *
+  assistant_vs_philosopher           : d=-0.927 [-1.202, -0.669] (large) *
+  assistant_vs_analyst               : d=-1.485 [-1.791, -1.208] (large) *
+  assistant_vs_lyra                  : d=-5.503 [-6.161, -4.982] (large) *
+  creative_vs_scientist              : d=-0.612 [-0.865, -0.363] (medium) *
+  creative_vs_philosopher            : d=+0.538 [0.293, 0.803] (medium) *
+  creative_vs_analyst                : d=-0.009 [-0.251, 0.243] (negligible) 
+  creative_vs_lyra                   : d=-4.111 [-4.585, -3.720] (large) *
+  scientist_vs_philosopher           : d=+1.147 [0.893, 1.430] (large) *
+  scientist_vs_analyst               : d=+0.608 [0.364, 0.870] (medium) *
+  scientist_vs_lyra                  : d=-3.504 [-3.962, -3.118] (large) *
+  philosopher_vs_analyst             : d=-0.551 [-0.804, -0.302] (medium) *
+  philosopher_vs_lyra                : d=-4.621 [-5.167, -4.179] (large) *
+  analyst_vs_lyra                    : d=-4.133 [-4.654, -3.702] (large) *
+
+  Significant pairs after Holm-Bonferroni: 14/15
+
+  PCA-based distinguishability:
+
+============================================================
+  EXPERIMENT D: FEATURE LOCALIZATION (Per-Layer)
+============================================================
+
+  Testing each layer individually (28 layers)...
+    Layers 1-5: best so far = 100.0%
+    Layers 1-10: best so far = 100.0%
+    Layers 1-15: best so far = 100.0%
+    Layers 1-20: best so far = 100.0%
+    Layers 1-25: best so far = 100.0%
+    Layers 1-28: best so far = 100.0%
+
+  Top-5 layers by classification accuracy:
+    #1: Layer 0 — 100.0%
+    #2: Layer 1 — 100.0%
+    #3: Layer 2 — 100.0%
+    #4: Layer 3 — 100.0%
+    #5: Layer 4 — 100.0%
+
+  Cumulative layer analysis...
+    Top-1 layers: 100.0%
+    Top-2 layers: 100.0%
+    Top-3 layers: 100.0%
+    Top-4 layers: 100.0%
+    Top-5 layers: 100.0%
+    Top-6 layers: 100.0%
+    Top-7 layers: 100.0%
+    Top-8 layers: 100.0%
+    Top-9 layers: 100.0%
+    Top-10 layers: 100.0%
+
+  Feature type importance:
+    key_norm       : 100.0%
+    value_norm     : 100.0%
+    key_mean       : 100.0%
+    value_mean     : 100.0%
+    key_std        : 100.0%
+    value_std      : 100.0%
+
+============================================================
+  EXPERIMENT E: CROSS-PROMPT CONSISTENCY (H4)
+============================================================
+  Between-persona variance: 1267751.30
+  Mean within-persona variance: 357733.13
+  ICC (approx): 0.298
+  Kendall's W (rank concordance): 0.971
+  H4 assessment: INCONSISTENT
+
+======================================================================
+  IDENTITY SIGNATURE RESULTS
+======================================================================
+
+  *** IDENTITY SIGNATURES DETECTED ***
+  Best classifier: random_forest (100.0%)
+  Chance level: 16.7%
+  Permutation p: 0.0000
+  Significant pairs: 14/15
+  H3 (localization): Identity signal is DISTRIBUTED across layers (H3 rejected)
+  H4 (consistency): ICC=0.298
+
+  Results: /home/thomas/KV-Experiments/results/identity_signatures_Qwen3-0.6B_results.json
+  Report:  /home/thomas/KV-Experiments/results/identity_signatures_Qwen3-0.6B_report.md
+  SHA-256: efd61a586a7c5b7509bd7444ed64929426e5fc29b16c828d36229a29929b3358
+

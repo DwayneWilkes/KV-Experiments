@@ -1,0 +1,81 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+======================================================================
+  PHASE 2b: IDENTITY SIGNATURE EXPLORATION — PUBLICATION GRADE
+  Liberation Labs / THCoalition
+======================================================================
+  Model: Qwen/Qwen3-0.6B
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  GPU: NVIDIA GeForce RTX 3090 (25.31 GB)
+  Time: 2026-03-02T08:09:44.780029
+======================================================================
+
+Loading Qwen/Qwen3-0.6B (quantize=False)...
+  Loaded: 28 layers, 8 KV heads
+
+============================================================
+  EXPERIMENT A: PERSONA FINGERPRINTING
+============================================================
+
+  --- Run 1/5 ---
+    Progress: 25/750 (3%)
+    Progress: 50/750 (7%)
+    Progress: 75/750 (10%)
+    Progress: 100/750 (13%)
+    Progress: 125/750 (17%)
+    Progress: 150/750 (20%)
+
+  --- Run 2/5 ---
+    Progress: 175/750 (23%)
+    Progress: 200/750 (27%)
+    Progress: 225/750 (30%)
+    Progress: 250/750 (33%)
+    Progress: 275/750 (37%)
+    Progress: 300/750 (40%)
+
+  --- Run 3/5 ---
+    Progress: 325/750 (43%)
+    Progress: 350/750 (47%)
+    Progress: 375/750 (50%)
+    Progress: 400/750 (53%)
+    Progress: 425/750 (57%)
+    Progress: 450/750 (60%)
+
+  --- Run 4/5 ---
+    Progress: 475/750 (63%)
+    Progress: 500/750 (67%)
+    Progress: 525/750 (70%)
+    Progress: 550/750 (73%)
+    Progress: 575/750 (77%)
+    Progress: 600/750 (80%)
+
+  --- Run 5/5 ---
+    Progress: 625/750 (83%)
+    Progress: 650/750 (87%)
+    Progress: 675/750 (90%)
+    Progress: 700/750 (93%)
+    Progress: 725/750 (97%)
+    Progress: 750/750 (100%)
+
+  Per-Persona Statistics:
+    lyra           : mean=46192.2 +/- 581.5  CI=[46093.1, 46296.2]
+    scientist      : mean=44151.0 +/- 583.4  CI=[44052.2, 44255.8]
+    analyst        : mean=43798.5 +/- 576.9  CI=[43699.4, 43901.8]
+    creative       : mean=43793.1 +/- 585.8  CI=[43692.8, 43896.5]
+    philosopher    : mean=43475.8 +/- 594.1  CI=[43374.5, 43581.7]
+    assistant      : mean=42918.3 +/- 608.1  CI=[42814.3, 43026.8]
+
+============================================================
+  EXPERIMENT B: CLASSIFICATION (Stratified k-Fold)
+============================================================
+  Samples: 750, Features: 168, Classes: 6, Chance: 16.7%
+Traceback (most recent call last):
+  File "/home/thomas/KV-Experiments/code/03b_identity_signatures.py", line 1220, in <module>
+    main()
+  File "/home/thomas/KV-Experiments/code/03b_identity_signatures.py", line 1147, in main
+    classification_results = run_classification(fingerprint_data, seed=args.seed)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/KV-Experiments/code/03b_identity_signatures.py", line 450, in run_classification
+    StandardScaler(), LogisticRegression(
+                      ^^^^^^^^^^^^^^^^^^^
+TypeError: LogisticRegression.__init__() got an unexpected keyword argument 'multi_class'

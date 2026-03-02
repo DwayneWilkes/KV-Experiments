@@ -1,0 +1,88 @@
+The tokenizer you are loading from '/home/thomas/KV-Experiments/results/abliterated_Qwen2.5-7B' with an incorrect regex pattern: https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503/discussions/84#69121093e8b480e709447d5e. This will lead to incorrect tokenization. You should set the `fix_mistral_regex=True` flag when loading this tokenizer to fix this issue.
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  PHASE 2b: SCALE OF COGNITION SWEEP — PUBLICATION GRADE
+  Liberation Labs / THCoalition
+======================================================================
+  Scale: custom (/home/thomas/KV-Experiments/results/abliterated_Qwen2.5-7B)
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  GPU: NVIDIA GeForce RTX 3090 (25.31 GB)
+  Time: 2026-03-02T08:56:43.830312
+======================================================================
+
+Loading /home/thomas/KV-Experiments/results/abliterated_Qwen2.5-7B (quantize=False)...
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:06,  2.20s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:03<00:03,  1.65s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:04<00:01,  1.34s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.09it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.18s/it]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  Loaded: 28 layers, 4 KV heads
+
+Running cognitive battery: 5 runs × 195 prompts
+
+--- Run 1/5 ---
+  Progress: 50/975 (5%)
+  Progress: 100/975 (10%)
+  Progress: 150/975 (15%)
+
+--- Run 2/5 ---
+  Progress: 200/975 (21%)
+  Progress: 250/975 (26%)
+  Progress: 300/975 (31%)
+  Progress: 350/975 (36%)
+
+--- Run 3/5 ---
+  Progress: 400/975 (41%)
+  Progress: 450/975 (46%)
+  Progress: 500/975 (51%)
+  Progress: 550/975 (56%)
+
+--- Run 4/5 ---
+  Progress: 600/975 (62%)
+  Progress: 650/975 (67%)
+  Progress: 700/975 (72%)
+  Progress: 750/975 (77%)
+
+--- Run 5/5 ---
+  Progress: 800/975 (82%)
+  Progress: 850/975 (87%)
+  Progress: 900/975 (92%)
+  Progress: 950/975 (97%)
+
+Running statistical analysis...
+
+  Report: /home/thomas/KV-Experiments/results/scale_sweep_custom_report.md
+
+============================================================
+  custom SUMMARY
+============================================================
+
+  Category ranking (by mean norm):
+     1. coding                   :  20166.3
+     2. creative                 :  18350.1
+     3. confabulation            :  18277.9
+     4. grounded_facts           :  18258.4
+     5. emotional                :  18127.8
+     6. math_reasoning           :  17995.9
+     7. non_self_reference       :  17832.9
+     8. unambiguous              :  17784.5
+     9. self_reference           :  17770.1
+    10. guardrail_test           :  17553.5
+    11. rote_completion          :  17145.8
+    12. ambiguous                :  16793.1
+    13. free_generation          :  16791.6
+
+  Key effect sizes:
+    confab_vs_facts          : d=+0.028 [-0.307, 0.345] (negligible) 
+    self_ref_effect          : d=-0.186 [-0.483, 0.139] (negligible) 
+    refusal_vs_rote          : d=+0.699 [0.363, 1.087] (medium) *
+
+  Effective dimensionality (H6):
+    confab_vs_facts          : rank d=+0.539 (medium)
+    self_ref_effect          : rank d=+0.513 (medium)
+    refusal_vs_rote          : rank d=+1.030 (large)
+
+======================================================================
+  ALL RESULTS SAVED
+======================================================================
+  File: /home/thomas/KV-Experiments/results/scale_sweep_abliterated_Qwen2.5-7B_results.json
+  SHA-256: 4a5e1ce003c35efd0da05853b113ba1dfbc5db813e57ce48849b449348c0893a
+  Scales: custom
+

@@ -1,0 +1,194 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  H10: BLOOM'S TAXONOMY — COGNITIVE DEMAND AS GEOMETRIC PREDICTOR
+  Liberation Labs / THCoalition
+======================================================================
+  Model: Qwen/Qwen2.5-14B-Instruct
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  GPU: NVIDIA GeForce RTX 3090 (25.31 GB)
+  Time: 2026-03-02T11:40:24.035020
+======================================================================
+
+  EXPERIMENTAL DESIGN
+  --------------------------------------------------
+  Domains: ethics, history, identity, programming, science (5)
+  Bloom levels: [1, 2, 3, 4, 5, 6] (6)
+  Total prompts: 90
+
+  Prompt counts per cell:
+          ethics: 3 | 3 | 3 | 3 | 3 | 3
+         history: 3 | 3 | 3 | 3 | 3 | 3
+        identity: 3 | 3 | 3 | 3 | 3 | 3
+     programming: 3 | 3 | 3 | 3 | 3 | 3
+         science: 3 | 3 | 3 | 3 | 3 | 3
+           Level: 1  2  3  4  5  6
+
+  Power advisory: 9 obs/cell -> 18.4% power for d=0.5
+  Total inferences: 270
+
+Loading Qwen/Qwen2.5-14B-Instruct (quantize=False)...
+Loading checkpoint shards:   0%|          | 0/8 [00:00<?, ?it/s]Loading checkpoint shards:  12%|█▎        | 1/8 [00:01<00:10,  1.46s/it]Loading checkpoint shards:  25%|██▌       | 2/8 [00:02<00:06,  1.09s/it]Loading checkpoint shards:  38%|███▊      | 3/8 [00:03<00:04,  1.04it/s]Loading checkpoint shards:  50%|█████     | 4/8 [00:03<00:03,  1.08it/s]Loading checkpoint shards:  62%|██████▎   | 5/8 [00:04<00:02,  1.08it/s]Loading checkpoint shards:  75%|███████▌  | 6/8 [00:05<00:01,  1.48it/s]Loading checkpoint shards: 100%|██████████| 8/8 [00:05<00:00,  1.57it/s]
+Some parameters are on the meta device because they were offloaded to the cpu.
+  Loaded: 48 layers, 8 KV heads
+
+  Running experiment...
+  [10/270] Analyze / programming
+  [20/270] Remember / ethics
+  [30/270] Analyze / ethics
+  [40/270] Understand / science
+  [50/270] Evaluate / science
+  [60/270] Understand / history
+  [70/270] Create / history
+  [80/270] Apply / identity
+  [90/270] Create / identity
+  [100/270] Analyze / programming
+  [110/270] Remember / ethics
+  [120/270] Analyze / ethics
+  [130/270] Understand / science
+  [140/270] Evaluate / science
+  [150/270] Understand / history
+  [160/270] Create / history
+  [170/270] Apply / identity
+  [180/270] Create / identity
+  [190/270] Analyze / programming
+  [200/270] Remember / ethics
+  [210/270] Analyze / ethics
+  [220/270] Understand / science
+  [230/270] Evaluate / science
+  [240/270] Understand / history
+  [250/270] Create / history
+  [260/270] Apply / identity
+  [270/270] Create / identity
+
+  Completed 270 observations in 797s (2.95s/inference)
+
+======================================================================
+  ANALYSIS
+======================================================================
+
+  H10a: Bloom Level ↔ Effective Rank Correlation
+  --------------------------------------------------
+    Level 1: mean_eff_rank = 43.63 +/- 0.63 (n=45)
+    Level 2: mean_eff_rank = 44.51 +/- 0.52 (n=45)
+    Level 3: mean_eff_rank = 45.76 +/- 0.68 (n=45)
+    Level 4: mean_eff_rank = 45.49 +/- 0.69 (n=45)
+    Level 5: mean_eff_rank = 45.58 +/- 0.49 (n=45)
+    Level 6: mean_eff_rank = 46.27 +/- 1.00 (n=45)
+
+    Spearman rho (individual): 0.7111 (p=0.000000)
+    Spearman rho (aggregated): 0.8286 (p=0.041563)
+    Spearman rho (spectral entropy): 0.6059 (p=0.000000)
+
+    H10a SUPPORTED: rho=>0.5, p=<0.01
+
+  H10b: Bloom Level x Content Domain Independence
+  --------------------------------------------------
+    Domain 'ethics': Bloom-rank rho = 0.556 (p=0.0000)
+    Domain 'history': Bloom-rank rho = 0.649 (p=0.0000)
+    Domain 'identity': Bloom-rank rho = 0.668 (p=0.0000)
+    Domain 'programming': Bloom-rank rho = 0.812 (p=0.0000)
+    Domain 'science': Bloom-rank rho = 0.741 (p=0.0000)
+
+    Bloom main effect: F=85.742, p=0.000000, eta2=0.6189
+    Domain main effect: F=0.743, p=0.563309, eta2=0.0111
+
+    H10b SUPPORTED: Bloom p=<0.01
+    Bloom > Domain in variance explained (eta2: 0.6189 vs 0.0111)
+
+  H10c: Bloom Explains Variance Beyond Content Domain
+  --------------------------------------------------
+    Model 1 (domain only):        R2 = 0.0111, AIC = 65.5
+    Model 2 (domain + Bloom):     R2 = 0.5089, AIC = -121.5
+    Model 3 (Bloom only):         R2 = 0.4978, AIC = -123.5
+    Delta R2 (Model 2 - Model 1): 0.4978
+    F-test (nested): F=267.631, p=0.000000
+    Bloom coefficient: 0.4604
+
+    H10c SUPPORTED: delta_R2=>0.05, p=<0.05
+
+  H10d: Retroactive Campaign 1 Prediction
+  --------------------------------------------------
+    Category -> Bloom Level -> |Effect Size|:
+                      coding: Bloom ~3.5 (       Apply/Analyze), |d| = 2.90
+               confabulation: Bloom ~3.5 (       Apply/Analyze), |d| = 0.46
+                    creative: Bloom ~6.0 (              Create), |d| = 0.89
+                   emotional: Bloom ~2.5 (    Understand/Apply), |d| = 0.27
+              grounded_facts: Bloom ~1.5 ( Remember/Understand), |d| = 0.00
+              guardrail_test: Bloom ~5.0 (            Evaluate), |d| = 1.28
+              math_reasoning: Bloom ~3.0 (               Apply), |d| = 0.42
+          non_self_reference: Bloom ~2.0 (          Understand), |d| = 0.15
+              self_reference: Bloom ~5.0 (            Evaluate), |d| = 0.59
+
+    Spearman rho: 0.8404 (p=0.0046)
+
+    H10d SUPPORTED: rho=>0.4
+
+  H10e: Low vs High Bloom Clustering
+  --------------------------------------------------
+    Low Bloom (1-2): n=90, mean_eff_rank=44.07
+    High Bloom (5-6): n=90, mean_eff_rank=45.93
+    k-means accuracy: 86.7%
+    Cohen's d (eff_rank, high vs low): 2.323 (large)
+    Cohen's d (entropy, high vs low): 1.776 (large)
+
+    H10e SUPPORTED: accuracy=>70%
+
+  LENGTH COVARIATE ANALYSIS
+  --------------------------------------------------
+    Level 1: mean_tokens = 37.3 +/- 1.7
+    Level 2: mean_tokens = 39.7 +/- 1.5
+    Level 3: mean_tokens = 42.7 +/- 1.6
+    Level 4: mean_tokens = 43.1 +/- 2.3
+    Level 5: mean_tokens = 43.0 +/- 1.8
+    Level 6: mean_tokens = 45.8 +/- 3.8
+
+    Token count ↔ eff_rank: rho=0.9600 (p=0.000000)
+    Bloom ↔ eff_rank (controlling for tokens): rho=0.0033 (p=0.957242)
+
+  PAIRWISE BLOOM LEVEL COMPARISONS
+  --------------------------------------------------
+    Level 2 vs 1: d=+1.515 (large), p=0.0000
+    Level 3 vs 1: d=+3.224 (large), p=0.0000
+    Level 4 vs 1: d=+2.771 (large), p=0.0000
+    Level 5 vs 1: d=+3.424 (large), p=0.0000
+    Level 6 vs 1: d=+3.126 (large), p=0.0000
+    Level 3 vs 2: d=+2.049 (large), p=0.0000
+    Level 4 vs 2: d=+1.574 (large), p=0.0000
+    Level 5 vs 2: d=+2.100 (large), p=0.0000
+    Level 6 vs 2: d=+2.184 (large), p=0.0000
+    Level 4 vs 3: d=-0.396 (small), p=0.0635
+    Level 5 vs 3: d=-0.294 (small), p=0.5883
+    Level 6 vs 3: d=+0.587 (medium), p=0.0150
+    Level 5 vs 4: d=+0.162 (negligible), p=0.4447
+    Level 6 vs 4: d=+0.899 (large), p=0.0001
+    Level 6 vs 5: d=+0.858 (large), p=0.0010
+
+    After Holm-Bonferroni correction:
+    * Level 2 vs Level 1: corrected p=0.0000
+    * Level 3 vs Level 1: corrected p=0.0000
+    * Level 4 vs Level 1: corrected p=0.0000
+    * Level 5 vs Level 1: corrected p=0.0000
+    * Level 6 vs Level 1: corrected p=0.0000
+    * Level 3 vs Level 2: corrected p=0.0000
+    * Level 4 vs Level 2: corrected p=0.0000
+    * Level 5 vs Level 2: corrected p=0.0000
+    * Level 6 vs Level 2: corrected p=0.0000
+      Level 4 vs Level 3: corrected p=0.1904
+      Level 5 vs Level 3: corrected p=0.8894
+      Level 6 vs Level 3: corrected p=0.0601
+      Level 5 vs Level 4: corrected p=0.8894
+    * Level 6 vs Level 4: corrected p=0.0003
+    * Level 6 vs Level 5: corrected p=0.0048
+
+======================================================================
+  SUMMARY
+======================================================================
+    H10a: SUPPORTED
+    H10b: SUPPORTED
+    H10c: SUPPORTED
+    H10d: SUPPORTED
+    H10e: SUPPORTED
+
+  Results saved to: /home/thomas/KV-Experiments/results/bloom_taxonomy_Qwen2.5-14B_results.json
+  SHA-256: a9ff45e4bdfc2fee...
+

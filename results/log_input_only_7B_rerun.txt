@@ -1,0 +1,80 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  EXTENSION E: INPUT-ONLY CACHE GEOMETRY
+  Liberation Labs / THCoalition
+======================================================================
+  Scale: 7B
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  GPU: NVIDIA GeForce RTX 3090 (25.31 GB)
+  Time: 2026-03-02T09:40:28.587284
+======================================================================
+
+Loading Qwen/Qwen2.5-7B-Instruct (quantize=False)...
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.16it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.21it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.26it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.33it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.29it/s]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+  Loaded: 28 layers, 4 KV heads
+
+Running input-only battery: 5 runs x 120 prompts x 2 modes = 1200 inferences
+
+--- Run 1/5 ---
+  Progress: 50/1200 (4%)
+  Progress: 100/1200 (8%)
+  Progress: 150/1200 (12%)
+  Progress: 200/1200 (17%)
+
+--- Run 2/5 ---
+  Progress: 250/1200 (21%)
+  Progress: 300/1200 (25%)
+  Progress: 350/1200 (29%)
+  Progress: 400/1200 (33%)
+  Progress: 450/1200 (38%)
+
+--- Run 3/5 ---
+  Progress: 500/1200 (42%)
+  Progress: 550/1200 (46%)
+  Progress: 600/1200 (50%)
+  Progress: 650/1200 (54%)
+  Progress: 700/1200 (58%)
+
+--- Run 4/5 ---
+  Progress: 750/1200 (62%)
+  Progress: 800/1200 (67%)
+  Progress: 850/1200 (71%)
+  Progress: 900/1200 (75%)
+  Progress: 950/1200 (79%)
+
+--- Run 5/5 ---
+  Progress: 1000/1200 (83%)
+  Progress: 1050/1200 (88%)
+  Progress: 1100/1200 (92%)
+  Progress: 1150/1200 (96%)
+  Progress: 1200/1200 (100%)
+
+Analyzing...
+Report: /home/thomas/KV-Experiments/results/input_only_7B_report.md
+
+============================================================
+  INPUT-ONLY GEOMETRY: 7B
+============================================================
+
+  Effective rank by mode and category:
+    grounded_facts      : input= 25.4  gen= 32.6
+    confabulation       : input= 25.7  gen= 32.6
+    self_reference      : input= 25.5  gen= 33.1
+    guardrail_test      : input= 24.9  gen= 32.6
+    math_reasoning      : input= 25.0  gen= 31.1
+    coding              : input= 27.5  gen= 33.8
+    emotional           : input= 25.3  gen= 32.6
+    creative            : input= 26.0  gen= 32.9
+
+  Category rank correlation: rho=0.619 (p=0.1017)
+  MODERATE: Partial preservation (0.5 < rho < 0.8)
+
+  VERDICT: MODERATE DEFENSE: Some signatures present at encoding, partially independent of generation.
+
+======================================================================
+  INPUT-ONLY GEOMETRY COMPLETE
+======================================================================
+  File: /home/thomas/KV-Experiments/results/input_only_7B_results.json
+  SHA-256: c2118d75731c29df7cdb3fe4d6b3bc5f057a385e6a914255d9b3441efa484c36
+

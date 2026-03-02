@@ -34,3 +34,12 @@ Thumbs.db
 # Logs
 *.log
 wandb/
+
+# Abliterated model weights (15GB+)
+results/abliterated_*/
+
+# Download logs (not research output)
+results/download_log.txt
+
+# Temporary/working files
+activate_env.sh

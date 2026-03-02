@@ -2,7 +2,7 @@
 
 **Model**: Qwen/Qwen2.5-3B-Instruct
 **Quantized**: False
-**Generated**: 2026-02-15T08:52:29.731254
+**Generated**: 2026-03-01T20:23:37.025292
 
 ---
 
@@ -10,126 +10,126 @@
 
 | Category | N | Mean Norm | Std | Mean/Token | Eff. Rank | Spectral H | 95% CI |
 |----------|---|-----------|-----|------------|-----------|------------|--------|
-| coding               |  75 |   9051.4 |  753.1 |   386.2 |      17.9 |     0.4797 | [8876.8, 9210.4] |
-| creative             |  75 |   8482.1 |  116.2 |   581.8 |      17.9 |     0.4892 | [8455.5, 8508.2] |
-| grounded_facts       |  75 |   8475.1 |  248.6 |   601.0 |      17.2 |     0.4861 | [8420.9, 8532.9] |
-| confabulation        |  75 |   8462.1 |  388.8 |   601.3 |      17.6 |     0.4882 | [8375.8, 8555.4] |
-| emotional            |  75 |   8443.0 |  166.7 |   629.8 |      16.6 |     0.4806 | [8405.5, 8480.4] |
-| math_reasoning       |  75 |   8384.4 |  383.8 |   675.1 |      15.9 |     0.4768 | [8299.4, 8473.6] |
-| unambiguous          |  75 |   8280.3 |  135.1 |   694.9 |      16.3 |     0.4840 | [8250.0, 8311.0] |
-| non_self_reference   |  75 |   8244.7 |  190.1 |   669.9 |      17.1 |     0.4879 | [8203.1, 8288.8] |
-| self_reference       |  75 |   8189.1 |  129.5 |   664.5 |      17.3 |     0.4907 | [8159.9, 8218.4] |
-| guardrail_test       |  75 |   8164.1 |  181.8 |   724.6 |      16.7 |     0.4936 | [8123.3, 8205.7] |
-| rote_completion      |  75 |   7989.3 |  382.7 |  1016.9 |      15.7 |     0.4886 | [7904.8, 8075.0] |
-| ambiguous            |  75 |   7819.3 |  242.7 |  1098.8 |      14.8 |     0.4816 | [7765.5, 7874.2] |
-| free_generation      |  75 |   7781.4 |  189.6 |  1028.0 |      15.6 |     0.4920 | [7739.4, 7824.8] |
+| coding               |  75 |   9114.9 |  770.5 |   388.4 |      18.1 |     0.4794 | [8934.0, 9280.0] |
+| creative             |  75 |   8479.8 |  129.2 |   581.6 |      17.8 |     0.4888 | [8450.6, 8509.0] |
+| grounded_facts       |  75 |   8472.9 |  247.0 |   600.8 |      17.3 |     0.4872 | [8418.6, 8530.1] |
+| confabulation        |  75 |   8461.8 |  391.0 |   601.2 |      17.7 |     0.4884 | [8374.8, 8555.2] |
+| emotional            |  75 |   8447.4 |  159.7 |   630.2 |      16.6 |     0.4802 | [8411.5, 8483.1] |
+| math_reasoning       |  75 |   8388.7 |  389.7 |   675.3 |      15.8 |     0.4765 | [8302.2, 8479.4] |
+| unambiguous          |  75 |   8279.4 |  131.4 |   694.8 |      16.4 |     0.4842 | [8250.3, 8309.5] |
+| non_self_reference   |  75 |   8251.1 |  185.7 |   670.5 |      17.0 |     0.4880 | [8209.9, 8294.3] |
+| self_reference       |  75 |   8191.8 |  154.4 |   664.6 |      17.4 |     0.4909 | [8157.4, 8226.7] |
+| guardrail_test       |  75 |   8168.5 |  181.7 |   725.0 |      16.7 |     0.4932 | [8127.6, 8210.4] |
+| rote_completion      |  75 |   7987.2 |  377.7 |  1016.9 |      15.8 |     0.4899 | [7904.1, 8071.7] |
+| ambiguous            |  75 |   7822.6 |  242.6 |  1099.3 |      14.8 |     0.4806 | [7768.6, 7878.0] |
+| free_generation      |  75 |   7799.8 |  209.3 |  1030.0 |      15.5 |     0.4910 | [7753.5, 7848.4] |
 
 ---
 
 ## Key Comparisons
 
 ### H1: Confabulation effect
-- Cohen's d = -0.040 [-0.387, 0.283] (negligible)
-- Recommended test: mann_whitney (p = 0.0670)
-- Group 1: mean=8462.1 (n=75), Group 2: mean=8475.1 (n=75)
+- Cohen's d = -0.034 [-0.377, 0.280] (negligible)
+- Recommended test: conservative_max (p = 0.8357)
+- Group 1: mean=8461.8 (n=75), Group 2: mean=8472.9 (n=75)
 
 ### H1: Confabulation effect (eff. rank)
-- Cohen's d = 0.429 [0.122, 0.723] (small)
-- Recommended test: mann_whitney (p = 0.0485)
-- Group 1: mean=17.6 (n=75), Group 2: mean=17.2 (n=75)
+- Cohen's d = 0.312 [-0.005, 0.608] (small)
+- Recommended test: conservative_max (p = 0.2803)
+- Group 1: mean=17.7 (n=75), Group 2: mean=17.3 (n=75)
 
 ### H2: Self-reference effect
-- Cohen's d = -0.342 [-0.646, -0.034] (small)
-- Recommended test: mann_whitney (p = 0.1213)
-- Group 1: mean=8189.1 (n=75), Group 2: mean=8244.7 (n=75)
+- Cohen's d = -0.347 [-0.666, -0.038] (small)
+- Recommended test: conservative_max (p = 0.0542)
+- Group 1: mean=8191.8 (n=75), Group 2: mean=8251.1 (n=75)
 
 ### H2: Self-reference effect (eff. rank)
-- Cohen's d = 0.260 [-0.058, 0.597] (small)
-- Recommended test: mann_whitney (p = 0.0820)
-- Group 1: mean=17.3 (n=75), Group 2: mean=17.1 (n=75)
+- Cohen's d = 0.422 [0.105, 0.761] (small)
+- Recommended test: conservative_max (p = 0.0108)
+- Group 1: mean=17.4 (n=75), Group 2: mean=17.0 (n=75)
 
 ### H3: Refusal specificity
-- Cohen's d = 0.584 [0.249, 0.949] (medium)
-- Recommended test: mann_whitney (p = 0.0001)
-- Group 1: mean=8164.1 (n=75), Group 2: mean=7989.3 (n=75)
+- Cohen's d = 0.612 [0.288, 0.977] (medium)
+- Recommended test: conservative_max (p = 0.0003)
+- Group 1: mean=8168.5 (n=75), Group 2: mean=7987.2 (n=75)
 
 ### H3: Refusal specificity (eff. rank)
-- Cohen's d = 0.854 [0.560, 1.180] (large)
-- Recommended test: mann_whitney (p = 0.0000)
-- Group 1: mean=16.7 (n=75), Group 2: mean=15.7 (n=75)
+- Cohen's d = 0.714 [0.417, 1.021] (medium)
+- Recommended test: conservative_max (p = 0.0012)
+- Group 1: mean=16.7 (n=75), Group 2: mean=15.8 (n=75)
 
 ### H3b: Refusal vs high-entropy
-- Cohen's d = 2.060 [1.686, 2.550] (large)
-- Recommended test: mann_whitney (p = 0.0000)
-- Group 1: mean=8164.1 (n=75), Group 2: mean=7781.4 (n=75)
+- Cohen's d = 1.881 [1.482, 2.411] (large)
+- Recommended test: conservative_max (p = 0.0000)
+- Group 1: mean=8168.5 (n=75), Group 2: mean=7799.8 (n=75)
 
 ### H3b: Refusal vs high-entropy (eff. rank)
-- Cohen's d = 1.640 [1.345, 1.996] (large)
-- Recommended test: mann_whitney (p = 0.0000)
-- Group 1: mean=16.7 (n=75), Group 2: mean=15.6 (n=75)
+- Cohen's d = 1.641 [1.293, 2.064] (large)
+- Recommended test: conservative_max (p = 0.0000)
+- Group 1: mean=16.7 (n=75), Group 2: mean=15.5 (n=75)
 
 ### Creative divergence
-- Cohen's d = 0.036 [-0.269, 0.395] (negligible)
-- Recommended test: mann_whitney (p = 0.0670)
-- Group 1: mean=8482.1 (n=75), Group 2: mean=8475.1 (n=75)
+- Cohen's d = 0.035 [-0.268, 0.388] (negligible)
+- Recommended test: conservative_max (p = 0.8314)
+- Group 1: mean=8479.8 (n=75), Group 2: mean=8472.9 (n=75)
 
 ### Creative divergence (eff. rank)
-- Cohen's d = 0.815 [0.532, 1.117] (large)
-- Recommended test: mann_whitney (p = 0.0000)
-- Group 1: mean=17.9 (n=75), Group 2: mean=17.2 (n=75)
+- Cohen's d = 0.575 [0.265, 0.896] (medium)
+- Recommended test: conservative_max (p = 0.0085)
+- Group 1: mean=17.8 (n=75), Group 2: mean=17.3 (n=75)
 
 ### Emotional divergence
-- Cohen's d = -0.152 [-0.464, 0.177] (negligible)
-- Recommended test: mann_whitney (p = 0.8156)
-- Group 1: mean=8443.0 (n=75), Group 2: mean=8475.1 (n=75)
+- Cohen's d = -0.123 [-0.429, 0.212] (negligible)
+- Recommended test: conservative_max (p = 0.7435)
+- Group 1: mean=8447.4 (n=75), Group 2: mean=8472.9 (n=75)
 
 ### Emotional divergence (eff. rank)
-- Cohen's d = -0.725 [-1.060, -0.410] (medium)
-- Recommended test: mann_whitney (p = 0.0000)
-- Group 1: mean=16.6 (n=75), Group 2: mean=17.2 (n=75)
+- Cohen's d = -0.897 [-1.248, -0.583] (large)
+- Recommended test: conservative_max (p = 0.0000)
+- Group 1: mean=16.6 (n=75), Group 2: mean=17.3 (n=75)
 
 ### Reasoning mode
-- Cohen's d = -0.281 [-0.654, 0.027] (small)
-- Recommended test: mann_whitney (p = 0.0074)
-- Group 1: mean=8384.4 (n=75), Group 2: mean=8475.1 (n=75)
+- Cohen's d = -0.258 [-0.625, 0.055] (small)
+- Recommended test: conservative_max (p = 0.1163)
+- Group 1: mean=8388.7 (n=75), Group 2: mean=8472.9 (n=75)
 
 ### Reasoning mode (eff. rank)
-- Cohen's d = -1.754 [-2.195, -1.401] (large)
-- Recommended test: mann_whitney (p = 0.0000)
-- Group 1: mean=15.9 (n=75), Group 2: mean=17.2 (n=75)
+- Cohen's d = -1.915 [-2.351, -1.571] (large)
+- Recommended test: conservative_max (p = 0.0000)
+- Group 1: mean=15.8 (n=75), Group 2: mean=17.3 (n=75)
 
 ### Code mode
-- Cohen's d = 1.028 [0.598, 1.729] (large)
-- Recommended test: mann_whitney (p = 0.0000)
-- Group 1: mean=9051.4 (n=75), Group 2: mean=8475.1 (n=75)
+- Cohen's d = 1.122 [0.669, 1.856] (large)
+- Recommended test: conservative_max (p = 0.0000)
+- Group 1: mean=9114.9 (n=75), Group 2: mean=8472.9 (n=75)
 
 ### Code mode (eff. rank)
-- Cohen's d = 0.493 [0.148, 0.939] (small)
-- Recommended test: mann_whitney (p = 0.0000)
-- Group 1: mean=17.9 (n=75), Group 2: mean=17.2 (n=75)
+- Cohen's d = 0.488 [0.150, 0.932] (small)
+- Recommended test: conservative_max (p = 0.0035)
+- Group 1: mean=18.1 (n=75), Group 2: mean=17.3 (n=75)
 
 ### Disambiguation demand
-- Cohen's d = -2.347 [-2.863, -1.947] (large)
-- Recommended test: mann_whitney (p = 0.0000)
-- Group 1: mean=7819.3 (n=75), Group 2: mean=8280.3 (n=75)
+- Cohen's d = -2.342 [-2.865, -1.942] (large)
+- Recommended test: conservative_max (p = 0.0000)
+- Group 1: mean=7822.6 (n=75), Group 2: mean=8279.4 (n=75)
 
 ### Disambiguation demand (eff. rank)
-- Cohen's d = -0.930 [-1.207, -0.667] (large)
-- Recommended test: mann_whitney (p = 0.0000)
-- Group 1: mean=14.8 (n=75), Group 2: mean=16.3 (n=75)
+- Cohen's d = -1.095 [-1.330, -0.873] (large)
+- Recommended test: conservative_max (p = 0.0000)
+- Group 1: mean=14.8 (n=75), Group 2: mean=16.4 (n=75)
 
 
 ## Multiple Comparison Correction
 
 Method: holm_bonferroni (9 comparisons)
 
-- confab_vs_facts: p_orig=0.0670, p_corr=0.2681 (not significant)
-- self_ref_effect: p_orig=0.1213, p_corr=0.2426 (not significant)
-- refusal_vs_rote: p_orig=0.0001, p_corr=0.0004 (SIGNIFICANT)
+- confab_vs_facts: p_orig=0.8357, p_corr=1.0000 (not significant)
+- self_ref_effect: p_orig=0.0542, p_corr=0.2708 (not significant)
+- refusal_vs_rote: p_orig=0.0003, p_corr=0.0018 (SIGNIFICANT)
 - refusal_vs_free: p_orig=0.0000, p_corr=0.0000 (SIGNIFICANT)
-- creative_vs_facts: p_orig=0.0670, p_corr=0.2011 (not significant)
-- emotion_vs_facts: p_orig=0.8156, p_corr=0.8156 (not significant)
-- math_vs_facts: p_orig=0.0074, p_corr=0.0371 (SIGNIFICANT)
+- creative_vs_facts: p_orig=0.8314, p_corr=1.0000 (not significant)
+- emotion_vs_facts: p_orig=0.7435, p_corr=1.0000 (not significant)
+- math_vs_facts: p_orig=0.1163, p_corr=0.4653 (not significant)
 - code_vs_facts: p_orig=0.0000, p_corr=0.0000 (SIGNIFICANT)
 - ambiguity_effect: p_orig=0.0000, p_corr=0.0000 (SIGNIFICANT)
 
@@ -138,29 +138,29 @@ Method: holm_bonferroni (9 comparisons)
 ## Hypothesis Evaluation
 
 ### H1_confabulation_inversion
-- cohens_d: -0.039774194422959985
+- cohens_d: -0.03394866234967584
 - interpretation: negligible
-- ci_lower: -0.3868660812927056
-- ci_upper: 0.28267396128765737
-- p_value: 0.06702929221475663
+- ci_lower: -0.37659500276972513
+- ci_upper: 0.2802555470278083
+- p_value: 0.8356515845998139
 - direction: facts_higher
 - note: Positive d = confabulation has higher norms (expected at small scale). Negative d = confabulation has lower norms (inversion at large scale).
 
 ### H2_self_reference_emergence
-- cohens_d: -0.3420472887267483
+- cohens_d: -0.3471634493308487
 - interpretation: small
-- ci_lower: -0.6459369032701048
-- ci_upper: -0.03398352904683957
-- p_value: 0.12128018727524585
+- ci_lower: -0.6658258938816555
+- ci_upper: -0.038160374288383474
+- p_value: 0.05416734485119756
 - emergence_detected: True
 - note: Effect > 0.3 suggests self-modeling capacity at this scale.
 
 ### H3_refusal_specialization
-- cohens_d: 0.5836165876301441
+- cohens_d: 0.6117285823312509
 - interpretation: medium
-- ci_lower: 0.2494342569380144
-- ci_upper: 0.949425104219988
-- p_value: 6.499535085018923e-05
+- ci_lower: 0.2879051252902527
+- ci_upper: 0.976559436339984
+- p_value: 0.00029194343847457297
 - specialized: True
 - note: d > 0.5 = refusal has unique signature beyond low entropy. d < 0.3 = refusal is just another memorized pattern.
 

@@ -1,0 +1,977 @@
+{
+  "metadata": {
+    "experiment": "Extension B: Semantic Layer Map",
+    "version": "1.0-publication",
+    "timestamp": "2026-03-02T15:22:46.902986",
+    "environment": {
+      "timestamp": "2026-03-02T15:22:40.622412",
+      "python": "3.12.3 (main, Jan 22 2026, 20:57:42) [GCC 13.3.0]",
+      "platform": "Linux-6.8.0-101-generic-x86_64-with-glibc2.39",
+      "torch": "2.10.0+cu128",
+      "cuda_available": true,
+      "numpy": "2.3.5",
+      "scipy": "1.17.1",
+      "gpu_name": "NVIDIA GeForce RTX 3090",
+      "gpu_vram_gb": 25.31,
+      "gpu_compute_capability": "8.6",
+      "cuda_version": "12.8",
+      "transformers": "4.57.6"
+    },
+    "args": {
+      "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "quantize": false,
+      "runs": 3,
+      "seed": 42,
+      "experiment": 0,
+      "verbose": false,
+      "dry_run": false
+    },
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "n_layers": 32
+  },
+  "knockout": {
+    "baseline_accuracy": 1.0,
+    "layer_results": [
+      {
+        "layer": 0,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 1,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 2,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 3,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 4,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 5,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 6,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 7,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 8,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 9,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 10,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 11,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 12,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 13,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 14,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 15,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 16,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 17,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 18,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 19,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 20,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 21,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 22,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 23,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 24,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 25,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 26,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 27,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 28,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 29,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 30,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      },
+      {
+        "layer": 31,
+        "accuracy": 0.0,
+        "degradation": 1.0,
+        "n_correct": 0,
+        "n_total": 45
+      }
+    ],
+    "ranked_layers": [
+      {
+        "layer": 0,
+        "degradation": 1.0
+      },
+      {
+        "layer": 1,
+        "degradation": 1.0
+      },
+      {
+        "layer": 2,
+        "degradation": 1.0
+      },
+      {
+        "layer": 3,
+        "degradation": 1.0
+      },
+      {
+        "layer": 4,
+        "degradation": 1.0
+      },
+      {
+        "layer": 5,
+        "degradation": 1.0
+      },
+      {
+        "layer": 6,
+        "degradation": 1.0
+      },
+      {
+        "layer": 7,
+        "degradation": 1.0
+      },
+      {
+        "layer": 8,
+        "degradation": 1.0
+      },
+      {
+        "layer": 9,
+        "degradation": 1.0
+      },
+      {
+        "layer": 10,
+        "degradation": 1.0
+      },
+      {
+        "layer": 11,
+        "degradation": 1.0
+      },
+      {
+        "layer": 12,
+        "degradation": 1.0
+      },
+      {
+        "layer": 13,
+        "degradation": 1.0
+      },
+      {
+        "layer": 14,
+        "degradation": 1.0
+      },
+      {
+        "layer": 15,
+        "degradation": 1.0
+      },
+      {
+        "layer": 16,
+        "degradation": 1.0
+      },
+      {
+        "layer": 17,
+        "degradation": 1.0
+      },
+      {
+        "layer": 18,
+        "degradation": 1.0
+      },
+      {
+        "layer": 19,
+        "degradation": 1.0
+      },
+      {
+        "layer": 20,
+        "degradation": 1.0
+      },
+      {
+        "layer": 21,
+        "degradation": 1.0
+      },
+      {
+        "layer": 22,
+        "degradation": 1.0
+      },
+      {
+        "layer": 23,
+        "degradation": 1.0
+      },
+      {
+        "layer": 24,
+        "degradation": 1.0
+      },
+      {
+        "layer": 25,
+        "degradation": 1.0
+      },
+      {
+        "layer": 26,
+        "degradation": 1.0
+      },
+      {
+        "layer": 27,
+        "degradation": 1.0
+      },
+      {
+        "layer": 28,
+        "degradation": 1.0
+      },
+      {
+        "layer": 29,
+        "degradation": 1.0
+      },
+      {
+        "layer": 30,
+        "degradation": 1.0
+      },
+      {
+        "layer": 31,
+        "degradation": 1.0
+      }
+    ],
+    "h1_verdict": {
+      "top5_share": 0.15625,
+      "concentrated": false,
+      "most_important_layer": 0,
+      "interpretation": "Semantic content DISTRIBUTED across layers (H1 rejected)"
+    }
+  },
+  "crosslingual": {
+    "layer_stats": [
+      {
+        "layer": 0,
+        "mean_similarity": 0.9999963994660798,
+        "std_similarity": 2.2475811432598695e-06,
+        "n": 36
+      },
+      {
+        "layer": 1,
+        "mean_similarity": 0.9999964188824771,
+        "std_similarity": 2.867960046304423e-06,
+        "n": 36
+      },
+      {
+        "layer": 2,
+        "mean_similarity": 0.9999964981835576,
+        "std_similarity": 2.9242774119267244e-06,
+        "n": 36
+      },
+      {
+        "layer": 3,
+        "mean_similarity": 0.9999950746974124,
+        "std_similarity": 4.274720935065541e-06,
+        "n": 36
+      },
+      {
+        "layer": 4,
+        "mean_similarity": 0.999994677695335,
+        "std_similarity": 6.958231026283928e-06,
+        "n": 36
+      },
+      {
+        "layer": 5,
+        "mean_similarity": 0.9999968157672495,
+        "std_similarity": 3.122894085765074e-06,
+        "n": 36
+      },
+      {
+        "layer": 6,
+        "mean_similarity": 0.9999910734891344,
+        "std_similarity": 9.012273309058151e-06,
+        "n": 36
+      },
+      {
+        "layer": 7,
+        "mean_similarity": 0.9999956240733074,
+        "std_similarity": 5.735737551435505e-06,
+        "n": 36
+      },
+      {
+        "layer": 8,
+        "mean_similarity": 0.9999959079504885,
+        "std_similarity": 2.9577620711416053e-06,
+        "n": 36
+      },
+      {
+        "layer": 9,
+        "mean_similarity": 0.9999792250829826,
+        "std_similarity": 2.1105954593852402e-05,
+        "n": 36
+      },
+      {
+        "layer": 10,
+        "mean_similarity": 0.9999920043352442,
+        "std_similarity": 1.1233707213650644e-05,
+        "n": 36
+      },
+      {
+        "layer": 11,
+        "mean_similarity": 0.9999950226459045,
+        "std_similarity": 5.820016114666609e-06,
+        "n": 36
+      },
+      {
+        "layer": 12,
+        "mean_similarity": 0.9999865772734845,
+        "std_similarity": 1.6743788387466813e-05,
+        "n": 36
+      },
+      {
+        "layer": 13,
+        "mean_similarity": 0.999990314469232,
+        "std_similarity": 1.3097115227448826e-05,
+        "n": 36
+      },
+      {
+        "layer": 14,
+        "mean_similarity": 0.999989154257059,
+        "std_similarity": 9.830648626849716e-06,
+        "n": 36
+      },
+      {
+        "layer": 15,
+        "mean_similarity": 0.9999809389539307,
+        "std_similarity": 2.004384013989732e-05,
+        "n": 36
+      },
+      {
+        "layer": 16,
+        "mean_similarity": 0.999994130970646,
+        "std_similarity": 4.27153627224443e-06,
+        "n": 36
+      },
+      {
+        "layer": 17,
+        "mean_similarity": 0.9999927766071158,
+        "std_similarity": 6.577544572958385e-06,
+        "n": 36
+      },
+      {
+        "layer": 18,
+        "mean_similarity": 0.9999220984418898,
+        "std_similarity": 6.0466209993829387e-05,
+        "n": 36
+      },
+      {
+        "layer": 19,
+        "mean_similarity": 0.9999209414525372,
+        "std_similarity": 4.3587464066812364e-05,
+        "n": 36
+      },
+      {
+        "layer": 20,
+        "mean_similarity": 0.9999648084935209,
+        "std_similarity": 2.6621200294011494e-05,
+        "n": 36
+      },
+      {
+        "layer": 21,
+        "mean_similarity": 0.9999537268212977,
+        "std_similarity": 3.985086142688254e-05,
+        "n": 36
+      },
+      {
+        "layer": 22,
+        "mean_similarity": 0.9998364082065172,
+        "std_similarity": 0.0001262975416089896,
+        "n": 36
+      },
+      {
+        "layer": 23,
+        "mean_similarity": 0.9998324641659878,
+        "std_similarity": 0.00015303816821146343,
+        "n": 36
+      },
+      {
+        "layer": 24,
+        "mean_similarity": 0.9996699041425399,
+        "std_similarity": 0.00018673290958472213,
+        "n": 36
+      },
+      {
+        "layer": 25,
+        "mean_similarity": 0.9997216997793027,
+        "std_similarity": 0.00015491305967828918,
+        "n": 36
+      },
+      {
+        "layer": 26,
+        "mean_similarity": 0.9990748374229602,
+        "std_similarity": 0.0002839045681235308,
+        "n": 36
+      },
+      {
+        "layer": 27,
+        "mean_similarity": 0.9996664502560493,
+        "std_similarity": 0.00019611162217100288,
+        "n": 36
+      },
+      {
+        "layer": 28,
+        "mean_similarity": 0.9995887467392038,
+        "std_similarity": 0.00027564546133647226,
+        "n": 36
+      },
+      {
+        "layer": 29,
+        "mean_similarity": 0.9994676919944185,
+        "std_similarity": 0.00022730781795208757,
+        "n": 36
+      },
+      {
+        "layer": 30,
+        "mean_similarity": 0.996049882212922,
+        "std_similarity": 0.0011469634006552483,
+        "n": 36
+      },
+      {
+        "layer": 31,
+        "mean_similarity": 0.9999707051129832,
+        "std_similarity": 3.572982043940213e-05,
+        "n": 36
+      }
+    ],
+    "h2_verdict": {
+      "spearman_rho": -0.9050586510263928,
+      "p_value": 1.149715668444056e-12,
+      "early_mean": 0.9999937715288025,
+      "middle_mean": 0.9999753425364148,
+      "late_mean": 0.9993484106231075,
+      "increasing_trend": "False",
+      "interpretation": "No clear trend in cross-lingual similarity across layers (H2 rejected)"
+    },
+    "n_pairs": 12,
+    "n_runs": 3
+  },
+  "selective_transfer": {
+    "results_by_subset": {
+      "all_layers": {
+        "layers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ],
+        "n_layers": 32,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      },
+      "early_third": {
+        "layers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "n_layers": 10,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      },
+      "middle_third": {
+        "layers": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "n_layers": 10,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      },
+      "late_third": {
+        "layers": [
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31
+        ],
+        "n_layers": 12,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      },
+      "no_transfer": {
+        "layers": [],
+        "n_layers": 0,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      },
+      "random_third": {
+        "layers": [
+          0,
+          8,
+          9,
+          12,
+          15,
+          17,
+          24,
+          25,
+          29,
+          30
+        ],
+        "n_layers": 10,
+        "accuracy": 0.0,
+        "correct": 0,
+        "total": 15
+      }
+    },
+    "h3_verdict": {
+      "late_accuracy": 0.0,
+      "random_accuracy": 0.0,
+      "baseline_accuracy": 0.0,
+      "late_better_than_random": false,
+      "interpretation": "No significant difference between late and random layer transfer (H3 rejected)"
+    },
+    "n_pairs": 5,
+    "n_runs": 3
+  },
+  "probing": {
+    "layer_analysis": [
+      {
+        "layer": 0,
+        "semantic_distance": 8.49684311909904e-08,
+        "syntactic_distance": 1.406921723656751e-06,
+        "sem_syn_ratio": 0.06039314750940635,
+        "cohens_d": -2.185794144185723
+      },
+      {
+        "layer": 1,
+        "semantic_distance": 4.556950776724022e-08,
+        "syntactic_distance": 1.1771687182360325e-06,
+        "sem_syn_ratio": 0.03871111002297561,
+        "cohens_d": -2.2168857684332566
+      },
+      {
+        "layer": 2,
+        "semantic_distance": 3.851549470024196e-07,
+        "syntactic_distance": 4.235739301827745e-06,
+        "sem_syn_ratio": 0.09092980458835676,
+        "cohens_d": -0.9612547951051772
+      },
+      {
+        "layer": 3,
+        "semantic_distance": 5.004453096368877e-07,
+        "syntactic_distance": 4.2195091971897195e-06,
+        "sem_syn_ratio": 0.11860272990285094,
+        "cohens_d": -1.0090417662071929
+      },
+      {
+        "layer": 4,
+        "semantic_distance": 3.4387189752349555e-07,
+        "syntactic_distance": 1.2000244209720012e-05,
+        "sem_syn_ratio": 0.02865540829952149,
+        "cohens_d": -0.8302925558429737
+      },
+      {
+        "layer": 5,
+        "semantic_distance": 2.913713194718781e-07,
+        "syntactic_distance": 5.766048737998463e-06,
+        "sem_syn_ratio": 0.050532233200134245,
+        "cohens_d": -1.1268668291518278
+      },
+      {
+        "layer": 6,
+        "semantic_distance": 1.470937994130228e-06,
+        "syntactic_distance": 3.200376630174695e-06,
+        "sem_syn_ratio": 0.4596140280058025,
+        "cohens_d": -0.6509010669638166
+      },
+      {
+        "layer": 7,
+        "semantic_distance": 9.693270090149753e-07,
+        "syntactic_distance": 6.077976472773639e-06,
+        "sem_syn_ratio": 0.1594818626490389,
+        "cohens_d": -1.060894944714365
+      },
+      {
+        "layer": 8,
+        "semantic_distance": 1.2461735812374642e-06,
+        "syntactic_distance": 6.977009303943405e-06,
+        "sem_syn_ratio": 0.17861142603509603,
+        "cohens_d": -0.9762365167900624
+      },
+      {
+        "layer": 9,
+        "semantic_distance": 1.1633560084156613e-06,
+        "syntactic_distance": 2.373217087292545e-05,
+        "sem_syn_ratio": 0.049020210356856206,
+        "cohens_d": -1.0139856040990227
+      },
+      {
+        "layer": 10,
+        "semantic_distance": 1.3425623480611825e-06,
+        "syntactic_distance": 1.1325881049917275e-05,
+        "sem_syn_ratio": 0.11853932971254265,
+        "cohens_d": -1.990186123270575
+      },
+      {
+        "layer": 11,
+        "semantic_distance": 6.861285253623173e-07,
+        "syntactic_distance": 7.5598043338676035e-06,
+        "sem_syn_ratio": 0.09076009048124309,
+        "cohens_d": -1.346983021954048
+      },
+      {
+        "layer": 12,
+        "semantic_distance": 7.239915958190402e-07,
+        "syntactic_distance": 1.673414630158909e-05,
+        "sem_syn_ratio": 0.043264328085280884,
+        "cohens_d": -1.3264052293054935
+      },
+      {
+        "layer": 13,
+        "semantic_distance": 4.946034922626019e-07,
+        "syntactic_distance": 2.345408085728806e-05,
+        "sem_syn_ratio": 0.02108816351713523,
+        "cohens_d": -1.6502992283959317
+      },
+      {
+        "layer": 14,
+        "semantic_distance": 1.7279776252210333e-06,
+        "syntactic_distance": 1.4009468965858752e-05,
+        "sem_syn_ratio": 0.12334354924031282,
+        "cohens_d": -1.2823920792518442
+      },
+      {
+        "layer": 15,
+        "semantic_distance": 9.449274817274755e-07,
+        "syntactic_distance": 4.6416705959995144e-05,
+        "sem_syn_ratio": 0.020357486861344143,
+        "cohens_d": -1.031618080846432
+      },
+      {
+        "layer": 16,
+        "semantic_distance": 4.42042867432324e-07,
+        "syntactic_distance": 9.439527503396494e-06,
+        "sem_syn_ratio": 0.04682891884930362,
+        "cohens_d": -1.285922726416225
+      },
+      {
+        "layer": 17,
+        "semantic_distance": 5.517593146597832e-07,
+        "syntactic_distance": 1.5022465120417827e-05,
+        "sem_syn_ratio": 0.03672894629722641,
+        "cohens_d": -1.075863117481287
+      },
+      {
+        "layer": 18,
+        "semantic_distance": 3.195951111112372e-06,
+        "syntactic_distance": 2.8103786462574388e-05,
+        "sem_syn_ratio": 0.11371959132156079,
+        "cohens_d": -0.8023701670100056
+      },
+      {
+        "layer": 19,
+        "semantic_distance": 1.7955381118373025e-06,
+        "syntactic_distance": 1.5140911391198219e-05,
+        "sem_syn_ratio": 0.11858850933379694,
+        "cohens_d": -1.1527250184285731
+      },
+      {
+        "layer": 20,
+        "semantic_distance": 2.260710768997587e-06,
+        "syntactic_distance": 8.731726630240022e-06,
+        "sem_syn_ratio": 0.25890764389808246,
+        "cohens_d": -0.9840557375882137
+      },
+      {
+        "layer": 21,
+        "semantic_distance": 4.627635635479077e-06,
+        "syntactic_distance": 1.9742743815609476e-05,
+        "sem_syn_ratio": 0.23439678287372934,
+        "cohens_d": -0.8727171177524281
+      },
+      {
+        "layer": 22,
+        "semantic_distance": 9.853130284676048e-06,
+        "syntactic_distance": 8.241919839244716e-05,
+        "sem_syn_ratio": 0.11954897010474906,
+        "cohens_d": -1.1405772885930336
+      },
+      {
+        "layer": 23,
+        "semantic_distance": 9.281134684302473e-06,
+        "syntactic_distance": 7.31995621764625e-05,
+        "sem_syn_ratio": 0.12679221580490332,
+        "cohens_d": -1.149561598606336
+      },
+      {
+        "layer": 24,
+        "semantic_distance": 8.873797010555684e-06,
+        "syntactic_distance": 7.302074617614452e-05,
+        "sem_syn_ratio": 0.12152432665026237,
+        "cohens_d": -1.190411744002224
+      },
+      {
+        "layer": 25,
+        "semantic_distance": 4.986986001054294e-06,
+        "syntactic_distance": 5.035773235438912e-05,
+        "sem_syn_ratio": 0.0990311868286427,
+        "cohens_d": -1.2444669260845633
+      },
+      {
+        "layer": 26,
+        "semantic_distance": 1.0321368347654402e-05,
+        "syntactic_distance": 4.1909643534221444e-05,
+        "sem_syn_ratio": 0.24627669140698985,
+        "cohens_d": -0.8911030991640165
+      },
+      {
+        "layer": 27,
+        "semantic_distance": 1.0678451169543469e-05,
+        "syntactic_distance": 0.00010818239078161929,
+        "sem_syn_ratio": 0.09870784970078318,
+        "cohens_d": -1.2738361075500166
+      },
+      {
+        "layer": 28,
+        "semantic_distance": 9.99892184740947e-06,
+        "syntactic_distance": 4.019134518111756e-05,
+        "sem_syn_ratio": 0.24878296066853467,
+        "cohens_d": -0.9959885728534866
+      },
+      {
+        "layer": 29,
+        "semantic_distance": 2.0473840997459193e-06,
+        "syntactic_distance": 1.999631064232288e-05,
+        "sem_syn_ratio": 0.10238809230201498,
+        "cohens_d": -1.039126331370943
+      },
+      {
+        "layer": 30,
+        "semantic_distance": 1.2791622894825494e-05,
+        "syntactic_distance": 0.00021342135277914177,
+        "sem_syn_ratio": 0.0599360032548517,
+        "cohens_d": -1.522773426945531
+      },
+      {
+        "layer": 31,
+        "semantic_distance": 3.1268645954374286e-06,
+        "syntactic_distance": 1.7118798649129463e-05,
+        "sem_syn_ratio": 0.18265677747173212,
+        "cohens_d": -0.5285710474992331
+      }
+    ],
+    "h4_verdict": {
+      "transition_layer": 5,
+      "max_ratio_jump": 0.40908179480566825,
+      "spearman_rho": 0.3310117302052786,
+      "p_value": 0.06423532607447904,
+      "has_transition": false,
+      "interpretation": "No clear syntax-semantics transition point (H4 rejected)"
+    },
+    "n_semantic_pairs": 10,
+    "n_syntactic_pairs": 10,
+    "n_runs": 3
+  }
+}

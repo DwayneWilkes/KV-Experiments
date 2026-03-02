@@ -1,0 +1,1022 @@
+{
+  "metadata": {
+    "experiment": "Control 7: Tokenizer Confound",
+    "model": "Qwen/Qwen2.5-7B-Instruct",
+    "model_id": "Qwen2.5-7B",
+    "version": "1.0-publication",
+    "timestamp": "2026-03-02T19:06:13.563137",
+    "args": {
+      "model": "Qwen/Qwen2.5-7B-Instruct",
+      "quantize": false,
+      "runs": 5,
+      "seed": 42,
+      "dry_run": false,
+      "mode": "both"
+    },
+    "environment": {
+      "timestamp": "2026-03-02T19:06:07.854255",
+      "python": "3.12.3 (main, Jan 22 2026, 20:57:42) [GCC 13.3.0]",
+      "platform": "Linux-6.8.0-101-generic-x86_64-with-glibc2.39",
+      "torch": "2.10.0+cu128",
+      "cuda_available": true,
+      "numpy": "2.3.5",
+      "scipy": "1.17.1",
+      "gpu_name": "NVIDIA GeForce RTX 3090",
+      "gpu_vram_gb": 25.31,
+      "gpu_compute_capability": "8.6",
+      "cuda_version": "12.8",
+      "transformers": "4.57.6"
+    }
+  },
+  "tokenization_analysis": {
+    "mean_jaccard_distance": 0.933448640953592,
+    "gate_passed": true,
+    "pair_details": [
+      {
+        "id": "C1",
+        "category": "coding",
+        "jaccard_distance": 0.9444444444444444,
+        "tokens_a": 16,
+        "tokens_b": 24,
+        "token_ratio": 1.5,
+        "unique_a": 15,
+        "unique_b": 23,
+        "overlap": 2,
+        "mean_id_a": 11567.4375,
+        "mean_id_b": 2266.9166666666665
+      },
+      {
+        "id": "C2",
+        "category": "coding",
+        "jaccard_distance": 0.9166666666666666,
+        "tokens_a": 19,
+        "tokens_b": 23,
+        "token_ratio": 1.2105263157894737,
+        "unique_a": 18,
+        "unique_b": 21,
+        "overlap": 3,
+        "mean_id_a": 13253.157894736842,
+        "mean_id_b": 2642.782608695652
+      },
+      {
+        "id": "C3",
+        "category": "coding",
+        "jaccard_distance": 0.9444444444444444,
+        "tokens_a": 15,
+        "tokens_b": 27,
+        "token_ratio": 1.8,
+        "unique_a": 15,
+        "unique_b": 23,
+        "overlap": 2,
+        "mean_id_a": 21406.666666666668,
+        "mean_id_b": 3325.074074074074
+      },
+      {
+        "id": "C4",
+        "category": "coding",
+        "jaccard_distance": 0.9743589743589743,
+        "tokens_a": 14,
+        "tokens_b": 28,
+        "token_ratio": 2.0,
+        "unique_a": 14,
+        "unique_b": 26,
+        "overlap": 1,
+        "mean_id_a": 23064.071428571428,
+        "mean_id_b": 1694.607142857143
+      },
+      {
+        "id": "C5",
+        "category": "coding",
+        "jaccard_distance": 0.9545454545454546,
+        "tokens_a": 24,
+        "tokens_b": 24,
+        "token_ratio": 1.0,
+        "unique_a": 24,
+        "unique_b": 22,
+        "overlap": 2,
+        "mean_id_a": 15059.208333333334,
+        "mean_id_b": 4282.625
+      },
+      {
+        "id": "R1",
+        "category": "creative",
+        "jaccard_distance": 0.8387096774193549,
+        "tokens_a": 21,
+        "tokens_b": 18,
+        "token_ratio": 0.8571428571428571,
+        "unique_a": 19,
+        "unique_b": 17,
+        "overlap": 5,
+        "mean_id_a": 19912.190476190477,
+        "mean_id_b": 3172.9444444444443
+      },
+      {
+        "id": "R2",
+        "category": "creative",
+        "jaccard_distance": 0.9166666666666666,
+        "tokens_a": 21,
+        "tokens_b": 20,
+        "token_ratio": 0.9523809523809523,
+        "unique_a": 19,
+        "unique_b": 20,
+        "overlap": 3,
+        "mean_id_a": 24791.761904761905,
+        "mean_id_b": 5327.9
+      },
+      {
+        "id": "R3",
+        "category": "creative",
+        "jaccard_distance": 0.9411764705882353,
+        "tokens_a": 20,
+        "tokens_b": 18,
+        "token_ratio": 0.9,
+        "unique_a": 19,
+        "unique_b": 17,
+        "overlap": 2,
+        "mean_id_a": 16232.55,
+        "mean_id_b": 3495.5
+      },
+      {
+        "id": "R4",
+        "category": "creative",
+        "jaccard_distance": 0.8787878787878788,
+        "tokens_a": 22,
+        "tokens_b": 18,
+        "token_ratio": 0.8181818181818182,
+        "unique_a": 21,
+        "unique_b": 16,
+        "overlap": 4,
+        "mean_id_a": 18145.909090909092,
+        "mean_id_b": 5252.666666666667
+      },
+      {
+        "id": "R5",
+        "category": "creative",
+        "jaccard_distance": 0.9444444444444444,
+        "tokens_a": 20,
+        "tokens_b": 18,
+        "token_ratio": 0.9,
+        "unique_a": 20,
+        "unique_b": 18,
+        "overlap": 2,
+        "mean_id_a": 26244.25,
+        "mean_id_b": 14380.833333333334
+      },
+      {
+        "id": "A1",
+        "category": "analytical",
+        "jaccard_distance": 0.975,
+        "tokens_a": 20,
+        "tokens_b": 26,
+        "token_ratio": 1.3,
+        "unique_a": 17,
+        "unique_b": 24,
+        "overlap": 1,
+        "mean_id_a": 21048.15,
+        "mean_id_b": 7905.692307692308
+      },
+      {
+        "id": "A2",
+        "category": "analytical",
+        "jaccard_distance": 0.9777777777777777,
+        "tokens_a": 26,
+        "tokens_b": 22,
+        "token_ratio": 0.8461538461538461,
+        "unique_a": 26,
+        "unique_b": 20,
+        "overlap": 1,
+        "mean_id_a": 18807.846153846152,
+        "mean_id_b": 8781.90909090909
+      },
+      {
+        "id": "A3",
+        "category": "analytical",
+        "jaccard_distance": 0.9444444444444444,
+        "tokens_a": 18,
+        "tokens_b": 22,
+        "token_ratio": 1.2222222222222223,
+        "unique_a": 18,
+        "unique_b": 20,
+        "overlap": 2,
+        "mean_id_a": 22907.5,
+        "mean_id_b": 4661.045454545455
+      },
+      {
+        "id": "A4",
+        "category": "analytical",
+        "jaccard_distance": 0.925,
+        "tokens_a": 23,
+        "tokens_b": 23,
+        "token_ratio": 1.0,
+        "unique_a": 22,
+        "unique_b": 21,
+        "overlap": 3,
+        "mean_id_a": 14721.91304347826,
+        "mean_id_b": 3419.1739130434785
+      },
+      {
+        "id": "A5",
+        "category": "analytical",
+        "jaccard_distance": 0.8947368421052632,
+        "tokens_a": 22,
+        "tokens_b": 21,
+        "token_ratio": 0.9545454545454546,
+        "unique_a": 21,
+        "unique_b": 21,
+        "overlap": 4,
+        "mean_id_a": 17297.909090909092,
+        "mean_id_b": 5042.380952380952
+      },
+      {
+        "id": "F1",
+        "category": "factual",
+        "jaccard_distance": 0.9534883720930233,
+        "tokens_a": 24,
+        "tokens_b": 23,
+        "token_ratio": 0.9583333333333334,
+        "unique_a": 23,
+        "unique_b": 22,
+        "overlap": 2,
+        "mean_id_a": 23906.208333333332,
+        "mean_id_b": 6747.130434782609
+      },
+      {
+        "id": "F2",
+        "category": "factual",
+        "jaccard_distance": 0.9347826086956522,
+        "tokens_a": 27,
+        "tokens_b": 25,
+        "token_ratio": 0.9259259259259259,
+        "unique_a": 25,
+        "unique_b": 24,
+        "overlap": 3,
+        "mean_id_a": 15749.481481481482,
+        "mean_id_b": 7047.04
+      },
+      {
+        "id": "F3",
+        "category": "factual",
+        "jaccard_distance": 0.9473684210526316,
+        "tokens_a": 25,
+        "tokens_b": 20,
+        "token_ratio": 0.8,
+        "unique_a": 22,
+        "unique_b": 18,
+        "overlap": 2,
+        "mean_id_a": 13550.56,
+        "mean_id_b": 5962.6
+      },
+      {
+        "id": "F4",
+        "category": "factual",
+        "jaccard_distance": 0.9782608695652174,
+        "tokens_a": 29,
+        "tokens_b": 21,
+        "token_ratio": 0.7241379310344828,
+        "unique_a": 27,
+        "unique_b": 20,
+        "overlap": 1,
+        "mean_id_a": 15660.551724137931,
+        "mean_id_b": 14353.666666666666
+      },
+      {
+        "id": "F5",
+        "category": "factual",
+        "jaccard_distance": 0.8541666666666666,
+        "tokens_a": 30,
+        "tokens_b": 28,
+        "token_ratio": 0.9333333333333333,
+        "unique_a": 30,
+        "unique_b": 25,
+        "overlap": 7,
+        "mean_id_a": 13653.433333333332,
+        "mean_id_b": 5279.357142857143
+      },
+      {
+        "id": "E1",
+        "category": "ethical",
+        "jaccard_distance": 0.9,
+        "tokens_a": 29,
+        "tokens_b": 30,
+        "token_ratio": 1.0344827586206897,
+        "unique_a": 28,
+        "unique_b": 27,
+        "overlap": 5,
+        "mean_id_a": 14569.586206896553,
+        "mean_id_b": 3619.133333333333
+      },
+      {
+        "id": "E2",
+        "category": "ethical",
+        "jaccard_distance": 1.0,
+        "tokens_a": 24,
+        "tokens_b": 22,
+        "token_ratio": 0.9166666666666666,
+        "unique_a": 22,
+        "unique_b": 22,
+        "overlap": 0,
+        "mean_id_a": 22185.75,
+        "mean_id_b": 7547.545454545455
+      },
+      {
+        "id": "E3",
+        "category": "ethical",
+        "jaccard_distance": 0.9487179487179487,
+        "tokens_a": 25,
+        "tokens_b": 19,
+        "token_ratio": 0.76,
+        "unique_a": 22,
+        "unique_b": 19,
+        "overlap": 2,
+        "mean_id_a": 10128.96,
+        "mean_id_b": 5099.473684210527
+      },
+      {
+        "id": "E4",
+        "category": "ethical",
+        "jaccard_distance": 0.9333333333333333,
+        "tokens_a": 23,
+        "tokens_b": 27,
+        "token_ratio": 1.173913043478261,
+        "unique_a": 22,
+        "unique_b": 26,
+        "overlap": 3,
+        "mean_id_a": 15381.173913043478,
+        "mean_id_b": 3273.0
+      },
+      {
+        "id": "E5",
+        "category": "ethical",
+        "jaccard_distance": 0.9148936170212766,
+        "tokens_a": 27,
+        "tokens_b": 28,
+        "token_ratio": 1.037037037037037,
+        "unique_a": 26,
+        "unique_b": 25,
+        "overlap": 4,
+        "mean_id_a": 17378.85185185185,
+        "mean_id_b": 4303.714285714285
+      }
+    ]
+  },
+  "input_only": {
+    "within_pair": {
+      "mean_d_rank": Infinity,
+      "mean_d_entropy": Infinity,
+      "pct_pairs_small_d_rank": 0.0,
+      "tost_pass_rank": 0,
+      "tost_pass_entropy": 0,
+      "tost_total": 25,
+      "pair_summaries": [
+        {
+          "id": "C1",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C2",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C3",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C4",
+          "category": "coding",
+          "d_rank": 4628530559892316.0,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": null,
+          "tost_entropy_equivalent": null
+        },
+        {
+          "id": "C5",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R1",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R2",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R3",
+          "category": "creative",
+          "d_rank": 661218651413186.9,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": null,
+          "tost_entropy_equivalent": null
+        },
+        {
+          "id": "R4",
+          "category": "creative",
+          "d_rank": 1653046628532968.5,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": null,
+          "tost_entropy_equivalent": null
+        },
+        {
+          "id": "R5",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A1",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A2",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A3",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A4",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A5",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F1",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F2",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F3",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F4",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F5",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E1",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E2",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E3",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E4",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E5",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": 32183469516472.81,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        }
+      ]
+    },
+    "between_category": {
+      "mean_between_d": 0.8034733653231172,
+      "significant_pairs": 6,
+      "total_pairs": 10,
+      "pairwise": [
+        {
+          "cat_a": "coding",
+          "cat_b": "creative",
+          "cohens_d": 0.828508316356539,
+          "p_conservative": 0.0019113984661561759
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "analytical",
+          "cohens_d": 0.3650075564015593,
+          "p_conservative": 0.08505575232804455
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "factual",
+          "cohens_d": 0.2874599739437982,
+          "p_conservative": 0.8656666551673273
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "ethical",
+          "cohens_d": 0.34681997056521185,
+          "p_conservative": 0.39016814497493846
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "analytical",
+          "cohens_d": 0.7400494765006953,
+          "p_conservative": 0.0003694091524364782
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "factual",
+          "cohens_d": 1.731531574459294,
+          "p_conservative": 1.6830721071953098e-11
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "ethical",
+          "cohens_d": 1.7084149051295365,
+          "p_conservative": 1.5067176035231114e-12
+        },
+        {
+          "cat_a": "analytical",
+          "cat_b": "factual",
+          "cohens_d": 0.9482730420259061,
+          "p_conservative": 1.0827462119273278e-05
+        },
+        {
+          "cat_a": "analytical",
+          "cat_b": "ethical",
+          "cohens_d": 0.9868273203270913,
+          "p_conservative": 7.362878517892902e-06
+        },
+        {
+          "cat_a": "factual",
+          "cat_b": "ethical",
+          "cohens_d": 0.09184151752153902,
+          "p_conservative": 0.6471136969438063
+        }
+      ],
+      "category_means": {
+        "coding": 17.632142857142856,
+        "creative": 16.189285714285717,
+        "analytical": 16.964285714285715,
+        "factual": 18.174999999999997,
+        "ethical": 18.307142857142857
+      }
+    },
+    "register_effect": {
+      "register_d": -0.2483522665157302,
+      "register_p": 0.0766076249525332,
+      "register_significant": false,
+      "per_category_register": {
+        "coding": {
+          "d": -2.442652470319534,
+          "p": 2.1992069876953514e-08
+        },
+        "creative": {
+          "d": 2.046237077098497,
+          "p": 2.996219396528394e-07
+        },
+        "analytical": {
+          "d": -0.8885260030240457,
+          "p": 0.007561493385092886
+        },
+        "factual": {
+          "d": 0.8301061577797488,
+          "p": 0.028504124300400266
+        },
+        "ethical": {
+          "d": 0.06541472839912349,
+          "p": 0.8184648029458372
+        }
+      }
+    },
+    "token_regression": {
+      "category_F": 16.777936176291007,
+      "category_p": 3.602994639390345e-12,
+      "category_eta_sq": 0.21502473342860198,
+      "residualized_F": 38.82522495255104,
+      "residualized_p": 3.6851726908843503e-25,
+      "residualized_eta_sq": 0.3879604064938085,
+      "category_survives_token_control": "True"
+    },
+    "verdict": {
+      "verdict": "CATASTROPHIC_FAIL",
+      "interpretation": "Surface form dominates semantic content. Within-pair d exceeds between-category d. Retract or heavily qualify all prior findings.",
+      "mean_within_d": Infinity,
+      "mean_between_d": 0.8034733653231172,
+      "register_significant": false,
+      "category_survives_token_control": "True"
+    }
+  },
+  "full_gen": {
+    "within_pair": {
+      "mean_d_rank": Infinity,
+      "mean_d_entropy": Infinity,
+      "pct_pairs_small_d_rank": 0.0,
+      "tost_pass_rank": 0,
+      "tost_pass_entropy": 0,
+      "tost_total": 25,
+      "pair_summaries": [
+        {
+          "id": "C1",
+          "category": "coding",
+          "d_rank": 314698590945098.5,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": null,
+          "tost_entropy_equivalent": null
+        },
+        {
+          "id": "C2",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C3",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C4",
+          "category": "coding",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "C5",
+          "category": "coding",
+          "d_rank": 63578716482036.766,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": null,
+          "tost_entropy_equivalent": null
+        },
+        {
+          "id": "R1",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R2",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R3",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "R4",
+          "category": "creative",
+          "d_rank": 139873176260480.62,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": null,
+          "tost_entropy_equivalent": null
+        },
+        {
+          "id": "R5",
+          "category": "creative",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A1",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A2",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A3",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "A4",
+          "category": "analytical",
+          "d_rank": 686650138006003.6,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": null,
+          "tost_entropy_equivalent": null
+        },
+        {
+          "id": "A5",
+          "category": "analytical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F1",
+          "category": "factual",
+          "d_rank": 203451892742519.9,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": null,
+          "tost_entropy_equivalent": null
+        },
+        {
+          "id": "F2",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F3",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F4",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "F5",
+          "category": "factual",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E1",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E2",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E3",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E4",
+          "category": "ethical",
+          "d_rank": Infinity,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": "False",
+          "tost_entropy_equivalent": "False"
+        },
+        {
+          "id": "E5",
+          "category": "ethical",
+          "d_rank": 775660341080854.6,
+          "d_entropy": Infinity,
+          "tost_rank_equivalent": null,
+          "tost_entropy_equivalent": null
+        }
+      ]
+    },
+    "between_category": {
+      "mean_between_d": 0.6178362845079961,
+      "significant_pairs": 7,
+      "total_pairs": 10,
+      "pairwise": [
+        {
+          "cat_a": "coding",
+          "cat_b": "creative",
+          "cohens_d": 1.3209909014192764,
+          "p_conservative": 5.715887612854295e-07
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "analytical",
+          "cohens_d": 1.1911011077844407,
+          "p_conservative": 5.605331708990999e-07
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "factual",
+          "cohens_d": 0.7912398058810595,
+          "p_conservative": 0.0005601752007749196
+        },
+        {
+          "cat_a": "coding",
+          "cat_b": "ethical",
+          "cohens_d": 0.6885284593514158,
+          "p_conservative": 0.0010518338166895097
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "analytical",
+          "cohens_d": 0.1349791211235008,
+          "p_conservative": 0.5018501457241518
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "factual",
+          "cohens_d": 0.48897780130630486,
+          "p_conservative": 0.07044594410152483
+        },
+        {
+          "cat_a": "creative",
+          "cat_b": "ethical",
+          "cohens_d": 0.5022772816425589,
+          "p_conservative": 0.038424542063135454
+        },
+        {
+          "cat_a": "analytical",
+          "cat_b": "factual",
+          "cohens_d": 0.49080056881653883,
+          "p_conservative": 0.01591487846484026
+        },
+        {
+          "cat_a": "analytical",
+          "cat_b": "ethical",
+          "cohens_d": 0.5108457063827573,
+          "p_conservative": 0.01581339115520103
+        },
+        {
+          "cat_a": "factual",
+          "cat_b": "ethical",
+          "cohens_d": 0.05862209137210916,
+          "p_conservative": 0.865516225867055
+        }
+      ],
+      "category_means": {
+        "coding": 26.692857142857136,
+        "creative": 25.378571428571426,
+        "analytical": 25.257142857142856,
+        "factual": 25.782142857142862,
+        "ethical": 25.84642857142858
+      }
+    },
+    "register_effect": {
+      "register_d": -0.30072701638102567,
+      "register_p": 0.05430782967360707,
+      "register_significant": false,
+      "per_category_register": {
+        "coding": {
+          "d": -1.5993201614309638,
+          "p": 3.824155692369654e-06
+        },
+        "creative": {
+          "d": 0.26674832848658514,
+          "p": 0.3512962383170283
+        },
+        "analytical": {
+          "d": -0.8465963730083922,
+          "p": 0.007561493385092886
+        },
+        "factual": {
+          "d": 0.6584881625391226,
+          "p": 0.028989438710671007
+        },
+        "ethical": {
+          "d": -0.04199895003937693,
+          "p": 0.882886944092346
+        }
+      }
+    },
+    "token_regression": {
+      "category_F": 14.048435077095801,
+      "category_p": 2.464869265380745e-10,
+      "category_eta_sq": 0.18657008027739141,
+      "residualized_F": 14.048435077095803,
+      "residualized_p": 2.464869265380736e-10,
+      "residualized_eta_sq": 0.18657008027739266,
+      "category_survives_token_control": "True"
+    },
+    "verdict": {
+      "verdict": "CATASTROPHIC_FAIL",
+      "interpretation": "Surface form dominates semantic content. Within-pair d exceeds between-category d. Retract or heavily qualify all prior findings.",
+      "mean_within_d": Infinity,
+      "mean_between_d": 0.6178362845079961,
+      "register_significant": false,
+      "category_survives_token_control": "True"
+    }
+  }
+}

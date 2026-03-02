@@ -681,13 +681,12 @@ def analyze_h8d(results: Dict) -> Dict:
     chance = 1.0 / len(categories)
 
     # Binomial test: is accuracy > chance?
-    from scipy.stats import binom_test
     try:
-        p_val = binom_test(correct, n, chance, alternative="greater")
-    except Exception:
-        # Fallback for newer scipy that deprecated binom_test
         from scipy.stats import binomtest
         p_val = binomtest(correct, n, chance, alternative="greater").pvalue
+    except ImportError:
+        from scipy.stats import binom_test
+        p_val = binom_test(correct, n, chance, alternative="greater")
 
     verdict = (
         f"H8d SUPPORTED: Category classification accuracy {accuracy:.1%} "
@@ -834,6 +833,8 @@ def main():
                         help="System prompt condition")
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--analysis-only", type=str, default=None,
+                        help="Path to pickle checkpoint; skip generation, run analysis only")
     args = parser.parse_args()
 
     prompts_dir = Path(__file__).parent.parent / "prompts"
@@ -877,6 +878,14 @@ def main():
             verbose=args.verbose,
         )
         all_condition_results[sp_key] = condition_result
+
+    # Save intermediate results (checkpoint before analysis)
+    import pickle
+    model_short = args.model.split("/")[-1]
+    checkpoint_path = results_dir / f"societies_checkpoint_{model_short}.pkl"
+    with open(checkpoint_path, "wb") as f:
+        pickle.dump(all_condition_results, f)
+    print(f"  Checkpoint saved: {checkpoint_path}")
 
     # Run analyses on S0 (default) condition
     print("\n" + "=" * 70)

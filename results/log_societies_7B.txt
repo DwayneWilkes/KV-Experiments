@@ -1,0 +1,87 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  H8: SOCIETIES OF THOUGHT DETECTION VIA KV-CACHE GEOMETRY
+  Liberation Labs / THCoalition
+======================================================================
+  Model: Qwen/Qwen2.5-7B-Instruct
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  Time: 2026-03-02T09:21:02.451320
+======================================================================
+Loading Qwen/Qwen2.5-7B-Instruct (quantize=False)...
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.33it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.31it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.32it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:02<00:00,  1.38it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:02<00:00,  1.36it/s]
+/home/thomas/KV-Experiments/code/10_societies_of_thought.py:523: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho, p = scipy_stats.spearmanr(convergence_rates, consistency_scores)
+  Loaded: 28 layers, 4 KV heads
+
+  System prompt: S0 (default)
+  Prompts: 90, Runs: 3, Max tokens: 256
+    [10/90] processed
+    [20/90] processed
+    [30/90] processed
+    [40/90] processed
+    [50/90] processed
+    [60/90] processed
+    [70/90] processed
+    [80/90] processed
+    [90/90] processed
+
+  System prompt: S1 (Think carefully and consider multiple pe...)
+  Prompts: 90, Runs: 3, Max tokens: 256
+    [10/90] processed
+    [20/90] processed
+    [30/90] processed
+    [40/90] processed
+    [50/90] processed
+    [60/90] processed
+    [70/90] processed
+    [80/90] processed
+    [90/90] processed
+
+  System prompt: S2 (Give your best answer immediately and co...)
+  Prompts: 90, Runs: 3, Max tokens: 256
+    [10/90] processed
+    [20/90] processed
+    [30/90] processed
+    [40/90] processed
+    [50/90] processed
+    [60/90] processed
+    [70/90] processed
+    [80/90] processed
+    [90/90] processed
+
+  System prompt: S3 (Play devil's advocate with your own reas...)
+  Prompts: 90, Runs: 3, Max tokens: 256
+    [10/90] processed
+    [20/90] processed
+    [30/90] processed
+    [40/90] processed
+    [50/90] processed
+    [60/90] processed
+    [70/90] processed
+    [80/90] processed
+    [90/90] processed
+
+======================================================================
+  HYPOTHESIS TESTING
+======================================================================
+
+  H8a: Deliberative vs. baseline temporal variance...
+    H8a SUPPORTED: Deliberative prompts show significantly higher temporal geometric variance
+    d=2.650, p=0.0000
+
+  H8b: Convergence rate vs. answer consistency...
+    H8b NOT SUPPORTED: No significant correlation (rho=nan), p=nan
+
+  H8c: Change-point alignment with linguistic markers...
+    H8c NOT SUPPORTED: Alignment not significantly above chance, p=0.4934
+
+  H8d: ITA eddy category classification...
+Traceback (most recent call last):
+  File "/home/thomas/KV-Experiments/code/10_societies_of_thought.py", line 980, in <module>
+    main()
+  File "/home/thomas/KV-Experiments/code/10_societies_of_thought.py", line 893, in main
+    analyses["h8d"] = analyze_h8d(s0_results)
+                      ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/KV-Experiments/code/10_societies_of_thought.py", line 684, in analyze_h8d
+    from scipy.stats import binom_test
+ImportError: cannot import name 'binom_test' from 'scipy.stats' (/home/thomas/KV-Experiments/.venv/lib/python3.12/site-packages/scipy/stats/__init__.py). Did you mean: 'binomtest'?

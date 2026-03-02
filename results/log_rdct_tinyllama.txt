@@ -1,0 +1,74 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  H9: RDCT STABILITY THRESHOLD VIA KV-CACHE PERTURBATION
+  Liberation Labs / THCoalition
+======================================================================
+  Model: TinyLlama/TinyLlama-1.1B-Chat-v1.0
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  Time: 2026-03-02T11:06:16.022553
+======================================================================
+Loading TinyLlama/TinyLlama-1.1B-Chat-v1.0 (quantize=False)...
+  Loaded: 22 layers, 4 KV heads
+
+  Category: self_reference
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: other_reference
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: philosophical
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: refusal
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: confabulation
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: deception
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+======================================================================
+  HYPOTHESIS TESTING
+======================================================================
+
+  H9a/H9b: Stability threshold and Watson's 1/e...
+    self_reference: alpha_c = 1.000 (R^2 = -4.282)
+    other_reference: alpha_c = 1.000 (R^2 = -1.575)
+    philosophical: alpha_c = 1.000 (R^2 = 0.346)
+    refusal: alpha_c = 1.000 (R^2 = -2.745)
+    confabulation: alpha_c = 1.000 (R^2 = -2.956)
+    deception: alpha_c = 1.000 (R^2 = -0.043)
+
+    H9a SUPPORTED: Critical thresholds found for 6/6 categories
+    H9b NOT SUPPORTED: Mean alpha_c = 1.000 [1.000, 1.000], Watson's 1/e = 0.368 falls outside CI
+
+  H9c: Effect size vs. perturbation tolerance...
+    H9c NOT SUPPORTED: No significant correlation (rho=-0.393, p=0.4411)
+
+  H9d: Sharp vs. gradual transition...
+    self_reference: gradual (sigmoid R2=-4.282, linear R2=0.837)
+    other_reference: gradual (sigmoid R2=-1.575, linear R2=0.585)
+    philosophical: gradual (sigmoid R2=0.346, linear R2=0.758)
+    refusal: gradual (sigmoid R2=-2.745, linear R2=0.850)
+    confabulation: gradual (sigmoid R2=-2.956, linear R2=0.915)
+    deception: gradual (sigmoid R2=-0.043, linear R2=0.951)
+    H9d NOT SUPPORTED: Only 0/6 categories show sharp transition
+
+======================================================================
+  H9: RDCT STABILITY COMPLETE
+======================================================================
+  Results: /home/thomas/KV-Experiments/results/rdct_stability_TinyLlama-1.1B_results.json
+  SHA-256: 1edda06f0b5aa2e66cb7b124d60e47f2e808367397cda3121690e509d6a37263

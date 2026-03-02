@@ -1,0 +1,459 @@
+{
+  "metadata": {
+    "experiment": "Phase 2b: Scale of Cognition Sweep",
+    "version": "2.0-publication",
+    "timestamp": "2026-03-02T08:10:01.127677",
+    "environment": {
+      "timestamp": "2026-03-02T08:10:00.944376",
+      "python": "3.12.3 (main, Jan 22 2026, 20:57:42) [GCC 13.3.0]",
+      "platform": "Linux-6.8.0-101-generic-x86_64-with-glibc2.39",
+      "torch": "2.10.0+cu128",
+      "cuda_available": true,
+      "numpy": "2.3.5",
+      "scipy": "1.17.1",
+      "gpu_name": "NVIDIA GeForce RTX 3090",
+      "gpu_vram_gb": 25.31,
+      "gpu_compute_capability": "8.6",
+      "cuda_version": "12.8",
+      "transformers": "4.57.6"
+    },
+    "args": {
+      "model": null,
+      "scale": "3.8B",
+      "quantize": false,
+      "runs": 5,
+      "seed": 42,
+      "all_scales": false,
+      "verbose": false,
+      "dry_run": false
+    },
+    "n_categories": 13,
+    "n_prompts_per_category": {
+      "grounded_facts": 15,
+      "confabulation": 15,
+      "self_reference": 15,
+      "non_self_reference": 15,
+      "guardrail_test": 15,
+      "math_reasoning": 15,
+      "coding": 15,
+      "emotional": 15,
+      "creative": 15,
+      "ambiguous": 15,
+      "unambiguous": 15,
+      "free_generation": 15,
+      "rote_completion": 15
+    },
+    "total_unique_prompts": 195,
+    "runs_per_prompt": 5,
+    "comparison_pairs": [
+      {
+        "cat1": "confabulation",
+        "cat2": "grounded_facts",
+        "key": "confab_vs_facts",
+        "label": "H1: Confabulation effect"
+      },
+      {
+        "cat1": "self_reference",
+        "cat2": "non_self_reference",
+        "key": "self_ref_effect",
+        "label": "H2: Self-reference effect"
+      },
+      {
+        "cat1": "guardrail_test",
+        "cat2": "rote_completion",
+        "key": "refusal_vs_rote",
+        "label": "H3: Refusal specificity"
+      },
+      {
+        "cat1": "guardrail_test",
+        "cat2": "free_generation",
+        "key": "refusal_vs_free",
+        "label": "H3b: Refusal vs high-entropy"
+      },
+      {
+        "cat1": "creative",
+        "cat2": "grounded_facts",
+        "key": "creative_vs_facts",
+        "label": "Creative divergence"
+      },
+      {
+        "cat1": "emotional",
+        "cat2": "grounded_facts",
+        "key": "emotion_vs_facts",
+        "label": "Emotional divergence"
+      },
+      {
+        "cat1": "math_reasoning",
+        "cat2": "grounded_facts",
+        "key": "math_vs_facts",
+        "label": "Reasoning mode"
+      },
+      {
+        "cat1": "coding",
+        "cat2": "grounded_facts",
+        "key": "code_vs_facts",
+        "label": "Code mode"
+      },
+      {
+        "cat1": "ambiguous",
+        "cat2": "unambiguous",
+        "key": "ambiguity_effect",
+        "label": "Disambiguation demand"
+      }
+    ]
+  },
+  "scales": {
+    "3.8B": {
+      "config": {
+        "model": "microsoft/Phi-3.5-mini-instruct",
+        "quantize": false
+      },
+      "model_info": {
+        "num_layers": 32,
+        "num_kv_heads": 32,
+        "hidden_size": 3072,
+        "vocab_size": 32064
+      },
+      "battery_results": {
+        "grounded_facts": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "confabulation": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "self_reference": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "non_self_reference": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "guardrail_test": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "math_reasoning": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "coding": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "emotional": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "creative": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "ambiguous": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "unambiguous": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "free_generation": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        },
+        "rote_completion": {
+          "n_observations": 0,
+          "all_norms": [],
+          "all_norms_per_token": [],
+          "all_key_ranks": [],
+          "all_key_entropies": [],
+          "all_value_ranks": []
+        }
+      },
+      "analysis": {
+        "category_summaries": {
+          "grounded_facts": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "confabulation": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "self_reference": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "non_self_reference": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "guardrail_test": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "math_reasoning": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "coding": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "emotional": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "creative": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "ambiguous": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "unambiguous": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "free_generation": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          },
+          "rote_completion": {
+            "n": 0,
+            "mean": NaN,
+            "std": 0,
+            "median": NaN,
+            "min": 0,
+            "max": 0,
+            "mean_per_token": 0,
+            "std_per_token": 0
+          }
+        },
+        "pairwise_comparisons": {},
+        "hypothesis_tests": {
+          "H4_category_invariance": {
+            "note": "Evaluated in cross-scale comparison (requires multiple scale results)."
+          }
+        },
+        "power": {
+          "d_0.3": {
+            "n_per_group": 0,
+            "alpha": 0.05,
+            "target_d": 0.3,
+            "approx_power": 0.025,
+            "adequate": false
+          },
+          "d_0.5": {
+            "n_per_group": 0,
+            "alpha": 0.05,
+            "target_d": 0.5,
+            "approx_power": 0.025,
+            "adequate": false
+          },
+          "d_0.8": {
+            "n_per_group": 0,
+            "alpha": 0.05,
+            "target_d": 0.8,
+            "approx_power": 0.025,
+            "adequate": false
+          }
+        }
+      },
+      "ranking": {
+        "ranking": [
+          [
+            "grounded_facts",
+            NaN
+          ],
+          [
+            "confabulation",
+            NaN
+          ],
+          [
+            "self_reference",
+            NaN
+          ],
+          [
+            "non_self_reference",
+            NaN
+          ],
+          [
+            "guardrail_test",
+            NaN
+          ],
+          [
+            "math_reasoning",
+            NaN
+          ],
+          [
+            "coding",
+            NaN
+          ],
+          [
+            "emotional",
+            NaN
+          ],
+          [
+            "creative",
+            NaN
+          ],
+          [
+            "ambiguous",
+            NaN
+          ],
+          [
+            "unambiguous",
+            NaN
+          ],
+          [
+            "free_generation",
+            NaN
+          ],
+          [
+            "rote_completion",
+            NaN
+          ]
+        ],
+        "rank_order": [
+          "grounded_facts",
+          "confabulation",
+          "self_reference",
+          "non_self_reference",
+          "guardrail_test",
+          "math_reasoning",
+          "coding",
+          "emotional",
+          "creative",
+          "ambiguous",
+          "unambiguous",
+          "free_generation",
+          "rote_completion"
+        ]
+      }
+    }
+  }
+}

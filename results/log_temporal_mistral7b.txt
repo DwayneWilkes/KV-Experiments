@@ -1,0 +1,58 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  EXTENSION C: TEMPORAL CACHE EVOLUTION
+  Liberation Labs / THCoalition
+======================================================================
+Loading mistralai/Mistral-7B-Instruct-v0.3 (quantize=False)...
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:01<00:02,  1.08s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:02<00:01,  1.09s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.06s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.07s/it]
+/home/thomas/KV-Experiments/.venv/lib/python3.12/site-packages/scipy/stats/_axis_nan_policy.py:592: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+  res = hypotest_fun_out(*samples, **kwds)
+  Loaded: 32 layers, 8 KV heads
+
+============================================================
+  EXPERIMENT 1: CACHE TRAJECTORY
+============================================================
+
+  Processing: factual
+    Total tokens: 342, sampling at 21 positions
+
+  Processing: creative
+    Total tokens: 258, sampling at 22 positions
+
+  Processing: repetitive
+    Total tokens: 220, sampling at 20 positions
+
+  Testing H1 (Enrichment)...
+    factual: ρ=1.000 (p=0.0000)
+    creative: ρ=1.000 (p=0.0000)
+    repetitive: ρ=1.000 (p=0.0000)
+
+  Testing H2 (Fatigue)...
+    factual: first_slope=-35.6269, second_slope=-3.0588
+    creative: first_slope=-29.9032, second_slope=-3.0738
+    repetitive: first_slope=-29.5568, second_slope=-4.0178
+
+============================================================
+  EXPERIMENT 2: CONTENT COMPARISON
+============================================================
+  Run 1/3
+  Run 2/3
+  Run 3/3
+  factual: mean_growth=-0.4052 +/- 0.0000
+  creative: mean_growth=-0.3953 +/- 0.0000
+  repetitive: mean_growth=-0.3630 +/- 0.0000
+
+  H4: No significant difference in cache growth rate (H4 rejected)
+
+============================================================
+  EXPERIMENT 3: TOPIC SHIFT DETECTION
+============================================================
+  Total tokens: 303, sampling at 100 positions
+
+  H3: Topic shifts NOT detected in cache statistics (H3 rejected)
+
+======================================================================
+  TEMPORAL EVOLUTION COMPLETE
+======================================================================
+  Results: /home/thomas/KV-Experiments/results/temporal_evolution_Mistral-7B-v0.3_results.json
+  SHA-256: 21bd272aed8bf048bf2ab4d5ef3d67e284cbc1a473f1c9f0942ea5f2e90835b3

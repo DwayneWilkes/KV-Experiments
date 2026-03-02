@@ -1,0 +1,86 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+======================================================================
+  PHASE 2b: SCALE OF COGNITION SWEEP — PUBLICATION GRADE
+  Liberation Labs / THCoalition
+======================================================================
+  Scale: 0.6B (Qwen/Qwen3-0.6B)
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  GPU: NVIDIA GeForce RTX 3090 (25.31 GB)
+  Time: 2026-03-02T08:08:49.201905
+======================================================================
+
+Loading Qwen/Qwen3-0.6B (quantize=False)...
+  Loaded: 28 layers, 8 KV heads
+
+Running cognitive battery: 5 runs × 195 prompts
+
+--- Run 1/5 ---
+  Progress: 50/975 (5%)
+  Progress: 100/975 (10%)
+  Progress: 150/975 (15%)
+
+--- Run 2/5 ---
+  Progress: 200/975 (21%)
+  Progress: 250/975 (26%)
+  Progress: 300/975 (31%)
+  Progress: 350/975 (36%)
+
+--- Run 3/5 ---
+  Progress: 400/975 (41%)
+  Progress: 450/975 (46%)
+  Progress: 500/975 (51%)
+  Progress: 550/975 (56%)
+
+--- Run 4/5 ---
+  Progress: 600/975 (62%)
+  Progress: 650/975 (67%)
+  Progress: 700/975 (72%)
+  Progress: 750/975 (77%)
+
+--- Run 5/5 ---
+  Progress: 800/975 (82%)
+  Progress: 850/975 (87%)
+  Progress: 900/975 (92%)
+  Progress: 950/975 (97%)
+
+Running statistical analysis...
+
+  Report: /home/thomas/KV-Experiments/results/scale_sweep_0.6B_report.md
+
+============================================================
+  0.6B SUMMARY
+============================================================
+
+  Category ranking (by mean norm):
+     1. coding                   :  30024.6
+     2. creative                 :  26900.0
+     3. grounded_facts           :  26817.2
+     4. confabulation            :  26725.8
+     5. emotional                :  26624.9
+     6. non_self_reference       :  26121.4
+     7. math_reasoning           :  26110.3
+     8. unambiguous              :  25996.2
+     9. self_reference           :  25995.2
+    10. guardrail_test           :  25432.5
+    11. rote_completion          :  24927.3
+    12. ambiguous                :  24733.0
+    13. free_generation          :  24515.7
+
+  Key effect sizes:
+    confab_vs_facts          : d=-0.089 [-0.428, 0.229] (negligible) 
+    self_ref_effect          : d=-0.254 [-0.551, 0.059] (small) 
+    refusal_vs_rote          : d=+0.542 [0.215, 0.894] (medium) *
+
+  Effective dimensionality (H6):
+    confab_vs_facts          : rank d=-0.006 (negligible)
+    self_ref_effect          : rank d=+0.844 (large)
+    refusal_vs_rote          : rank d=-0.786 (medium)
+
+======================================================================
+  ALL RESULTS SAVED
+======================================================================
+  File: /home/thomas/KV-Experiments/results/scale_sweep_Qwen3-0.6B_results.json
+  SHA-256: c4d1b60f803db16aedb13c4586d61795408a1920b77d053493dab3c6fcc6ea22
+  Scales: 0.6B
+

@@ -1,0 +1,75 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  H9: RDCT STABILITY THRESHOLD VIA KV-CACHE PERTURBATION
+  Liberation Labs / THCoalition
+======================================================================
+  Model: meta-llama/Llama-3.1-8B-Instruct
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  Time: 2026-03-02T15:38:07.780970
+======================================================================
+Loading meta-llama/Llama-3.1-8B-Instruct (quantize=False)...
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.05it/s]Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.02it/s]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.03it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.45it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.26it/s]
+  Loaded: 32 layers, 8 KV heads
+
+  Category: self_reference
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: other_reference
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: philosophical
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: refusal
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: confabulation
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: deception
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+======================================================================
+  HYPOTHESIS TESTING
+======================================================================
+
+  H9a/H9b: Stability threshold and Watson's 1/e...
+    self_reference: alpha_c = 1.000 (R^2 = 0.947)
+    other_reference: alpha_c = 0.751 (R^2 = 0.614)
+    philosophical: alpha_c = 0.844 (R^2 = 0.640)
+    refusal: alpha_c = 1.000 (R^2 = 0.935)
+    confabulation: alpha_c = 1.000 (R^2 = 0.903)
+    deception: alpha_c = 1.000 (R^2 = 0.932)
+
+    H9a SUPPORTED: Critical thresholds found for 6/6 categories
+    H9b NOT SUPPORTED: Mean alpha_c = 0.932 [0.853, 1.012], Watson's 1/e = 0.368 falls outside CI
+
+  H9c: Effect size vs. perturbation tolerance...
+    H9c NOT SUPPORTED: No significant correlation (rho=0.371, p=0.4685)
+
+  H9d: Sharp vs. gradual transition...
+    self_reference: gradual (sigmoid R2=0.947, linear R2=0.946)
+    other_reference: gradual (sigmoid R2=0.614, linear R2=0.620)
+    philosophical: gradual (sigmoid R2=0.640, linear R2=0.646)
+    refusal: gradual (sigmoid R2=0.935, linear R2=0.931)
+    confabulation: gradual (sigmoid R2=0.903, linear R2=0.898)
+    deception: gradual (sigmoid R2=0.932, linear R2=0.921)
+    H9d NOT SUPPORTED: Only 0/6 categories show sharp transition
+
+======================================================================
+  H9: RDCT STABILITY COMPLETE
+======================================================================
+  Results: /home/thomas/KV-Experiments/results/rdct_stability_Llama-3.1-8B_results.json
+  SHA-256: db4e31a3857cf13a139c8f3498506a773d29c934f78f97a8563f56fbc4cab69a

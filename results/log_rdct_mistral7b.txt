@@ -1,0 +1,77 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  H9: RDCT STABILITY THRESHOLD VIA KV-CACHE PERTURBATION
+  Liberation Labs / THCoalition
+======================================================================
+  Model: mistralai/Mistral-7B-Instruct-v0.3
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  Time: 2026-03-02T15:39:23.264289
+======================================================================
+Loading mistralai/Mistral-7B-Instruct-v0.3 (quantize=False)...
+Loading checkpoint shards:   0%|          | 0/3 [00:00<?, ?it/s]Loading checkpoint shards:  33%|███▎      | 1/3 [00:01<00:02,  1.15s/it]Loading checkpoint shards:  67%|██████▋   | 2/3 [00:02<00:01,  1.14s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.09s/it]Loading checkpoint shards: 100%|██████████| 3/3 [00:03<00:00,  1.11s/it]
+/home/thomas/KV-Experiments/code/11_rdct_stability.py:759: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho, p = scipy_stats.spearmanr(effect_sizes, alpha_cs)
+  Loaded: 32 layers, 8 KV heads
+
+  Category: self_reference
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: other_reference
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: philosophical
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: refusal
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: confabulation
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+  Category: deception
+    [5/15] processed
+    [10/15] processed
+    [15/15] processed
+
+======================================================================
+  HYPOTHESIS TESTING
+======================================================================
+
+  H9a/H9b: Stability threshold and Watson's 1/e...
+    self_reference: alpha_c = 1.000 (R^2 = -1.512)
+    other_reference: alpha_c = 1.000 (R^2 = -1.708)
+    philosophical: alpha_c = 1.000 (R^2 = -0.486)
+    refusal: alpha_c = 1.000 (R^2 = -1.608)
+    confabulation: alpha_c = 1.000 (R^2 = -2.076)
+    deception: alpha_c = 1.000 (R^2 = -0.378)
+
+    H9a SUPPORTED: Critical thresholds found for 6/6 categories
+    H9b NOT SUPPORTED: Mean alpha_c = 1.000 [1.000, 1.000], Watson's 1/e = 0.368 falls outside CI
+
+  H9c: Effect size vs. perturbation tolerance...
+    H9c NOT SUPPORTED: No significant correlation (rho=nan, p=nan)
+
+  H9d: Sharp vs. gradual transition...
+    self_reference: gradual (sigmoid R2=-1.512, linear R2=0.805)
+    other_reference: gradual (sigmoid R2=-1.708, linear R2=0.754)
+    philosophical: gradual (sigmoid R2=-0.486, linear R2=0.850)
+    refusal: gradual (sigmoid R2=-1.608, linear R2=0.893)
+    confabulation: gradual (sigmoid R2=-2.076, linear R2=0.948)
+    deception: gradual (sigmoid R2=-0.378, linear R2=0.935)
+    H9d NOT SUPPORTED: Only 0/6 categories show sharp transition
+
+======================================================================
+  H9: RDCT STABILITY COMPLETE
+======================================================================
+  Results: /home/thomas/KV-Experiments/results/rdct_stability_Mistral-7B-v0.3_results.json
+  SHA-256: ea8a5ea181be6574e33e5b3a48bb6b81a380a9c9336c9fbbc22d81863674bbda

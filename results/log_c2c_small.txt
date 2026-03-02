@@ -1,0 +1,56 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  C2C REPLICATION: CACHE-TO-CACHE GEOMETRIC PRESERVATION
+  Liberation Labs / THCoalition
+======================================================================
+  Sharer: Qwen/Qwen2.5-0.5B-Instruct
+  Receiver: Qwen/Qwen3-0.6B
+  PyTorch 2.10.0+cu128 | CUDA Yes
+  Time: 2026-03-02T08:48:39.500331
+======================================================================
+
+  Loading sharer model...
+Loading Qwen/Qwen2.5-0.5B-Instruct (quantize=False)...
+  Loaded: 24 layers, 2 KV heads
+  Loading receiver model...
+Loading Qwen/Qwen3-0.6B (quantize=False)...
+  Loaded: 28 layers, 8 KV heads
+
+  Sharer: 24 layers, head_dim=448
+  Receiver: 28 layers, head_dim=128
+
+  Fuser parameters: 487,735,512
+
+  PHASE 1: FUSER TRAINING
+  --------------------------------------------------
+  Training texts: 20
+  Epochs: 1, Steps: 20
+  LR: 0.0001, Warmup: 10%
+Traceback (most recent call last):
+  File "/home/thomas/KV-Experiments/code/13_c2c_replication.py", line 933, in <module>
+    main()
+  File "/home/thomas/KV-Experiments/code/13_c2c_replication.py", line 843, in main
+    train_result = train_fuser(
+                   ^^^^^^^^^^^^
+  File "/home/thomas/KV-Experiments/code/13_c2c_replication.py", line 641, in train_fuser
+    fused = fuser(receiver_gpu, sharer_gpu)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/KV-Experiments/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/KV-Experiments/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/KV-Experiments/code/13_c2c_replication.py", line 244, in forward
+    fused_k, fused_v = self.fusers[layer_key](
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/KV-Experiments/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/KV-Experiments/.venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/KV-Experiments/code/13_c2c_replication.py", line 175, in forward
+    k_concat = torch.cat([recv_k_flat, shar_k_flat], dim=-1)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Sizes of tensors must match except in dimension 1. Expected size 88 but got size 22 for tensor number 1 in the list.

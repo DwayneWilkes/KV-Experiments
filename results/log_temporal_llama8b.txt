@@ -1,0 +1,58 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+======================================================================
+  EXTENSION C: TEMPORAL CACHE EVOLUTION
+  Liberation Labs / THCoalition
+======================================================================
+Loading meta-llama/Llama-3.1-8B-Instruct (quantize=False)...
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.06s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.09s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.07s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.34it/s]Loading checkpoint shards: 100%|██████████| 4/4 [00:03<00:00,  1.15it/s]
+/home/thomas/KV-Experiments/.venv/lib/python3.12/site-packages/scipy/stats/_axis_nan_policy.py:592: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+  res = hypotest_fun_out(*samples, **kwds)
+  Loaded: 32 layers, 8 KV heads
+
+============================================================
+  EXPERIMENT 1: CACHE TRAJECTORY
+============================================================
+
+  Processing: factual
+    Total tokens: 300, sampling at 21 positions
+
+  Processing: creative
+    Total tokens: 238, sampling at 22 positions
+
+  Processing: repetitive
+    Total tokens: 211, sampling at 21 positions
+
+  Testing H1 (Enrichment)...
+    factual: ρ=1.000 (p=0.0000)
+    creative: ρ=1.000 (p=0.0000)
+    repetitive: ρ=1.000 (p=0.0000)
+
+  Testing H2 (Fatigue)...
+    factual: first_slope=-39.3279, second_slope=-3.5698
+    creative: first_slope=-32.6786, second_slope=-3.6541
+    repetitive: first_slope=-33.0125, second_slope=-4.4716
+
+============================================================
+  EXPERIMENT 2: CONTENT COMPARISON
+============================================================
+  Run 1/3
+  Run 2/3
+  Run 3/3
+  factual: mean_growth=-0.4040 +/- 0.0000
+  creative: mean_growth=-0.3957 +/- 0.0000
+  repetitive: mean_growth=-0.3685 +/- 0.0000
+
+  H4: No significant difference in cache growth rate (H4 rejected)
+
+============================================================
+  EXPERIMENT 3: TOPIC SHIFT DETECTION
+============================================================
+  Total tokens: 267, sampling at 88 positions
+
+  H3: Topic shifts NOT detected in cache statistics (H3 rejected)
+
+======================================================================
+  TEMPORAL EVOLUTION COMPLETE
+======================================================================
+  Results: /home/thomas/KV-Experiments/results/temporal_evolution_Llama-3.1-8B_results.json
+  SHA-256: d0638e81eac1d74c14b864d736617ed97a8c05d4aeecdf4be49f977cc1c89687
