@@ -344,6 +344,68 @@ def length_residualize(values, token_counts, labels=None):
 
 
 # ================================================================
+# DEDUPLICATION (PSEUDOREPLICATION CORRECTION)
+# ================================================================
+
+def deduplicate_runs(observations, runs_per_prompt=5):
+    """Remove pseudoreplicated identical runs from greedy decoding.
+
+    When do_sample=False, multiple runs per prompt produce bit-identical
+    KV-cache values. This function extracts one unique value per prompt.
+
+    Data layout: experiments store results as [all_prompts_run1, all_prompts_run2, ...].
+    So with 5 prompts and 5 runs: [p1r1, p2r1, p3r1, p4r1, p5r1, p1r2, p2r2, ...].
+    Each run block is identical under greedy decoding.
+
+    Args:
+        observations: Array-like of values (length should be n_prompts * runs_per_prompt)
+        runs_per_prompt: Number of runs per prompt (default 5)
+
+    Returns:
+        Dict with:
+            deduplicated: array of unique values (one per prompt)
+            n_original: original count
+            n_deduplicated: deduplicated count
+            n_anomalies: run blocks that weren't identical (stochastic sampling detected)
+            is_deterministic: True if all run blocks were identical
+    """
+    obs = np.array(observations, dtype=float)
+    n = len(obs)
+
+    if n == 0:
+        return {"deduplicated": np.array([]), "n_original": 0,
+                "n_deduplicated": 0, "n_anomalies": 0, "is_deterministic": True}
+
+    # If not evenly divisible, return as-is (already deduplicated or different structure)
+    if n % runs_per_prompt != 0:
+        return {"deduplicated": obs, "n_original": n,
+                "n_deduplicated": n, "n_anomalies": 0, "is_deterministic": None,
+                "note": f"Length {n} not divisible by {runs_per_prompt}, returning as-is"}
+
+    n_prompts = n // runs_per_prompt
+
+    # Data is stored as runs-of-all-prompts: reshape to (runs, prompts)
+    blocks = obs.reshape(runs_per_prompt, n_prompts)
+
+    # Take first run as the deduplicated set
+    deduplicated = blocks[0].copy()
+
+    # Verify all run blocks are identical (deterministic decoding)
+    n_anomalies = 0
+    for run_idx in range(1, runs_per_prompt):
+        if not np.allclose(blocks[run_idx], blocks[0], atol=1e-10):
+            n_anomalies += 1
+
+    return {
+        "deduplicated": deduplicated,
+        "n_original": n,
+        "n_deduplicated": len(deduplicated),
+        "n_anomalies": n_anomalies,
+        "is_deterministic": n_anomalies == 0,
+    }
+
+
+# ================================================================
 # FULL COMPARISON BATTERY
 # ================================================================
 

@@ -1,0 +1,18 @@
+{
+  "effective_rank": {
+    "mean_pairwise_rho": 0.738880167451596,
+    "min_rho": 0.39560439560439564,
+    "max_rho": 0.9780219780219779,
+    "n_pairs": 105,
+    "n_models": 15
+  },
+  "key_norm": {
+    "mean_pairwise_rho": 0.9094714809000524,
+    "n_pairs": 105
+  },
+  "coding_rank1": {
+    "count": 15,
+    "total": 15
+  },
+  "kendall_W": 0.7562881562881563
+}

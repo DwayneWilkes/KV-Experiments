@@ -669,6 +669,8 @@ def main():
                         help="Path to baseline results JSON for comparison")
     parser.add_argument("--abliterated-model", type=str, default=None,
                         help="Path to abliterated model directory")
+    parser.add_argument("--abliterated-results", type=str, default=None,
+                        help="Path to abliterated sweep results JSON (for --compare)")
     parser.add_argument("--verbose", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
@@ -777,8 +779,16 @@ def main():
         with open(args.baseline) as f:
             baseline = json.load(f)
 
-        abl_path = args.abliterated_model or str(abliterated_dir)
-        abl_results_file = results_dir / f"abliteration_sweep_{model_id}_results.json"
+        # Find abliterated results: explicit path > abliterated_ prefix > base model_id
+        if args.abliterated_results:
+            abl_results_file = Path(args.abliterated_results)
+        else:
+            # The geometric sweep on abliterated models saves with "abliterated_" prefix
+            abl_results_file = results_dir / f"abliteration_sweep_abliterated_{model_id}_results.json"
+            if not abl_results_file.exists():
+                # Fallback to unprefixed (in case naming convention differs)
+                abl_results_file = results_dir / f"abliteration_sweep_{model_id}_results.json"
+                print(f"  WARNING: Using baseline file as fallback — verify this is correct!")
         if abl_results_file.exists():
             with open(abl_results_file) as f:
                 abl_data = json.load(f)
