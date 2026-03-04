@@ -83,7 +83,7 @@ Campaign 2 was designed to answer three questions:
 \begin{enumerate}[leftmargin=*]
     \item \textbf{Are the findings universal?} Campaign 1's predominantly single-architecture design left open the possibility that cognitive geometry was Qwen-specific. We test across 6 independent architecture families at matched parameter counts.
 
-    \item \textbf{Do the findings survive rigorous methodology?} Campaign 1 identified pseudoreplication, length confounds, and untested effective-rank controls as limitations. Campaign 2 uses stochastic generation, length residualization, Hedges' $g$ with conservative $p$-values, TOST equivalence testing, and tokenizer confound analysis.
+    \item \textbf{Do the findings survive rigorous methodology?} Campaign 1 identified pseudoreplication, length confounds, and untested effective-rank controls as limitations. Campaign 2 uses greedy decoding with deduplication, length residualization, Hedges' $g$ with conservative $p$-values, TOST equivalence testing, and tokenizer confound analysis.
 
     \item \textbf{What new phenomena emerge at scale?} With 16 models spanning 0.5B to 70B (17 attempted; Phi-3.5 excluded), we can test hypotheses that were impossible in Campaign 1: censorship geometry in training-manipulated models, the geometric effect of alignment removal, and representational degradation under systematic perturbation.
 \end{enumerate}
