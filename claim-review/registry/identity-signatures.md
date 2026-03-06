@@ -11,6 +11,7 @@
 ## Task 3.1: Result Files
 
 7 identity_signatures JSON files. All 7 have the same structure:
+
 - `metadata`: model, n_personas=6, n_prompts=25, runs_per_prompt=5, total_inferences=750
 - `fingerprinting`: persona_stats, total_samples=750
 - `classification`: cv_results (RF, SVM, LR), classification_report, permutation_test, cross_prompt_validation
@@ -21,7 +22,7 @@
 ## Task 3.2: 100% Classification Accuracy — CONFIRMED (but METHODOLOGICALLY FLAWED)
 
 | Model | RF | SVM | LR | Permutation actual | Perm p |
-|-------|-----|------|-----|-------------------|--------|
+| ------- | ----- | ------ | ----- | ------------------- | -------- |
 | Llama-3.1-8B | 1.000 | 1.000 | 1.000 | 1.0 | 0.0 |
 | Mistral-7B-v0.3 | 1.000 | 1.000 | 1.000 | 1.0 | 0.0 |
 | Qwen2.5-7B | 1.000 | 1.000 | 1.000 | 1.0 | 0.0 |
@@ -35,7 +36,7 @@
 ## Task 3.3: Cross-Prompt Generalization
 
 | Model | Cross-prompt accuracy |
-|-------|---------------------|
+| ------- | --------------------- |
 | Llama-3.1-8B | 97.3% |
 | Mistral-7B-v0.3 | 93.3% |
 | Qwen2.5-7B | 92.0% |
@@ -52,8 +53,8 @@ Paper claims "4 models are missing this data" — **REJECTED**: All 7 models hav
 
 ## Task 3.4: d_asst→lyra (Table 4)
 
-| Model | |d| from JSON | Paper claimed |
-|-------|-------------|--------------|
+| Model | \|d\| from JSON | Paper claimed |
+| ------- | ------------- | -------------- |
 | Llama-3.1-8B | 4.932 | -4.93 |
 | Mistral-7B-v0.3 | 6.732 | -6.73 |
 | Qwen2.5-7B | 5.681 | -5.68 |
@@ -67,7 +68,7 @@ Paper claims "4 models are missing this data" — **REJECTED**: All 7 models hav
 ## Task 3.5: ICC Values
 
 | Model | ICC |
-|-------|-----|
+| ------- | ----- |
 | Llama-3.1-8B | 0.259 |
 | Mistral-7B-v0.3 | 0.410 |
 | Qwen2.5-7B | 0.309 |
@@ -85,7 +86,7 @@ This directly contradicts the 100% classification claim — if persona signature
 ## Task 3.6: Kendall W Range
 
 | Model | W |
-|-------|---|
+| ------- | --- |
 | Llama-3.1-8B | 0.817 |
 | Mistral-7B-v0.3 | 0.947 |
 | Qwen2.5-7B | **0.992** |
@@ -119,6 +120,7 @@ The maximum is much higher than reported (0.992 vs 0.947). This means the paper 
 ### Data Leak
 
 With 150 unique vectors duplicated 5× each:
+
 - In 5-fold CV: each fold has ~150 samples (test), ~600 (train)
 - Probability that a test sample's duplicate appears in training: ~80% (4/5 copies in train)
 - **100% accuracy is expected** — the classifier memorizes exact feature vectors
@@ -127,6 +129,7 @@ With 150 unique vectors duplicated 5× each:
 ### Cross-Prompt Validation
 
 The cross-prompt validation (H5) IS more meaningful:
+
 - Trains on some prompt groups, tests on different prompts
 - Still uses all 5 runs per prompt (inflated sample sizes)
 - Results (92-97%) are more believable but still inflated by pseudoreplication
@@ -143,7 +146,7 @@ The cross-prompt validation (H5) IS more meaningful:
 ## Summary
 
 | Claim | Verdict | Notes |
-|-------|---------|-------|
+| ------- | --------- | ------- |
 | C30: 100% accuracy | **ARTIFACT** | Data duplication guarantees this; deduplication not applied |
 | C31: Cross-prompt 92-97.3% | **CONFIRMED** (values match, more meaningful metric) | But still uses inflated n |
 | C33: d_asst→lyra values | **CONFIRMED** | All match Table 4 to 2 decimal places |

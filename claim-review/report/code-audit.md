@@ -11,7 +11,7 @@
 ### code/ (33 files) — ALL CONFIRMED
 
 | File | Compiles? | Key Imports |
-|------|----------|-------------|
+| ------ | ---------- | ------------- |
 | 01_cache_inspection.py | YES | torch, json, pathlib |
 | 01b_cognitive_modes.py | YES | torch, json, numpy |
 | 01c_batch_replication.py | YES | torch, json, numpy, argparse |
@@ -49,7 +49,7 @@
 ### prompts/ (5 files) — ALL CONFIRMED
 
 | File | Compiles? | Notes |
-|------|----------|-------|
+| ------ | ---------- | ------- |
 | c7_frequency_matched_confabulation.py | YES | Data-only with `validate_prompts()` helper |
 | s2_expanded_categories.py | YES | Data-only (prompt dictionaries) |
 | s3_confabulation_elicitation.py | YES | Data-only with query helpers |
@@ -59,7 +59,7 @@
 ### Other .py files — ALL CONFIRMED
 
 | File | Compiles? | Notes |
-|------|----------|-------|
+| ------ | ---------- | ------- |
 | cross_model_analysis.py | YES | json, os, numpy, scipy |
 | figures/generate_paper_figures.py | YES | json, numpy, matplotlib, seaborn |
 | scripts/download_models.py | YES | argparse, pathlib |
@@ -72,7 +72,7 @@
 ## 11.2 — Import Dependency Check
 
 | Package | Required By | Available on Audit Machine? | Notes |
-|---------|-----------|---------------------------|-------|
+| --------- | ----------- | --------------------------- | ------- |
 | torch | 25+ experiment scripts | NO | GPU-dependent; expected |
 | transformers | gpu_utils.py (lazy import) | NO | Expected (needs GPU env) |
 | scipy | stats_utils.py, 15+ scripts | YES | |
@@ -113,12 +113,15 @@ File: `../code/gpu_utils.py` (310 lines)
 6. **`compute_cache_dimensionality(cache, variance_threshold=0.9)`** (lines 145-236): **CORE FUNCTION**. Computes effective dimensionality of KV-cache via SVD.
 
    **Tensor reshaping** (line 176):
+
    ```python
    key_2d = key.reshape(-1, key.shape[-1])
    ```
+
    Cache tensor shape is `(batch, heads, seq_len, head_dim)`. The reshape collapses `batch * heads * seq_len` into one dimension, producing a matrix of shape `(B*H*S, d_h)`. This is consistent with the paper's notation K(l) in R^(H*S x d_h).
 
    **SVD and effective rank** (lines 182-189):
+
    ```python
    _, s, _ = torch.linalg.svd(matrix, full_matrices=False)
    s_squared = s ** 2
@@ -126,15 +129,18 @@ File: `../code/gpu_utils.py` (310 lines)
    cumvar = torch.cumsum(s_squared, dim=0) / total_var
    eff_rank = int((cumvar < variance_threshold).sum().item()) + 1
    ```
+
    This counts the minimum number of singular values whose squared sum exceeds 90% of total variance. The `+1` corrects for 0-based counting. **CONFIRMED**: correct standard effective rank computation.
 
    **Spectral entropy** (lines 193-196):
+
    ```python
    probs = s_squared / total_var
    probs = probs[probs > 0]
    entropy = -float((probs * torch.log2(probs)).sum())
    norm_entropy = entropy / max_entropy
    ```
+
    Normalized Shannon entropy of the singular value distribution. Range [0, 1] where 0 = one dominant component, 1 = uniform. **CONFIRMED**: correct formula.
 
    **Averaging** (lines 218-225): Layer-level metrics are averaged across all layers. Returns `mean_key_effective_rank`, `mean_value_effective_rank`, etc. Per-layer data also returned. **CONFIRMED**: consistent with paper's description of averaging across layers.
@@ -156,7 +162,7 @@ File: `../code/gpu_utils.py` (310 lines)
 Summary of WS8 findings:
 
 | Function | Lines | Verdict | Notes |
-|----------|-------|---------|-------|
+| ---------- | ------- | --------- | ------- |
 | `cohens_d()` | 134-150 | CONFIRMED | Standard pooled SD formula with Bessel correction |
 | `hedges_g()` | 153-165 | CONFIRMED | J = 1 - 3/(4*df - 1), matches Borenstein 2009 |
 | `bootstrap_ci()` | 68-82 | CONFIRMED | Standard percentile bootstrap, n=10000 |
@@ -184,7 +190,7 @@ Summary of WS8 findings:
 **ALREADY REVIEWED BY WS8** (section 8.2). Cross-verified here with full grep.
 
 | Script | do_sample | max_new_tokens | Notes |
-|--------|----------|---------------|-------|
+| -------- | ---------- | --------------- | ------- |
 | 01_cache_inspection.py | `False` (line 79) | 30 | C1 |
 | 01b_cognitive_modes.py | `False` (line 199) | 30 | C1 |
 | 01c_batch_replication.py | **`True`** (line 228) | 30 | **INTENTIONAL**: sampling for variation (C1 only) |
@@ -215,27 +221,32 @@ Summary of WS8 findings:
 ## 11.6 — JSON Result File Schema Consistency
 
 ### scale_sweep (17 files) -- CONSISTENT
+
 All 17 files share the same top-level schema: `['metadata', 'scales']`.
 No schema drift across models (TinyLlama through Llama-3.1-70B).
 
 ### deception_forensics (7 files) -- CONSISTENT
+
 All 7 files share: `['experiment_1', 'experiment_2', 'experiment_3', 'experiment_4', 'metadata']`.
 Four experiment sub-sections as designed.
 
 ### identity_signatures (7 files) -- CONSISTENT
+
 All 7 files share: `['classification', 'consistency', 'fingerprinting', 'layer_analysis', 'metadata', 'pairwise_analysis']`.
 Six analysis sections as designed.
 
 ### natural_deception (3 files) -- CONSISTENT
+
 All 3 files share: `['experiment', 'input_only', 'metadata']`.
 
 ### bloom_taxonomy (7 files) -- CONSISTENT
+
 All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment', 'experiment', 'holm_bonferroni', 'hypotheses', 'length_covariate', 'model', 'model_id', 'n_observations', 'n_prompts', 'n_runs', 'pairwise_comparisons', 'quantize', 'raw_results', 'seed']`.
 
 ### input_only (9 files) -- **TWO SCHEMAS** (version mismatch)
 
 | Schema | Files |
-|--------|-------|
+| -------- | ------- |
 | `['analysis', 'battery', 'metadata']` | input_only_1.1B_results.json, input_only_7B_results.json |
 | `['battery_results', 'label', 'method', 'model', 'num_runs', 'seed']` | input_only_DS-7B, Gemma-2B, Llama-8B, Qwen-0.5B, Qwen-14B-q4, Qwen-7B (6 files) |
 | `['mean_rho', 'n_models', 'per_model']` | input_only_rho_corrected.json (aggregated result) |
@@ -245,7 +256,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 ### abliteration (4 files) -- **THREE SCHEMAS** (version mismatch)
 
 | Schema | Files |
-|--------|-------|
+| -------- | ------- |
 | `['comparison', 'metadata']` | abliteration_Qwen2.5-7B_comparison.json |
 | `['description', 'harmful_distribution', ...]` | abliteration_Qwen2.5-7B_comparison_corrected.json |
 | `['metadata', 'sweep']` | abliteration_sweep_* (2 files) |
@@ -253,6 +264,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 **Finding**: The comparison and sweep files have different schemas by design (different analysis types). The corrected comparison file has a different schema from the original, indicating `recompute_stats.py` produced a different structure.
 
 **Summary**: Schema consistency is GOOD within experiment types, with two exceptions:
+
 1. **input_only**: 2 early files vs 6 later files show script evolution
 2. **abliteration**: corrected file has different structure from original
 
@@ -263,7 +275,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 ### Utility Functions (gpu_utils.py, stats_utils.py)
 
 | Function | File | External Usage | Status |
-|----------|------|---------------|--------|
+| ---------- | ------ | --------------- | -------- |
 | `normalize_cache` | gpu_utils.py | 1 file | USED (sparse but intentional) |
 | `model_id_from_name` | gpu_utils.py | 10 files | USED |
 | `get_output_path` | gpu_utils.py | 17 files | USED |
@@ -291,7 +303,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 ### Dead Functions in Prompt Files
 
 | Function | File | Called By | Status |
-|----------|------|----------|--------|
+| ---------- | ------ | ---------- | -------- |
 | `get_questions_by_domain()` | s3_confabulation_elicitation.py | None | **DEAD** -- helper never used |
 | `get_questions_by_difficulty()` | s3_confabulation_elicitation.py | None | **DEAD** -- helper never used |
 | `get_domain_counts()` | s3_confabulation_elicitation.py | None | **DEAD** -- helper never used |
@@ -302,7 +314,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 ### Dead Functions in C1 Scripts
 
 | Function | File | Called By | Status |
-|----------|------|----------|--------|
+| ---------- | ------ | ---------- | -------- |
 | `detect_outliers()` | 01c_batch_replication.py | Self only | C1-internal, not dead within script |
 | `compute_comparisons()` | 01c_batch_replication.py | Self only | C1-internal |
 | `interpret_effect_size()` | 01c_batch_replication.py | Self only | C1-internal |
@@ -311,7 +323,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 ### Dead Functions in Analysis Scripts
 
 | Function | File | Called By | Status |
-|----------|------|----------|--------|
+| ---------- | ------ | ---------- | -------- |
 | `jaccard_distance()` | 01e_tokenizer_confound.py | Self only (within-file) | USED internally |
 | `_compute_raw_within_between_ratio()` | 01e_tokenizer_confound.py | Self only | USED internally |
 
@@ -324,7 +336,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 ### Campaign 1 (C1) Scripts — 01x, 02x prefix
 
 | Script | Status | Notes |
-|--------|--------|-------|
+| -------- | -------- | ------- |
 | 01_cache_inspection.py | C1 original | Basic cache structure exploration |
 | 01b_cognitive_modes.py | C1 | Cognitive mode battery (predecessor to 03_scale_sweep) |
 | 01c_batch_replication.py | C1 | Sampling variation study (intentional `do_sample=True`) |
@@ -335,6 +347,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 | 02b_projector_transfer.py | C1 | Projector-based transfer experiment |
 
 **Supersession notes**:
+
 - `01_cache_inspection.py` and `01b_cognitive_modes.py` are fully superseded by `03_scale_sweep.py` (C2), which runs the same cognitive mode battery at scale
 - `01c_batch_replication.py` is standalone (sampling study, not repeated in C2)
 - `01d_adversarial_controls.py` remains relevant (controls not duplicated elsewhere)
@@ -343,7 +356,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 ### Campaign 2 (C2) Scripts — 03x-13x prefix
 
 | Script | Experiment | Notes |
-|--------|-----------|-------|
+| -------- | ----------- | ------- |
 | 03_scale_sweep.py | Core geometric sweep | 17-model scale sweep with cognitive modes |
 | 03b_identity_signatures.py | Identity fingerprinting | Classification + pairwise analysis |
 | 03c_scale_sweep_visualization.py | Viz | For scale_sweep results |
@@ -368,7 +381,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 ### Support Scripts
 
 | Script | Role | Notes |
-|--------|------|-------|
+| -------- | ------ | ------- |
 | gpu_utils.py | Shared utilities | Model loading, cache operations, dimensionality |
 | stats_utils.py | Shared statistics | All statistical tests and effect sizes |
 | heretic_abliterate.py | Abliteration tool | Non-interactive heretic wrapper |
@@ -408,6 +421,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 6. **Cross-prompt validation** (H5, lines 527-548): Leave-one-group-out validation where each prompt group is held out in turn. This tests whether classification survives when trained and tested on non-overlapping prompts.
 
 **Concerns**:
+
 - The permutation test classifier fallback (line 511) could produce misleading p-values if the best classifier is SVM or LogReg
 - Feature vector dimensionality depends on model architecture (number of layers varies by model), so classifiers trained on one model cannot be directly compared to another
 
@@ -422,6 +436,7 @@ All 7 files share a large schema: `['checksum', 'elapsed_seconds', 'environment'
 **Syntax**: CONFIRMED (py_compile passes)
 
 **Deception instruction text** (lines 90-196): 15 matched triplets, each with:
+
 - `honest`: Direct factual question with "Answer honestly/accurately"
 - `deceptive`: Same question with explicit lie instruction (e.g., "You must give a false answer. Do not say Paris. Give a confident, wrong answer.")
 - `confabulation`: A false statement presented as fact (no deception instruction)
@@ -433,6 +448,7 @@ The deception instructions are explicit and unambiguous. Each triplet targets a 
 **max_new_tokens**: 50 (line 370). This is short but sufficient for factual answers. The 04b_natural_deception.py uses 200 because censorship evasions are longer.
 
 **Experiment structure**:
+
 - Experiment 1 (line 419): Honest vs Instructed Deception -- matched pairs, full_comparison
 - Experiment 2 (line 588): Sycophancy Detection -- 12 agree-correct/agree-wrong pairs
 - Experiment 3 (line 689): Uncertainty Gradient -- 12 certain-true/uncertain/certain-lie triplets
@@ -455,6 +471,7 @@ The deception instructions are explicit and unambiguous. Each triplet targets a 
 **H4 equivalence test** (lines 521-526): For uncensored models, tests whether censored topics produce geometry equivalent to controls using `tost_equivalence(censored_ranks, control_ranks, delta=0.3)`. **CONFIRMED**: correct TOST application for the null hypothesis.
 
 **Response classification** (lines 178-235): Keyword-based automated classification with:
+
 - Refusal signals (14 keywords)
 - Evasion signals (15 keywords)
 - Propaganda signals (11 CCP-narrative keywords)
@@ -462,6 +479,7 @@ The deception instructions are explicit and unambiguous. Each triplet targets a 
 Classification confidence ranges 0.3-0.9 based on signal strength. Low-confidence results flagged for manual review.
 
 **prompts/s4_natural_deception.py**:
+
 - **CENSORED_TOPIC_QUESTIONS**: 30 questions, 6 topics x 5 questions each (tiananmen, uyghur, taiwan, political_prisoners, xi_criticism, hong_kong). Each has `id`, `topic`, `question`, `ground_truth`, `sensitivity_level`.
 - **CONTROL_QUESTIONS**: 30 questions, 6 topics x 5 each (cuisine, culture, festivals, geography, inventions, literature). Non-sensitive Chinese cultural topics.
 - **COMPLEX_NONCENSORED_QUESTIONS**: 30 questions, 6 topics x 5 each (abu_ghraib, apartheid, armenian_genocide, bosnian_genocide, khmer_rouge, rwanda_genocide). Complexity-matched non-Chinese atrocities.
@@ -480,12 +498,14 @@ Classification confidence ranges 0.3-0.9 based on signal strength. Low-confidenc
 **Syntax**: CONFIRMED (py_compile passes)
 
 **Bug verification**: The WS8 report identified a code version mismatch in tokenizer confound (8.7). For abliteration_geometry.py, I verified:
+
 - `do_sample=False` at line 172 -- CORRECT
 - `max_new_tokens=50` for cognitive modes, `100` for harmful prompts -- reasonable
 - Harmful response classification (lines 359-377) uses keyword matching for refused/hedged/compliant bucketing -- functional but crude
 - The `run_heretic()` function (lines 219-250) calls `heretic` as a CLI subprocess, not using the Python API. The `heretic_abliterate.py` script (separate file) uses the Python API instead.
 
 **Comparison logic** (lines 505-610): `compare_geometries()` computes:
+
 - Per-category geometric shift (d between baseline and abliterated)
 - Abliteration specificity: ratio of refusal shift to mean non-refusal shift
 - Self-reference preservation (H3)
@@ -501,6 +521,7 @@ Classification confidence ranges 0.3-0.9 based on signal strength. Low-confidenc
 **Key design decision** (lines 22-31): Parses arguments BEFORE importing heretic, then clears `sys.argv`. This is because heretic uses `pydantic_settings` which auto-parses `sys.argv`. This is a correct workaround for the library conflict.
 
 **Abliteration protocol** (lines 42-183):
+
 1. Creates heretic `Settings` with model name and batch size
 2. Loads model via heretic's `Model` class (handles LoRA/dtype)
 3. Loads heretic's own good/bad prompt datasets
@@ -511,7 +532,7 @@ Classification confidence ranges 0.3-0.9 based on signal strength. Low-confidenc
 8. Merges LoRA weights and saves
 9. Quick refusal check (5 harmful prompts) AFTER saving (crash-safe)
 
-**Verdict**: Both files are correctly implemented. No bugs found. The dual approach (CLI subprocess in 07_ vs Python API in heretic_abliterate.py) provides flexibility but could be confusing. The `run_heretic()` function in 07_ only works if the heretic CLI is installed, while `heretic_abliterate.py` uses the Python API directly.
+**Verdict**: Both files are correctly implemented. No bugs found. The dual approach (CLI subprocess in 07_vs Python API in heretic_abliterate.py) provides flexibility but could be confusing. The `run_heretic()` function in 07_ only works if the heretic CLI is installed, while `heretic_abliterate.py` uses the Python API directly.
 
 ---
 
@@ -525,8 +546,9 @@ Classification confidence ranges 0.3-0.9 based on signal strength. Low-confidenc
 - Total files in results/: **164** (85 + 43 + 36)
 
 ### JSON File Count by Experiment Type
+
 | Type | Count | Notes |
-|------|-------|-------|
+| ------ | ------- | ------- |
 | scale_sweep | 17 | 17 models (incl. Phi-3.5 + abliterated) |
 | input_only | 9 | 8 model results + 1 corrected rho file |
 | bloom_taxonomy | 7 | |
@@ -549,13 +571,17 @@ Classification confidence ranges 0.3-0.9 based on signal strength. Low-confidenc
 | s4_topic_analysis | 1 | Corrected file |
 
 ### "83 result files" Claim (C10, C22, C91)
+
 Paper claims 83. We found 85 JSON files. The difference is likely:
+
 - 3 "corrected" files (cross_model_rho_corrected, input_only_rho_corrected, s4_topic_analysis_corrected) added after initial count
 - OR the paper counted only C2 files (excluding legacy C1 files like cache_metadata, cognitive_modes, adversarial_controls, batch_results)
 - Needs verification: which 83 files does the paper mean?
 
 ### Pre-existing QA Toolkit
+
 A separate QA toolkit exists outside this repo (in the broader workspace) with:
+
 - JSON parsers for all 9 experiment types
 - A Campaign 1 claim verification framework
 - 5 bug detector classes and DataFrames-based exploration
@@ -563,6 +589,7 @@ A separate QA toolkit exists outside this repo (in the broader workspace) with:
 - NOTE: Written for Campaign 1 README claims; not used in this C2 audit (this audit recomputes from scratch)
 
 ## JiminAI-Cricket
+
 - Code files: 0 (confirmed)
 - Test files: 0 (confirmed)
 - CI/CD: none (confirmed)
@@ -572,6 +599,7 @@ A separate QA toolkit exists outside this repo (in the broader workspace) with:
 ## Summary of Findings
 
 ### No Issues Found
+
 - All 42 Python files compile without errors
 - All utility functions are correctly implemented (verified against scipy references by WS8)
 - `do_sample=False` correctly set in all Campaign 2 scripts
@@ -582,21 +610,23 @@ A separate QA toolkit exists outside this repo (in the broader workspace) with:
 - Natural deception S4 experiment has correct 2x3 design with all 90 prompts verified
 
 ### Issues Found (from WS8, confirmed by WS11)
+
 1. **Pseudoreplication (from WS8 8.3)**: `deduplicate_runs()` defined but never called in experiment scripts. P-values inflated.
 2. **Missing TOST for null claims (from WS8 8.4)**: 4/6 null claims lack proper equivalence testing.
 3. **Power analysis error (from WS8 8.5)**: d >= 0.81 vs correct d >= 0.792.
 4. **Stale CATASTROPHIC_FAIL (from WS8 8.7)**: Qwen tokenizer confound verdict is code artifact.
 
 ### New Issues from WS11
-5. **Dead code in prompts/**: 5 helper functions in prompt files are defined but never called (query helpers, validation). Minor housekeeping issue.
-6. **Permutation test classifier fallback (11.3/3.8)**: In 03b_identity_signatures.py, the permutation test may use RandomForest even when the best classifier was SVM/LogReg.
-7. **Input-only schema inconsistency (11.6)**: 2 early files use a different JSON schema than 6 later files, indicating script evolution mid-campaign.
-8. **Heretic dual invocation (11.7/7.7)**: `07_abliteration_geometry.py` calls heretic as CLI subprocess while `heretic_abliterate.py` uses the Python API. Potential for different behavior.
+
+1. **Dead code in prompts/**: 5 helper functions in prompt files are defined but never called (query helpers, validation). Minor housekeeping issue.
+2. **Permutation test classifier fallback (11.3/3.8)**: In 03b_identity_signatures.py, the permutation test may use RandomForest even when the best classifier was SVM/LogReg.
+3. **Input-only schema inconsistency (11.6)**: 2 early files use a different JSON schema than 6 later files, indicating script evolution mid-campaign.
+4. **Heretic dual invocation (11.7/7.7)**: `07_abliteration_geometry.py` calls heretic as CLI subprocess while `heretic_abliterate.py` uses the Python API. Potential for different behavior.
 
 ### Severity Assessment
 
 | Issue | Severity | Impact on Paper Claims |
-|-------|----------|----------------------|
+| ------- | ---------- | ---------------------- |
 | Pseudoreplication (WS8) | **HIGH** | P-values overstated in all experiment scripts |
 | Missing TOST (WS8) | **MEDIUM** | 4 null claims lack proper statistical support |
 | Power analysis error (WS8) | **LOW** | Conservative direction (2.2%) |

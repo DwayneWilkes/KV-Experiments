@@ -12,7 +12,7 @@
 ### File Inventory (exact)
 
 | File | Path | Content |
-|------|------|---------|
+| ------ | ------ | --------- |
 | `.gitignore` | `/` | Python, IDE, data, secrets (39 lines) |
 | `README.md` | `/` | Product pitch, 4 core findings, status |
 | `DESIGN.md` | `/docs/` | Architecture, metrics targets, competitive positioning |
@@ -40,7 +40,7 @@ All 37 claims verified against CLAIMS.md (Part 2). CLAIMS.md already contains co
 ### Capability Claims (CC1-CC22) -- Source Documents
 
 | ID | Claim (exact quote) | Source File |
-|----|-------------------|------------|
+| ---- | ------------------- | ------------ |
 | CC1 | "reads the geometric structure of a language model's KV-cache to detect anomalous cognitive states -- deception, confabulation, sycophancy, refusal failure" | README.md |
 | CC2 | "detection -- and intervention -- can happen before the user sees anything" | README.md |
 | CC3 | "Cricket does not modify the model. It does not steer activations. It does not require fine-tuning." | README.md |
@@ -64,23 +64,23 @@ All 37 claims verified against CLAIMS.md (Part 2). CLAIMS.md already contains co
 | CC21 | "If corrective instructions reliably shift geometry toward normal, Cricket Level 2 intervention is validated" | CRICKET Exp C6 |
 | CC22 | "There is no widely deployed system that monitors the model's internal cognitive state during inference" | DESIGN Sec 1 |
 
-### Cross-Document Discrepancies (CF1-CF8) -- verified in 10.7 below.
+### Cross-Document Discrepancies (CF1-CF8) -- verified in 10.7 below
 
-### Competitive Landscape Claims (CL1-CL7) -- verified in 10.9 below.
+### Competitive Landscape Claims (CL1-CL7) -- verified in 10.9 below
 
 ---
 
 ## 10.3 Capability Claims -> C2 Evidence Mapping
 
 | CC | Supporting C2 Finding | C2 Paper Claim | Verified By | Effect Size | Sample | Architecture Coverage |
-|----|---------------------|---------------|-------------|-------------|--------|---------------------|
+| ---- | --------------------- | --------------- | ------------- | ------------- | -------- | --------------------- |
 | CC1 | Category hierarchy | C23-C27 | WS1 | W=0.756, rho=0.739 | 15 models | 5 families |
 | CC2 | Input-only defense | C28-C29 | WS1 reference | rho=0.821 | 8 models | 4 families |
 | CC3 | Architectural (read-only) | n/a | By design | n/a | n/a | n/a |
 | CC4 | Cross-arch ordering | C23-C27 | WS1 | rho=0.739 | 15 models | 5 families |
 | CC5 | 13 categories in scale sweep | C23 | WS1 | varies | 15 models | 5 families |
 | CC6 | **NO DATA** | none | -- | none | none | none |
-| CC7 | Deception forensics | C36-C40 | WS4 | |g|=0.647-3.039 | 7 models | 4 families |
+| CC7 | Deception forensics | C36-C40 | WS4 | \|g\|=0.647-3.039 | 7 models | 4 families |
 | CC8 | Scale sweep refusal | README claim | -- | d=0.85-2.17 | 15 models | 5 families |
 | CC9 | Input-only rho | C28 | -- | rho=0.821 | 8 models | 4 families |
 | CC10 | **NO TRANSFER TESTED** | none | -- | none | none | none |
@@ -106,7 +106,7 @@ Using AUROC = Phi(d/sqrt(2)) where Phi is the standard normal CDF.
 ### Required d for Cricket Targets
 
 | Cricket Target | AUROC | Required d |
-|---------------|-------|-----------|
+| --------------- | ------- | ----------- |
 | CC7: Deception | >= 0.95 | >= 2.326 |
 | CC8: Refusal | >= 0.99 | >= 3.290 |
 | CC15: Confabulation | >= 0.85 | >= 1.466 |
@@ -114,8 +114,8 @@ Using AUROC = Phi(d/sqrt(2)) where Phi is the standard normal CDF.
 
 ### Observed Deception Effect Sizes (WS4 verified, norms |g|)
 
-| Model | |g| (norms) | Implied AUROC | Meets CC7 (0.95)? |
-|-------|-----------|-------------|--------------|
+| Model | \|g\| (norms) | Implied AUROC | Meets CC7 (0.95)? |
+| ------- | ----------- | ------------- | -------------- |
 | Qwen-32B-q4 | 3.039 | 0.984 | YES |
 | Llama-8B | 2.995 | 0.983 | YES |
 | Mistral-7B | 2.914 | 0.980 | YES |
@@ -128,8 +128,8 @@ Using AUROC = Phi(d/sqrt(2)) where Phi is the standard normal CDF.
 
 ### Observed Refusal d Range (from README claim: d=0.85-2.17)
 
-| d | Implied AUROC | Meets CC8 (0.99)? |
-|---|-------------|--------------|
+| \|d\| | Implied AUROC | Meets CC8 (0.99)? |
+| --- | ------------- | -------------- |
 | 0.85 | 0.726 | NO |
 | 1.00 | 0.760 | NO |
 | 1.50 | 0.856 | NO |
@@ -140,8 +140,8 @@ Using AUROC = Phi(d/sqrt(2)) where Phi is the standard normal CDF.
 
 ### Observed Identity Effect Sizes (WS3 verified)
 
-| Model | |d| (assistant vs lyra) | Implied AUROC |
-|-------|----------------------|-------------|
+| Model | \|d\| (assistant vs lyra) | Implied AUROC |
+| ------- | ---------------------- | ------------- |
 | Mistral-7B | 6.732 | ~1.000 |
 | TinyLlama | 5.988 | ~1.000 |
 | Qwen-32B | 5.920 | ~1.000 |
@@ -155,7 +155,7 @@ These are massive, but the 100% classification accuracy is a DATA LEAK artifact 
 ### Summary of AUROC Target Feasibility
 
 | Target | Required d | Best Observed d | Implied AUROC | Verdict |
-|--------|-----------|----------------|-------------|---------|
+| -------- | ----------- | ---------------- | ------------- | --------- |
 | CC7: Deception >= 0.95 | 2.326 | 3.039 (Qwen-32B) | 0.984 | **3/7 models only; length-confounded** |
 | CC8: Refusal >= 0.99 | 3.290 | 2.17 (max) | 0.938 | **IMPOSSIBLE at observed effect sizes** |
 | CC15: Confab >= 0.85 | 1.466 | not measured | unknown | **NO DATA** |
@@ -177,12 +177,14 @@ The Campaign 2 paper measures rank correlation (Spearman rho) between model pair
 These are completely different questions. High rank correlation means models agree on which categories have higher mean effective rank. Transfer requires that the *per-instance distributions* overlap enough that a decision boundary learned on one model generalizes to another.
 
 **Evidence AGAINST easy transfer**:
+
 1. Minimum pairwise rho = 0.396 (Qwen3-0.6B vs Llama-70B-q4) -- very weak agreement
 2. Deception direction varies by architecture (WS4: all expand, but magnitudes vary 4.7x)
 3. Absolute effective rank values differ by 9x between architectures (Gemma-9B: 91.9 vs Qwen-0.5B: 10.7 for coding)
 4. CC20 acknowledges "non-monotonic effects across scales" requiring per-model calibration
 
 **Evidence POSSIBLY supporting transfer** (weak):
+
 1. Universal coding-#1 ordering (15/15 models)
 2. Input-only category ordering preserved (rho=0.821)
 3. TruthPrInt (Duan et al., 2025) found universal truthful directions (but in activation space, not KV-cache)
@@ -200,17 +202,19 @@ These are completely different questions. High rank correlation means models agr
 ### Theoretical SVD Cost Estimate
 
 For a 7B model (Qwen2.5-7B architecture):
+
 - 28 layers, 4 KV heads (GQA), 128 dim per head
 - Key matrix per head: (seq_len, 128)
 - Total SVDs needed: 4 heads x 28 layers = 112
 
 | Seq Length | Per-SVD (CPU est.) | Total CPU (112 SVDs) | Per-SVD (GPU est.) | Total GPU |
-|-----------|-------------------|---------------------|-------------------|-----------|
+| ----------- | ------------------- | --------------------- | ------------------- | ----------- |
 | 512 | ~0.3-0.8ms | 34-90ms | ~0.02ms | ~2ms |
 | 1024 | ~0.6-1.6ms | 67-179ms | ~0.04ms | ~4ms |
 | 2048 | ~1.2-3.2ms | 134-358ms | ~0.07ms | ~8ms |
 
 **Assessment**:
+
 - **GPU**: 50ms target is easily achievable on GPU with GQA models (4 KV heads). Even at seq_len=4096, GPU SVD should complete in ~15ms for 112 matrices.
 - **CPU**: 50ms target is marginal even at seq_len=512 for GQA. Infeasible at longer sequences.
 - **Non-GQA models** (28 attention heads, not 4 KV heads): 784 SVDs. CPU: 235-392ms at seq=512. GPU: ~14ms. GQA is a major cost reducer.
@@ -219,6 +223,7 @@ For a 7B model (Qwen2.5-7B architecture):
 **Key unknown**: Cricket's design says "one SVD per monitored layer per forward pass" but the actual feature extraction (CC19) requires SVD per head per layer, not per layer. For GQA models this is 4x; for non-GQA it is 28x per layer.
 
 **Target <20ms per layer (CC17)**:
+
 - GQA (4 heads): 4 x 0.3ms = 1.2ms per layer on CPU. Achievable.
 - Non-GQA (28 heads): 28 x 0.3ms = 8.4ms per layer on CPU. Achievable.
 - These estimates exclude feature extraction (effective rank, spectral entropy, direction projection) and classifier inference.
@@ -232,7 +237,7 @@ For a 7B model (Qwen2.5-7B architecture):
 CAMPAIGN_2_FINDINGS.md (Cricket repo, dated 2026-03-02) vs Campaign 2 paper (post-adversarial-audit, verified by WS1-WS8):
 
 | ID | Cricket Findings Doc Says | Paper/Verified Value | Type | Severity |
-|----|--------------------------|---------------------|------|----------|
+| ---- | -------------------------- | --------------------- | ------ | ---------- |
 | CF1 | "8 models, 5 architectures" for identity | 7 models, 4 architectures (WS3: 7 JSON files, Table 4) | COUNT ERROR | Medium |
 | CF2 | DeepSeek d=+0.904 as headline censorship | Null on critical test d=-0.219; 0.904 is residualized censored-vs-complex, not vs control (WS6) | STALE/MISLEADING | High |
 | CF3 | Abliteration "d ~= 0.000 across ALL categories" | d=+0.464 for self-reference (WS7: verified in corrected comparison file) | FACTUALLY INCORRECT | Critical |
@@ -245,19 +250,23 @@ CAMPAIGN_2_FINDINGS.md (Cricket repo, dated 2026-03-02) vs Campaign 2 paper (pos
 ### Severity Assessment
 
 **Critical** (2 items):
+
 - CF3: Abliteration d=0.000 claim is simply wrong. The self-reference category shows d=+0.464 (borderline medium effect), which is the very signal Cricket claims to use for jailbreak detection (CC13). Calling this "zero" undermines Cricket's own detection rationale.
 - CF8: Internal contradiction between "no calibration needed" (FINDINGS) and "per-model calibration required" (DESIGN). These are opposite claims in the same product documentation.
 
 **High** (3 items):
+
 - CF2: Using a residualized metric as headline without noting the critical test was null is misleading. DeepSeek's censorship signal is driven entirely by Tiananmen responses (d=-6.20); the model is null on the balanced metric.
 - CF6: rho=0.914 appears fabricated or computed from a pre-correction dataset. It matches neither verified metric.
 - CF7: Cricket docs claim the opposite of what the data shows, compounding the original code bug.
 
 **Medium** (2 items):
+
 - CF1: Off by 1 model and 1 architecture -- likely an early count before exclusions.
 - CF4: Unverifiable claim that may be correct for a within-model abliteration ordering but is not reported in the paper.
 
 **Low** (1 item):
+
 - CF5: Off by 1 model (16 vs 15) -- consistent with CF1 pattern of pre-exclusion counts.
 
 ---
@@ -267,7 +276,7 @@ CAMPAIGN_2_FINDINGS.md (Cricket repo, dated 2026-03-02) vs Campaign 2 paper (pos
 ### Contradiction 1: Calibration (CF8 -- Critical)
 
 | Document | Quote | Implication |
-|----------|-------|------------|
+| ---------- | ------- | ------------ |
 | CAMPAIGN_2_FINDINGS.md (line 92-93) | "Cricket doesn't need per-model calibration for basic cognitive state monitoring -- the universal ordering serves as a shared reference frame." | One Cricket monitors all models |
 | DESIGN.md (Section 3.3) | "Calibration: Per-model, per-scale. Our research shows non-monotonic effects across scales. A 7B Cricket is not a 32B Cricket." | Each model needs its own Cricket |
 
@@ -278,7 +287,7 @@ The DESIGN doc is more technically defensible. The FINDINGS doc's claim is the o
 ### Contradiction 2: Abliteration Signal
 
 | Document | Quote | Implication |
-|----------|-------|------------|
+| ---------- | ------- | ------------ |
 | FINDINGS (line 54) | "d ~= 0.000 across ALL categories" | Abliteration has zero geometric effect |
 | DESIGN (Section 4.2) | "Cricket can differentiate between aligned, jailbroken, and deeply corrupted" | Abliteration is detectable |
 
@@ -287,7 +296,7 @@ If d truly equals zero across all categories, there is no signal for Cricket to 
 ### Contradiction 3: Pre-Generation Claims
 
 | Document | Quote | Implication |
-|----------|-------|------------|
+| ---------- | ------- | ------------ |
 | FINDINGS (Section 5) | "Category structure is preserved from the forward pass alone (rho=0.929 at 7B)" | Encoding detection works well |
 | DESIGN (Section 5) | "Encoding-only detection AUROC >= 0.90" | Classifier achieves 0.90 from encoding |
 | FINDINGS (line 89) | "Input-only (8 models): rho=0.929" | rho used as evidence for AUROC claim |
@@ -297,7 +306,7 @@ The rho=0.929 is for ONE model (7B). The 8-model mean is rho=0.821 (verified by 
 ### Contradiction 4: Competitive Claims vs Acknowledged Risks
 
 | Document | Claim | Counter-evidence |
-|----------|-------|-----------------|
+| ---------- | ------- | ----------------- |
 | COMPETITIVE_LANDSCAPE.md | "Pre-generation detection. No other deployed system does this." | HalluCana (Li et al., 2024) explicitly does pre-generation detection and intervention |
 | COMPETITIVE_LANDSCAPE.md | Cricket rates HalluCana as "HIGH" threat | Yet the README and DESIGN claim unique pre-generation capability |
 
@@ -308,7 +317,7 @@ The competitive landscape doc honestly acknowledges HalluCana as a close competi
 ## 10.9 Competitive Landscape Citation Verification
 
 | ID | Claim | Paper | Exists? | Details Correct? | Notes |
-|----|-------|-------|---------|-----------------|-------|
+| ---- | ------- | ------- | --------- | ----------------- | ------- |
 | CL1 | "No existing system monitors KV-cache geometry" | assertion | n/a | **Partially true** | KV-CoRE uses SVD on KV-cache for compression. No production safety monitor exists. |
 | CL2 | Apollo AUROC 0.96-0.999 | arXiv 2502.03407 | **YES** | **YES** | Goldowsky-Dill et al., "Detecting Strategic Deception Using Linear Probes." AUROC 0.96-0.999 confirmed. Linear probes on residual stream activations in Llama-3.3-70B-Instruct. |
 | CL3 | Steering >80% jailbreak | Xiong et al. 2026 | **NEEDS INFO** | Unknown | Cited as "2026" -- very recent or possibly forthcoming. No arXiv ID provided. Could not locate. |
@@ -320,6 +329,7 @@ The competitive landscape doc honestly acknowledges HalluCana as a close competi
 ### Overall Competitive Assessment
 
 The competitive landscape analysis is **well-researched but oversells uniqueness**:
+
 - Apollo Research (CL2) is the most direct competitor and is correctly identified as HIGH threat
 - The "pre-generation" differentiator is partially undermined by HalluCana (CL5), which the competitive doc itself acknowledges
 - The "passive monitoring" advantage over steering (CL3) is the strongest differentiator if the Xiong paper exists
@@ -330,14 +340,14 @@ The competitive landscape analysis is **well-researched but oversells uniqueness
 ## 10.10 Capability Ratings
 
 | ID | Capability | Rating | Justification |
-|----|-----------|--------|---------------|
+| ---- | ----------- | -------- | --------------- |
 | CC1 | Real-time cognitive monitoring | **PROMISING** | Category hierarchy is universal (W=0.756), but no classifier has been built or tested. Moving from "categories differ in mean effective rank" to "real-time per-instance detection" is a significant engineering gap. |
 | CC2 | Encoding-time detection | **PROMISING** | Input-only rho=0.821 shows encoding preserves category ordering. But rho is not AUROC. No encoding-only classifier tested. |
 | CC3 | Passive monitoring | **FEASIBLE** | True by architectural design. Reading KV-cache geometry without writing is inherently passive. No experiment needed. |
 | CC4 | No fine-tuning required | **FEASIBLE** | SVD + logistic regression on cache features does not require modifying the target model. Architecture is sound. |
 | CC5 | Multi-category detection | **PROMISING** | 13 categories have distinct mean effective ranks (verified WS1). But mean separation != per-instance classification. Confabulation and sycophancy have no dedicated detection experiments. |
 | CC6 | <50ms latency | **NO DATA** | Zero measurements exist. Theoretical estimates only. Blocked on C7 (unexecuted). |
-| CC7 | Deception AUROC >= 0.95 | **PREMATURE** | Only 3/7 models have |g| >= 2.33 (required d). 4/7 models' implied AUROC is 0.68-0.82. Length confound inflates all effect sizes. Per-architecture calibration needed (direction varies). |
+| CC7 | Deception AUROC >= 0.95 | **PREMATURE** | Only 3/7 models have \|g\| >= 2.33 (required d). 4/7 models' implied AUROC is 0.68-0.82. Length confound inflates all effect sizes. Per-architecture calibration needed (direction varies). |
 | CC8 | Refusal AUROC >= 0.99 | **NO DATA** | Maximum observed refusal d=2.17 implies AUROC=0.938. Target needs d >= 3.29. No model reaches this. Target is aspirational, not evidence-based. |
 | CC9 | Encoding-only AUROC >= 0.90 | **PREMATURE** | rho=0.821 (rank correlation) is incommensurable with AUROC (classifier accuracy). Needs d >= 1.81 for 0.90 AUROC. No encoding-only classifier tested. Blocked on C5 (unexecuted). |
 | CC10 | Cross-model transfer >= 0.80 | **NO DATA** | Zero transfer experiments. Rank correlation (rho=0.739, min=0.396) does not demonstrate classifier transfer. Absolute feature values differ 9x between architectures. Blocked on C8 (unexecuted). |
@@ -357,7 +367,7 @@ The competitive landscape analysis is **well-researched but oversells uniqueness
 ### Rating Distribution
 
 | Rating | Count | Percentage |
-|--------|-------|-----------|
+| -------- | ------- | ----------- |
 | FEASIBLE | 4 | 18% |
 | PROMISING | 4 | 18% |
 | PREMATURE | 6 | 27% |
@@ -370,7 +380,7 @@ The competitive landscape analysis is **well-researched but oversells uniqueness
 ### Tier 1: Could Ship First (minimal additional work)
 
 | Capability | What's Needed | Blocked On |
-|-----------|--------------|-----------|
+| ----------- | -------------- | ----------- |
 | CC3: Passive monitoring | Implementation only | Nothing (architectural) |
 | CC4: No fine-tuning | Implementation only | Nothing (architectural) |
 | CC22: Market positioning | Marketing only | Nothing |
@@ -381,7 +391,7 @@ These are architectural properties or market claims, not detection capabilities.
 ### Tier 2: Achievable with C2 Data (no new experiments needed)
 
 | Capability | What's Needed | Expected Outcome |
-|-----------|--------------|-----------------|
+| ----------- | -------------- | ----------------- |
 | CC1: Category monitoring | Build classifier on existing scale_sweep data | Likely achievable for coarse categories |
 | CC5: Multi-category | Build multi-class classifier | Unknown accuracy -- data exists but classifier doesn't |
 | CC11: Persona drift | Re-run identity with deduplication, build classifier | Cross-prompt 92-97% suggests feasibility |
@@ -390,7 +400,7 @@ These are architectural properties or market claims, not detection capabilities.
 ### Tier 3: Blocked on Unexecuted Cricket Experiments (C1-C10)
 
 | Capability | Blocking Experiment | What It Would Prove |
-|-----------|-------------------|-------------------|
+| ----------- | ------------------- | ------------------- |
 | CC6: <50ms latency | C7: Latency profiling | Whether SVD extraction meets timing budget |
 | CC7: Deception >= 0.95 | C4: Classifier benchmark | Whether AUROC targets are achievable |
 | CC8: Refusal >= 0.99 | C4: Classifier benchmark | **Likely NO based on d-to-AUROC analysis** |
@@ -403,7 +413,7 @@ These are architectural properties or market claims, not detection capabilities.
 ### Tier 4: Blocked on Fundamental Research
 
 | Capability | Research Gap | Difficulty |
-|-----------|-------------|-----------|
+| ----------- | ------------- | ----------- |
 | CC12: Censorship detection | n=1 model positive. Need cross-vendor validation. | Medium (need access to more censored models) |
 | CC13: Alignment assessment | n=5, underpowered. Need larger samples, multiple abliteration methods. | Medium (compute + method diversity) |
 | CC14: Sleeper agent detection | Zero theoretical grounding beyond abliteration analogy. Need backdoored model testing. | **Hard** (backdoored models are rare/controlled) |
@@ -412,7 +422,7 @@ These are architectural properties or market claims, not detection capabilities.
 ### Campaign 2 Cricket Experiments: Execution Priority
 
 | Priority | Experiment | Justification |
-|----------|-----------|---------------|
+| ---------- | ----------- | --------------- |
 | **1 (GATE)** | C4: Classifier benchmark | Determines whether ANY detection target is achievable. If AUROC < 0.85, Cricket is not viable. |
 | **2** | C7: Latency profiling | Determines whether real-time is feasible. Cheap to run (no GPU-heavy compute). |
 | **3** | C1: Per-head SVD | Foundation for C2, C9. Identifies which heads carry signal. |
@@ -429,6 +439,7 @@ These are architectural properties or market claims, not detection capabilities.
 **C4 (Classifier Benchmark) is the validation gate.** Until a classifier is trained on cache geometry features and evaluated with proper AUROC/FPR metrics, every Cricket detection capability claim is speculative.
 
 The d-to-AUROC analysis suggests:
+
 - CC7 (deception >= 0.95) is **possible for 3/7 models** if length confound is addressed
 - CC8 (refusal >= 0.99) is **mathematically infeasible** at observed effect sizes
 - CC9 (encoding >= 0.90) is **unknown** (wrong metric used as evidence)

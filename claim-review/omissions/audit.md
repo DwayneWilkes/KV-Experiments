@@ -7,6 +7,7 @@
 ## File Inventory
 
 ### Total Count
+
 - Claimed by paper: 83 result files across 10 experiment types
 - Actual JSON files: **85** (discrepancy — 3 "corrected" files added post-count)
 - Actual .md reports: **43**
@@ -17,7 +18,7 @@
 ### JSON File Inventory (85 files)
 
 | # | Filename | Experiment Type | Campaign | Paper Section |
-|---|----------|----------------|----------|---------------|
+| --- | ---------- | ---------------- | ---------- | --------------- |
 | 1 | `scale_sweep_Qwen2.5-0.5B_results.json` | scale_sweep | C2 | §3.1, Table 2 |
 | 2 | `scale_sweep_Qwen3-0.6B_results.json` | scale_sweep | C2 | §3.1 |
 | 3 | `scale_sweep_TinyLlama-1.1B_results.json` | scale_sweep | C2 | §3.1 |
@@ -110,7 +111,7 @@ Paper claims 83 JSON result files across 10 experiment types (§2.4, abstract, A
 Actual count: **85 JSON files**. Per-type breakdown:
 
 | Experiment Type | Paper Claims (Appendix A) | Actual Count | Match? |
-|-----------------|--------------------------|--------------|--------|
+| ----------------- | -------------------------- | -------------- | -------- |
 | Scale sweep | 17 models | 17 | YES |
 | Input-only | 8 models | 8 + 1 corrected | YES (base) |
 | Identity signatures | 7 models | 7 | YES |
@@ -124,6 +125,7 @@ Actual count: **85 JSON files**. Per-type breakdown:
 | **Subtotal (10 types)** | | **65 base** | |
 
 Files NOT counted in any of the 10 types:
+
 - 5 layer_map files (no layer_map experiment type listed in the paper's 10)
 - 4 individuation files (no individuation experiment type listed; C2 does not discuss individuation as a separate experiment)
 - 1 length_confound_analysis.json (analysis artifact)
@@ -137,8 +139,9 @@ Files NOT counted in any of the 10 types:
 **Resolution**: The paper's "83" likely counts: 65 (10 types as listed) + 5 (layer_map) + 4 (individuation) + 4 (corrected/aggregate files) + 1 (length confound) + 1 (phase2a transfer) + 1 (Phi-3.5 excluded but counted) + 2 (abliteration comparison files) = **83**. This reconciles if the authors counted ALL C2-era JSON files excluding only the 6 C1 legacy files and the 1 later-added corrected comparison. The per-type enumeration in the paper (10 types) does NOT mention layer_map or individuation as separate types, even though their files are implicitly counted in the "83" total. This is sloppy bookkeeping, not fraud -- the Appendix A experiment list does not match the 83 claim because layer_map and individuation are orphaned from the enumeration.
 
 ### File-Dark Results (in repo, NOT in paper)
+
 | Filename | Apparent Experiment | Favorable/Unfavorable | Hypothesis for Omission |
-|----------|-------------------|---------------------|------------------------|
+| ---------- | ------------------- | --------------------- | ------------------------ |
 | `cache_metadata_0/1/2.json` | C1 cache metadata | N/A | Superseded by C2 |
 | `adversarial_controls_TinyLlama-1.1B_results.json` | C1 adversarial controls | N/A | 14.4MB legacy file |
 | `batch_results_30runs.json` | C1 30-run batch | N/A | C1 pilot data |
@@ -156,10 +159,11 @@ Files NOT counted in any of the 10 types:
 - Log files: `log_societies_7B.txt` (v1), `log_societies_7B_v2.txt` (v2)
 
 **v1 run (2026-03-02 09:21)**: Model loaded successfully. All 4 system prompt conditions completed data collection (90 prompts x 3 runs x 4 conditions = 1,080 inferences). Hypothesis testing began:
-  - H8a: **SUPPORTED** (d=2.650, p=0.0000) — deliberative prompts show higher temporal geometric variance
-  - H8b: **NOT SUPPORTED** (rho=nan, p=nan) — convergence rate vs answer consistency had constant input
-  - H8c: **NOT SUPPORTED** (p=0.4934) — change-point alignment not above chance
-  - H8d: Crashed at `from scipy.stats import binom_test` — `ImportError: cannot import name 'binom_test'` (API renamed to `binomtest` in scipy >= 1.7)
+
+- H8a: **SUPPORTED** (d=2.650, p=0.0000) — deliberative prompts show higher temporal geometric variance
+- H8b: **NOT SUPPORTED** (rho=nan, p=nan) — convergence rate vs answer consistency had constant input
+- H8c: **NOT SUPPORTED** (p=0.4934) — change-point alignment not above chance
+- H8d: Crashed at `from scipy.stats import binom_test` — `ImportError: cannot import name 'binom_test'` (API renamed to `binomtest` in scipy >= 1.7)
 
 **Preliminary results assessment**: H8a was supported with a large effect. H8b and H8c were negative. The experiment crashed during H8d before completing analysis, so no JSON results were written. The preliminary results are MIXED (1 supported, 2 not supported before crash), not uniformly unfavorable.
 
@@ -179,7 +183,7 @@ Files NOT counted in any of the 10 types:
 **However**: Sycophancy data DOES exist in the deception forensics results. The `04_deception_forensics.py` script includes a sycophancy sub-experiment (Experiment 2). All 7 deception forensics result files contain `genuine_vs_sycophantic` comparisons:
 
 | Model | d(genuine vs sycophantic) | Detectable? |
-|-------|--------------------------|-------------|
+| ------- | -------------------------- | ------------- |
 | TinyLlama-1.1B | -0.363 | Yes |
 | Gemma-2-2B | -0.297 | No |
 | Qwen2.5-7B | -0.394 | Yes |
@@ -206,12 +210,13 @@ Files NOT counted in any of the 10 types:
 - Log files: `log_c2c_small.txt` — single attempted run
 
 **Run details (2026-03-02 08:48)**:
-  - Sharer: Qwen2.5-0.5B (24 layers, 2 KV heads, head_dim=448)
-  - Receiver: Qwen3-0.6B (28 layers, 8 KV heads, head_dim=128)
-  - Fuser parameters: 487,735,512 (large model!)
-  - Phase 1 training started (20 texts, 1 epoch)
-  - Crashed at line 175: `torch.cat([recv_k_flat, shar_k_flat], dim=-1)` — `RuntimeError: Sizes of tensors must match except in dimension 1. Expected size 88 but got size 22`
-  - Root cause: The receiver and sharer have different numbers of KV heads (8 vs 2), and the per-layer fuser concatenation assumes matching sequence-length dimensions. The head_dim mismatch (448 vs 128) combined with different KV head counts produces incompatible tensor shapes for concatenation.
+
+- Sharer: Qwen2.5-0.5B (24 layers, 2 KV heads, head_dim=448)
+- Receiver: Qwen3-0.6B (28 layers, 8 KV heads, head_dim=128)
+- Fuser parameters: 487,735,512 (large model!)
+- Phase 1 training started (20 texts, 1 epoch)
+- Crashed at line 175: `torch.cat([recv_k_flat, shar_k_flat], dim=-1)` — `RuntimeError: Sizes of tensors must match except in dimension 1. Expected size 88 but got size 22`
+- Root cause: The receiver and sharer have different numbers of KV heads (8 vs 2), and the per-layer fuser concatenation assumes matching sequence-length dimensions. The head_dim mismatch (448 vs 128) combined with different KV head counts produces incompatible tensor shapes for concatenation.
 
 - ROADMAP status: Listed as Campaign 2 extended experiment (H_C2C_1 through H_C2C_3), estimated 20 GPU-hours
 - Paper status: **NOT MENTIONED** -- not in limitations, not in future work, not acknowledged
@@ -220,6 +225,7 @@ Files NOT counted in any of the 10 types:
 ## Excluded Models
 
 ### Phi-3.5 (3.8B parameters)
+
 - Result file exists: **yes** — `scale_sweep_Phi-3.5-mini-instruct_results.json`
 - NaN count: **13/13 categories** — all NaN means and medians
 - Root cause: `'DynamicCache' object has no attribute 'seen_tokens'` (988 errors in `log_scale_sweep_3.8B.txt`)
@@ -228,6 +234,7 @@ Files NOT counted in any of the 10 types:
 - Assessment: **Appropriately excluded and disclosed**
 
 ### Abliterated Qwen-7B
+
 - File: `scale_sweep_abliterated_Qwen2.5-7B_results.json`
 - Counted as 17th model attempt, 2nd exclusion
 - Paper says "17 attempted, 2 excluded, 15 valid": Phi-3.5 + abliterated variant = 2 excluded
@@ -239,7 +246,7 @@ Files NOT counted in any of the 10 types:
 ### Claims Retained
 
 | C1 Claim | C2 Status | Assessment |
-|----------|-----------|------------|
+| ---------- | ----------- | ------------ |
 | Refusal specialization (d=0.85-2.17) | Retained, expanded to 15 models | Strongest finding |
 | Self-reference emergence at 14B+ | Retained | Not re-verified with new stats |
 | Deception expansion (dimensionality) | Retained, architecture-dependent | C1 said "expansion"; C2 says mixed (expansion AND compression by architecture) |
@@ -251,7 +258,7 @@ Files NOT counted in any of the 10 types:
 ### Claims Corrected
 
 | C1 Claim | C2 Correction | Assessment |
-|----------|--------------|------------|
+| ---------- | -------------- | ------------ |
 | Individuation expands dimensionality (d=21.0) | Falsified in C1 adversarial controls, noted in C2 §6 | Transparent correction |
 | Deception "narrows" (compression) | C2 shows direction is architecture-dependent | Honest revision |
 | Pseudoreplication (greedy = independent runs) | Acknowledged, deduplication applied | Transparent correction |
@@ -259,7 +266,7 @@ Files NOT counted in any of the 10 types:
 ### Claims Quietly Dropped
 
 | C1 Claim | C2 Status | Concern Level |
-|----------|-----------|---------------|
+| ---------- | ----------- | --------------- |
 | **Sycophancy detection** (d=-0.36 to -0.44, reported in C1 §4) | **Silently dropped** despite favorable C2 data across 7 models | **HIGH** — favorable data exists, unreported |
 | 30-run batch stability | Dropped | LOW — superseded by 5-run design |
 | Adversarial controls experiment (01d) | Dropped | LOW — methodology incorporated, raw data unnecessary |
@@ -276,13 +283,14 @@ Files NOT counted in any of the 10 types:
 ### Planned C2 Extensions Not Completed
 
 | Planned Experiment (ROADMAP) | Status | Disclosed? |
-|------------------------------|--------|------------|
+| ------------------------------ | -------- | ------------ |
 | H7: Sycophancy Detection (standalone) | Code written, never run | No |
 | H8: Societies of Thought | Attempted, crashed (scipy) | Yes (Limitation #6) |
 | H9/H10: (if any) | Unknown | Unknown |
 | C2C Replication | Attempted, crashed (tensor mismatch) | **No** |
 
 ### Summary Assessment
+
 C1's Future Work section (F9) promised 12 specific methodological improvements for C2. Of these, **4 were implemented** (cross-architecture validation, conservative stats, TOST equivalence, tokenizer confound testing). **8 were not implemented**, including the one C1 identified as "the most critical methodological gap" (effective rank adversarial controls). The C2 paper does not acknowledge the gap between what was promised and what was delivered. The stochastic generation promise is addressed with a rationale for retaining greedy, but the effective rank controls, threshold sensitivity, and confabulation redesign are simply absent without comment.
 
 ## Log File Error Review (Task 9.7)
@@ -290,7 +298,7 @@ C1's Future Work section (F9) promised 12 specific methodological improvements f
 Complete review of all 36 log/txt files in results/:
 
 | Log File | Error Count | Severity | Summary |
-|----------|-------------|----------|---------|
+| ---------- | ------------- | ---------- | --------- |
 | `log_bloom_0.5B.txt` | 0 | clean | |
 | `log_bloom_3B.txt` | 0 | clean | |
 | `log_bloom_7B.txt` | 0 | clean | |
@@ -329,6 +337,7 @@ Complete review of all 36 log/txt files in results/:
 | `experiment_log.txt` | 0 | clean | Campaign orchestration log. Records timing for all phases. |
 
 ### Log Files Statistics
+
 - **Total log files**: 36 (35 log_*.txt + 1 experiment_log.txt)
 - **Clean**: 27 (75%)
 - **Minor warnings** (non-fatal, non-impactful): 3 (rdct_mistral, temporal_llama, temporal_mistral)
@@ -337,6 +346,7 @@ Complete review of all 36 log/txt files in results/:
 - **Recoverable errors** (rerun succeeded): 1 (identity_0.6B → v2)
 
 ### Critical Error Summary
+
 1. **Societies of Thought**: scipy `binom_test` API rename → H8d crash. Partial results: H8a supported, H8b/H8c not. **Disclosed** (Limitation #6).
 2. **C2C Replication**: Tensor shape mismatch (KV head count 8 vs 2) → Phase 1 training crash. **NOT disclosed**.
 3. **Phi-3.5**: DynamicCache API incompatibility → 977 errors, all NaN. **Disclosed** (excluded from analysis).
@@ -351,7 +361,7 @@ Complete review of all 36 log/txt files in results/:
 The C2 paper (main.tex) contains exactly 6 `\cite`/`\citet`/`\citep` references:
 
 | # | Citation Key | Used Where | Real? | Correct Details? | Assessment |
-|---|-------------|------------|-------|-----------------|------------|
+| --- | ------------- | ------------ | ------- | ----------------- | ------------ |
 | 1 | `lyra2026campaign1` | Abstract, §1, §2.3, §6 | **Self-citation** | Campaign 1 paper by same authors | Valid self-reference |
 | 2 | `hedges1981distribution` | §2.2 | **YES** | Larry V. Hedges, "Distribution Theory for Glass's Estimator of Effect Size and Related Estimators," J. Educational Statistics 6(2):107-128, 1981 | Real, foundational statistics paper |
 | 3 | `schuirmann1987comparison` | §2.2 | **YES** | Donald J. Schuirmann, "A Comparison of the Two One-Sided Tests Procedure and the Power Approach for Assessing the Equivalence of Average Bioavailability," J. Pharmacokinetics and Biopharmaceutics 15(6):657-680, 1987 | Real, foundational TOST paper |
@@ -366,7 +376,7 @@ The bibliography file contains 24 additional entries never referenced in the pap
 ### User-Specified Citations to Verify
 
 | Citation (per user) | In C2 Paper? | Real Published Work? | Notes |
-|---------------------|-------------|---------------------|-------|
+| --------------------- | ------------- | --------------------- | ------- |
 | Roy & Vetterli (2007) - effective rank | In bib (`roy2007effective`), NOT cited in main text | **YES** - EUSIPCO 2007 conference paper. Real, well-cited (500+ citations). Defines the effective rank metric used throughout the paper. | Foundational for the paper's methodology but never explicitly cited in C2 text. Used implicitly. |
 | Watson (1913) - behaviorism | **NOT in paper at all** | **YES** - J.B. Watson, "Psychology as the Behaviorist Views It," Psychological Review 20(2):158-177, 1913. | This classic paper is NOT cited. The paper cites a DIFFERENT Watson: Marcus Watson (2019), "The Integrated Theory of Attention," listed as an **unpublished manuscript**. |
 | Bloom (1956) - taxonomy | **YES** - `bloom1956taxonomy`, cited in §3.4 | **YES** | See row 4 above |
@@ -391,6 +401,7 @@ For each major result type, we checked whether the JSON files contain statistics
 ### Scale Sweep Files (17 files)
 
 Each scale sweep JSON contains:
+
 - `battery_results`: Raw data for all 13 cognitive categories
 - `analysis.category_summaries`: Per-category n, mean, std, median, min, max, mean_per_token, std_per_token, mean_key_effective_rank, std_key_effective_rank, mean_key_spectral_entropy, mean_value_effective_rank, bootstrap CIs, normality tests
 - `analysis.pairwise_comparisons`: **27 pairwise comparisons** per model (including eff_rank, per_token, and raw norm variants)
@@ -400,6 +411,7 @@ Each scale sweep JSON contains:
 - `ranking`: Full 13-category rank ordering
 
 **Unreported statistics found**:
+
 - The paper reports only effective rank metrics. Each file also contains **Frobenius norm** and **per-token norm** comparisons (27 pairwise d-values per model). These are not reported in C2. The C1 paper showed that norm-based metrics do not survive adversarial controls, which explains the omission -- but the norm data is available and was computed.
 - **Spectral entropy** values are computed but never reported in C2 (C1 promised to foreground these in C2, F9).
 - **Value effective rank** is computed alongside key effective rank but never mentioned.
@@ -410,7 +422,7 @@ Each scale sweep JSON contains:
 **Major unreported finding**: All 7 deception forensics files contain **sycophancy sub-experiment results** (Experiment 2 in the deception forensics battery):
 
 | Model | d(genuine vs sycophantic) | d(honest vs sycophantic) | Detectable? |
-|-------|--------------------------|-------------------------|-------------|
+| ------- | -------------------------- | ------------------------- | ------------- |
 | TinyLlama-1.1B | -0.363 | -2.216 | Yes |
 | Gemma-2-2B | -0.297 | -1.330 | No |
 | Qwen2.5-7B | -0.394 | -2.227 | Yes |
@@ -426,11 +438,13 @@ Additionally, each deception forensics file contains uncertainty gradient sub-ex
 ### Natural Deception / S4 Files (3 files)
 
 The `s4_topic_analysis_corrected.json` contains per-topic d-values for all 3 models. The paper reports the DeepSeek per-topic breakdown (Table 7) but does not report per-topic breakdowns for Qwen-14B or Mistral-7B. The Qwen-14B data shows:
+
 - `critical_test.d = +0.766, p = 1.88e-09` (reported)
 - `residualized_censored_vs_complex.d = +0.768, p = 3.64e-08` (reported)
 - Additional comparisons: `residualized_censored_vs_control.d = +0.462, p = 0.000286`, `residualized_complex_vs_control` values (NOT reported individually)
 
 The Mistral-7B data:
+
 - `critical_test.d = +0.084, p = 0.469` (reported)
 - `residualized_censored_vs_complex.d = +0.396, p < 0.001` (reported)
 - Per-topic data available but not reported (mirroring DeepSeek treatment but less interesting given null critical test)
@@ -442,6 +456,7 @@ The `abliteration_Qwen2.5-7B_comparison_corrected.json` contains all values repo
 ### Identity Signatures Files (7 files)
 
 Each file contains:
+
 - Classification results (accuracy, cross-prompt validation, confusion matrix) -- reported
 - Permutation test p-values -- not individually reported but summarized
 - Feature importance arrays (per-feature RF importance) -- not reported
@@ -452,6 +467,7 @@ Each file contains:
 ### Cross-Model Rho File
 
 `cross_model_rho_corrected.json` contains:
+
 - `effective_rank.mean_pairwise_rho = 0.739` -- reported as 0.739
 - `effective_rank.min_rho = 0.396` -- reported as 0.396
 - `effective_rank.max_rho = 0.978` -- reported as 0.978
@@ -463,7 +479,7 @@ Each file contains:
 ### Summary: Unreported Statistics Assessment
 
 | Category | Favorable Unreported? | Unfavorable Unreported? | Assessment |
-|----------|----------------------|------------------------|------------|
+| ---------- | ---------------------- | ------------------------ | ------------ |
 | Sycophancy sub-results (deception forensics) | **YES** (6/7 detectable, consistent cross-arch) | No | **Concerning** -- favorable C1 finding dropped from C2 |
 | Norm-based metrics (scale sweep) | Some positive | Some negative | Justified omission (C1 showed norms fail controls) |
 | Spectral entropy | Unknown | Unknown | Promised but not delivered (C1 F9) |
@@ -485,6 +501,7 @@ The unreported norm-based and entropy-based metrics are justified by the C1 find
 ## Task 9.1: File-to-Section Mapping Verification
 
 The file inventory table (above) maps all 85 JSON files to paper sections. Verification against the paper confirms:
+
 - Files #1-17 (scale sweep): Correctly mapped to §3.1
 - Files #18-26 (input only): Correctly mapped to §3.2, Table 3
 - Files #27-33 (bloom): Correctly mapped to §3.4
@@ -503,7 +520,7 @@ The file inventory table (above) maps all 85 JSON files to paper sections. Verif
 **File-dark results (updated)**:
 
 | Filename(s) | Category | In Paper? | Favorable? | Concern |
-|-------------|----------|-----------|------------|---------|
+| ------------- | ---------- | ----------- | ------------ | --------- |
 | `layer_map_*.json` (5 files) | Layer analysis | **NO** (C1 only) | Unknown | LOW -- C1 experiment, no C2 claims about layers |
 | `individuation_*.json` (4 files) | Individuation | Mentioned only as C1 falsification | Falsified in C1 | LOW -- honestly reported as failed hypothesis |
 | Sycophancy sub-data in deception_forensics (7 files) | Sycophancy detection | **NO** | **FAVORABLE** | **HIGH** -- see selective reporting section |

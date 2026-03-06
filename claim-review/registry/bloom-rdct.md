@@ -16,7 +16,7 @@ The paper claims Bloom taxonomy level correlates with effective rank in an "inve
 **Finding: The data CONTRADICTS the inverted-U claim.** All 7 models show statistically significant positive Bloom-rank correlations (Spearman rho > 0.5, p < 0.01). There is no absence at the extremes.
 
 | Model | Scale | rho_individual | p-value | H10a Supported | Verdict |
-|-------|-------|---------------|---------|----------------|---------|
+| ------- | ------- | --------------- | --------- | ---------------- | --------- |
 | Qwen2.5-0.5B | 0.5B | 0.6774 | 1.0e-61 | Yes | **CONTRADICTS C44** |
 | gemma-2-2b-it | 2B | 0.7342 | 2.4e-77 | Yes | consistent |
 | Qwen2.5-3B | 3B | 0.7538 | 9.9e-84 | Yes | consistent |
@@ -32,7 +32,7 @@ Correlation strength vs model scale: Spearman rho = 0.018, p = 0.97. No scale-de
 All models show the same rank ordering. The "dip" at level 4 (Analyze) is a minor perturbation in a generally increasing trend, not an inverted-U:
 
 | Level | Category | Qwen-0.5B | Qwen-3B | Gemma-2B | Qwen-7B | Mistral-7B | Llama-8B | Qwen-14B |
-|-------|----------|-----------|---------|----------|---------|------------|----------|----------|
+| ------- | ---------- | ----------- | --------- | ---------- | --------- | ------------ | ---------- | ---------- |
 | 1 | Remember | 10.16 | 17.79 | 24.77 | 23.69 | 26.51 | 48.08 | 43.63 |
 | 2 | Understand | 10.55 | 18.44 | 27.15 | 24.40 | 28.87 | 48.43 | 44.51 |
 | 3 | Apply | 10.86 | 19.30 | 31.97 | 25.41 | 32.79 | 49.70 | 45.76 |
@@ -53,6 +53,7 @@ All 6 non-Qwen-3B models report identical `rho_aggregated = 0.8286` (p = 0.0416)
 ### TOST / Equivalence Testing (C44: "absent at extremes")
 
 **No TOST or equivalence test is present in the code or results.** The script (`12_bloom_taxonomy.py`) uses:
+
 - Spearman rank correlation
 - One-way ANOVA
 - OLS regression
@@ -68,7 +69,7 @@ This is the most damaging finding for the Bloom taxonomy claims.
 **Token count vs effective rank Spearman correlation across models:**
 
 | Model | token-rank rho | Bloom-rank partial rho (controlling for tokens) | Partial p-value |
-|-------|---------------|------------------------------------------------|-----------------|
+| ------- | --------------- | ------------------------------------------------ | ----------------- |
 | Qwen2.5-0.5B | 0.930 | -0.060 | 0.202 (NS) |
 | gemma-2-2b-it | 0.975 | 0.004 | 0.941 (NS) |
 | Qwen2.5-14B | 0.960 | 0.003 | 0.957 (NS) |
@@ -78,6 +79,7 @@ This is the most damaging finding for the Bloom taxonomy claims.
 | Llama-3.1-8B | 0.902 | 0.119 | 0.011 |
 
 **Interpretation:**
+
 - Token count explains 81-96% of effective rank variance (rho = 0.90-0.98)
 - After controlling for token count, the Bloom-rank correlation is near zero for 3 of 7 models (p > 0.2)
 - For the remaining 4, partial rho drops from 0.68-0.75 to 0.12-0.25
@@ -89,7 +91,7 @@ The script commendably includes this analysis (`analyze_length_covariate`), but 
 Token counts per Bloom level (Qwen tokenizer, representative):
 
 | Level | Mean tokens | SD |
-|-------|------------|-----|
+| ------- | ------------ | ----- |
 | 1 (Remember) | 37.3 | 1.7 |
 | 2 (Understand) | 39.7 | 1.5 |
 | 3 (Apply) | 42.7 | 1.6 |
@@ -110,7 +112,7 @@ The paper claims alpha_c = 1.000 for all 6 models, "definitively falsifying" Wat
 alpha_c = 1.000 in 32 of 36 model-category sigmoid fits (88.9%). Four exceptions:
 
 | Model | Category | alpha_c | R-squared |
-|-------|----------|---------|-----------|
+| ------- | ---------- | --------- | ----------- |
 | Llama-3.1-8B | other_reference | 0.7505 | 0.614 |
 | Llama-3.1-8B | philosophical | 0.8440 | 0.640 |
 | gemma-2-2b-it | other_reference | 0.8626 | 0.550 |
@@ -132,7 +134,7 @@ From `11_rdct_stability.py`:
 ### Sigmoid Fit Quality
 
 | Metric | Count | Percentage |
-|--------|-------|-----------|
+| -------- | ------- | ----------- |
 | Total fits | 36 | 100% |
 | R-squared < 0 (worse than mean) | 23 | **63.9%** |
 | R-squared > 0.8 (good fit) | 9 | 25.0% |
@@ -143,7 +145,7 @@ From `11_rdct_stability.py`:
 Correlation at alpha=1.0 (fully unrelated prompts), averaged across categories:
 
 | Model | Mean corr at alpha=1.0 | Min corr at alpha=1.0 |
-|-------|----------------------|---------------------|
+| ------- | ---------------------- | --------------------- |
 | Qwen2.5-0.5B | 0.928 | 0.907 |
 | Qwen2.5-7B | 0.933 | 0.919 |
 | Mistral-7B-v0.3 | 0.896 | 0.874 |
@@ -156,7 +158,7 @@ Correlation at alpha=1.0 (fully unrelated prompts), averaged across categories:
 ### Full Degradation Curves (aggregate across all models and categories)
 
 | Alpha | Method | Mean correlation | SD |
-|-------|--------|-----------------|-----|
+| ------- | -------- | ----------------- | ----- |
 | 0.00 | identical | 1.000 | 0.000 |
 | 0.05 | whitespace | 0.970 | 0.020 |
 | 0.10 | synonym_1word | 0.988 | 0.012 |
@@ -175,11 +177,13 @@ Note: correlation at alpha=1.0 (0.858) is HIGHER than at alpha=0.80 (0.848). Thi
 The reference cited is: *"Watson & Claude, Interiora Machinae v2.6, Section 7.11"*
 
 **Issues:**
+
 1. **AI co-authorship**: "Watson & Claude" -- "Claude" appears to be an AI listed as co-author
 2. **Not peer-reviewed**: "Interiora Machinae" is a self-published work, not a peer-reviewed journal
 3. **Verifiability**: Cannot independently verify the 1/e prediction exists in the claimed form
 
 **Domain mismatch (CRITICAL):**
+
 - Watson's 1/e prediction (if real) concerns **cache truncation** -- retaining a fraction alpha of the KV-cache and measuring output degradation
 - The RDCT experiment measures **prompt perturbation robustness** -- varying semantic distance between prompts and measuring geometric correlation
 - `alpha` in Watson = fraction of cache retained after truncation
@@ -187,6 +191,7 @@ The reference cited is: *"Watson & Claude, Interiora Machinae v2.6, Section 7.11
 - **These are fundamentally different operations.** You cannot falsify a prediction about cache truncation by measuring prompt perturbation tolerance.
 
 The perturbation method is template-based and does not involve any cache truncation:
+
 - Levels 0-6: Preserve the original prompt, adding prefixes/modifications
 - Level 7-8: Extract keywords, build new questions
 - Level 9: Fixed set of unrelated prompts
@@ -216,6 +221,7 @@ The word "definitive" is not warranted for multiple independent reasons:
 **Syntax**: Valid Python, parses without errors.
 
 **Methodology strengths:**
+
 - Encoding-only cache extraction (matches Campaign 1)
 - Comprehensive statistical battery: Spearman, ANOVA, OLS, k-means, Bootstrap CIs, Cohen's d
 - Holm-Bonferroni multiple comparison correction
@@ -224,6 +230,7 @@ The word "definitive" is not warranted for multiple independent reasons:
 - SHA-256 checksum on output
 
 **Methodology weaknesses:**
+
 - 3 prompts per cell (domain x Bloom level) -- low for robust estimates
 - Prompts are hand-crafted without expert validation or inter-rater reliability
 - Systematic prompt length confound (level 1 mean 37 chars, level 6 mean 95 chars)
@@ -238,6 +245,7 @@ The word "definitive" is not warranted for multiple independent reasons:
 **Syntax**: Valid Python, parses without errors.
 
 **Methodology strengths:**
+
 - Encoding-only cache extraction
 - Multiple prompt categories (6 from Campaign 1)
 - 15 prompts per category
@@ -245,6 +253,7 @@ The word "definitive" is not warranted for multiple independent reasons:
 - `calibrate_alpha_with_embeddings` function exists for semantic calibration (but unused by default -- requires sentence-transformers)
 
 **Methodology weaknesses:**
+
 - **Perturbation is template-based, not semantically calibrated**: Alpha values are assigned by template type, not measured by actual semantic distance. The `calibrate_alpha_with_embeddings` function exists but is not used in the main experiment
 - **Levels 1-6 (alpha 0.05-0.50) only prepend text**: The original prompt content is preserved, explaining high correlation through most of the range
 - **Level 1 (alpha=0.05) adds a trailing space**: This is not a meaningful perturbation
@@ -260,7 +269,7 @@ The word "definitive" is not warranted for multiple independent reasons:
 ## Summary of Verdicts
 
 | Claim | ID | Paper Says | Data Shows | Verdict |
-|-------|-----|-----------|-----------|---------|
+| ------- | ----- | ----------- | ----------- | --------- |
 | Bloom-rank correlation present (3-8B) | C42-C43 | Present at medium scales | Present at ALL scales | **INFLATED** (true but not scale-specific) |
 | Bloom-rank correlation absent (0.5B, 14B) | C44 | Absent at extremes | rho=0.68, 0.71 (both p<1e-40) | **REJECTED** |
 | Most informative at 3B-8B | C45 | Medium scale best | All scales equivalent | **REJECTED** |

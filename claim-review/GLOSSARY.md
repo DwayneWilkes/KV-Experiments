@@ -116,7 +116,7 @@ See: [stats/independent_stats.py](stats/independent_stats.py)
 The conventional benchmarks for interpreting [Cohen's d](#cohens-d) or [Hedges' g](#hedges-g):
 
 | d | Label |
-|---|-------|
+| --- | ------- |
 | 0.2 | Small |
 | 0.5 | Medium |
 | 0.8 | Large |
@@ -474,7 +474,7 @@ The organizational units of this audit. Each workstream independently verified a
 The named metrics extracted from [KV-cache](#kv-cache) tensors and stored in result JSON files:
 
 | Metric | Definition |
-|--------|-----------|
+| -------- | ----------- |
 | `norms` | [Frobenius norm](#frobenius-norm) of the cache |
 | `norms_per_token` | Frobenius norm divided by response token count |
 | `key_ranks` | [Effective rank](#effective-rank) of key tensors |
@@ -485,7 +485,7 @@ The named metrics extracted from [KV-cache](#kv-cache) tensors and stored in res
 Pre-registered hypotheses tested by the experiment scripts. Each produces a verdict stored in the result JSON. Key hypotheses referenced in this audit:
 
 | ID | Topic | Workstream |
-|----|-------|-----------|
+| ---- | ------- | ----------- |
 | H4 | Censorship null (TOST) | [WS6](registry/censorship-gradient.md) |
 | H5 | Cross-prompt identity | [WS3](registry/identity-signatures.md) |
 | H6 | Deception direction | [WS4](registry/deception-forensics.md) |
@@ -553,7 +553,7 @@ See: [cricket/viability](cricket/viability.md)
 Labels used in [WS13](registry/citation-verification.md) to track whether cited works were found:
 
 | Status | Meaning |
-|--------|---------|
+| -------- | --------- |
 | RESOLVED | Full match found via Semantic Scholar or arXiv |
 | RESOLVED_PARTIAL | Partial match (e.g., title search only, no DOI confirmed) |
 | UNRESOLVED | Cannot locate the cited work |
@@ -564,7 +564,7 @@ Labels used in [WS13](registry/citation-verification.md) to track whether cited 
 Labels used in [WS13](registry/citation-verification.md) for how accurately the paper characterizes a cited work:
 
 | Verdict | Meaning |
-|---------|---------|
+| --------- | --------- |
 | ACCURATE | Paper's characterization matches the cited work |
 | APPROXIMATE | Characterization captures the core idea but simplifies |
 | NOT_APPLICABLE | Entry in .bib but never cited in the paper text |

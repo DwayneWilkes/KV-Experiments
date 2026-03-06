@@ -4,6 +4,7 @@ Cross-references every workstream's claims with internal data, cited papers, and
 missing literature that should be consulted when revising the paper.
 
 **Legend**:
+
 - **INTERNAL** — data files and code in this repo
 - **CITED** — already in `paper-c2/references.bib`
 - **MISSING** — not cited; should be read and potentially added
@@ -16,7 +17,7 @@ missing literature that should be consulted when revising the paper.
 These issues affect the bibliography itself, independent of any workstream.
 
 | # | Issue | Detail |
-|---|-------|--------|
+| --- | ------- | -------- |
 | B1 | **Watson author mismatch** | Bib entry `watson2019ita` lists author "Marcus Watson". Competitive landscape doc (Cricket) references "Nell Watson" as IEEE ethics committee member. These appear to be different people. Verify which Watson is the actual author of the ITA. |
 | B2 | **Apollo Research authors wrong** | Bib entry `goldowskydill2025detecting` lists co-authors "Sarao Mannelli, Casper". S2 returns "Chughtai, Heimersheim, Hobbhahn" for arXiv:2502.03407. Either the bib has wrong authors or references a different paper. |
 | B3 | **Abliteration paper not cited** | Arditi et al. 2024 "Refusal in Language Models Is Mediated by a Single Direction" (arXiv:2406.11717, 493 citations) — the foundational abliteration paper — is not in the bibliography despite the experiment using their technique via Heretic. |
@@ -30,7 +31,7 @@ These issues affect the bibliography itself, independent of any workstream.
 ### Internal Sources
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `results/scale_sweep_*_results.json` (15 + Phi-3.5 + abliterated = 17 files) | Per-model per-category effective rank, key norm, spectral entropy |
 | `results/cross_model_rho_corrected.json` | Precomputed pairwise Spearman rho matrix |
 | `code/03_scale_sweep.py` | Experiment script — verify 13 categories, 15 prompts, `do_sample=False` |
@@ -38,7 +39,7 @@ These issues affect the bibliography itself, independent of any workstream.
 ### Cited
 
 | Bib Key | Paper | Relevance |
-|---------|-------|-----------|
+| --------- | ------- | ----------- |
 | `roy2007effective` | Roy & Vetterli 2007 — Effective Rank | Defines the metric. Should be cited in Methods, not just bib. |
 | `li2018measuring` | Li et al. 2018 — Intrinsic Dimension of Landscapes | Intrinsic dimensionality background |
 | `aghajanyan2021intrinsic` | Aghajanyan et al. 2021 — Intrinsic Dimensionality of Fine-Tuning | Fine-tuning dimensionality context |
@@ -46,7 +47,7 @@ These issues affect the bibliography itself, independent of any workstream.
 ### Missing
 
 | Paper | Why Needed |
-|-------|-----------|
+| ------- | ----------- |
 | Xiao et al. 2023 "Attention Sinks" (arXiv:2309.17453, 1446 cit.) | Key reference for understanding which tokens/heads matter in KV-cache. Directly relevant to cache geometry. |
 | Fu et al. 2024 "Not All Heads Matter" (63 cit.) | Per-head importance analysis for KV-cache — connects to the per-layer averaging approach |
 
@@ -57,7 +58,7 @@ These issues affect the bibliography itself, independent of any workstream.
 ### Internal Sources
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `results/input_only_*_results.json` (8 files) | Input-only effective rank per category per model |
 | `results/input_only_rho_corrected.json` | Precomputed input-only vs full-generation rho |
 | `code/08_input_only_geometry.py` | Verify `max_new_tokens=0` or no `generate()` call |
@@ -65,13 +66,13 @@ These issues affect the bibliography itself, independent of any workstream.
 ### Cited
 
 | Bib Key | Paper | Relevance |
-|---------|-------|-----------|
+| --------- | ------- | ----------- |
 | `belinkov2022probing` | Belinkov 2022 — Probing Classifiers | Probing methodology review |
 
 ### Missing
 
 | Paper | Why Needed |
-|-------|-----------|
+| ------- | ----------- |
 | **Hewitt & Liang 2019** "Designing and Interpreting Probes with Control Tasks" (EMNLP, 612 cit.) | Control task methodology — the standard reference for testing whether probes learn from representations vs memorize labels. Directly addresses the encoding-native claim. **FLAG B5**: The wrong Hewitt paper is in the bib. |
 
 ---
@@ -81,7 +82,7 @@ These issues affect the bibliography itself, independent of any workstream.
 ### Internal Sources
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `results/identity_signatures_*_results.json` (7 files) | Per-model classification accuracy, ICC, d, W |
 | `code/03b_identity_signatures.py` | Train/test protocol, deduplication, classifier code |
 
@@ -92,7 +93,7 @@ None directly relevant to the classification methodology.
 ### Missing — Addresses D4 (data leak)
 
 | Paper | Why Needed |
-|-------|-----------|
+| ------- | ----------- |
 | **Yagis et al. 2021** "Effect of data leakage in brain MRI classification using 2D convolutional neural networks" (97 cit.) | Quantifies how subject-level leakage inflates accuracy. Directly analogous to the greedy-decoding duplicate leak in D4. |
 | **Tampu et al. 2022** "Inflation of test accuracy due to data leakage in deep learning-based classification" (66 cit.) | Clean demonstration of accuracy inflation from data leakage |
 | **Kim 2025** "Reverse Double-Dipping" | Stimulus-driven information leakage — novel framing relevant to repeated-prompt designs |
@@ -104,14 +105,14 @@ None directly relevant to the classification methodology.
 ### Internal Sources
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `results/deception_forensics_*_results.json` (7 files) | Per-model Hedges' g, condition comparisons |
 | `code/04_deception_forensics.py` | Prompt construction, sign convention, condition names |
 
 ### Cited
 
 | Bib Key | Paper | Relevance |
-|---------|-------|-----------|
+| --------- | ------- | ----------- |
 | `azaria2023internal` | Azaria & Mitchell 2023 — Internal State Knows When Lying | Internal deception detection |
 | `burns2022discovering` | Burns et al. 2022 — Latent Knowledge (CCS) | Unsupervised truthfulness probes |
 | `marks2023geometry` | Marks & Tegmark 2023 — Geometry of Truth | Linear structure in true/false representations |
@@ -120,7 +121,7 @@ None directly relevant to the classification methodology.
 ### Missing — Addresses D1 (direction claim)
 
 | Paper | Why Needed |
-|-------|-----------|
+| ------- | ----------- |
 | **Goldowsky-Dill et al. 2025** (Apollo Research, arXiv:2502.03407, 37 cit.) | Linear probes for strategic deception — AUROC 0.96–0.999. Key comparison point. **FLAG B2**: Verify author list in bib entry. |
 | **Liu et al. 2023** "Cognitive Dissonance" (57 cit.) | LLM outputs disagreeing with internal truthfulness representations — directly relevant to behavioral vs geometric divergence |
 | **Wang et al. 2025** "When Thinking LLMs Lie" (12 cit.) | Strategic deception in reasoning model representations — extends to chain-of-thought models |
@@ -132,7 +133,7 @@ None directly relevant to the classification methodology.
 ### Internal Sources
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `results/bloom_taxonomy_*_results.json` (7 files) | Per-model per-Bloom-level effective rank |
 | `results/rdct_stability_*_results.json` (6 files) | Degradation curves, alpha_c values |
 | `code/12_bloom_taxonomy.py` | Prompt construction per Bloom level |
@@ -141,14 +142,14 @@ None directly relevant to the classification methodology.
 ### Cited
 
 | Bib Key | Paper | Relevance |
-|---------|-------|-----------|
+| --------- | ------- | ----------- |
 | `bloom1956taxonomy` | Bloom et al. 1956 — Original taxonomy | Foundation |
 | `watson2019ita` | Watson 2019 — Integrated Theory of Attention | Falsification target. **FLAG B1**: Author may be wrong person. Marked "Unpublished manuscript". |
 
 ### Missing — Addresses D2 (inverted-U), D3 (length confound), D7 (Watson)
 
 | Paper | Why Needed |
-|-------|-----------|
+| ------- | ----------- |
 | **Anderson & Krathwohl 2001** "A Taxonomy for Learning, Teaching, and Assessing" | The revised Bloom's taxonomy actually used in modern practice. Spec mentions it; bib doesn't cite it. |
 | **Huber & Niklaus 2025** "LLMs meet Bloom's Taxonomy" (14 cit.) | Most cited paper applying Bloom's taxonomy to LLM evaluation. Direct precedent. |
 | **Raimondi & Gabbrielli 2026** "Mechanistic Interpretability of Cognitive Complexity via Linear Probing using Bloom's Taxonomy" | Combines Bloom + probing + interpretability — closest prior work to the Bloom experiment. Very recent. |
@@ -162,7 +163,7 @@ None directly relevant to the classification methodology.
 ### Internal Sources
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `results/natural_deception_*_results.json` (3 files) | Per-model effect sizes (critical test + residualized) |
 | `results/s4_topic_analysis_corrected.json` | DeepSeek per-topic breakdown |
 | `code/04b_natural_deception.py` | Statistical analysis, residualization |
@@ -175,7 +176,7 @@ None specific to censorship detection methodology.
 ### Missing
 
 | Paper | Why Needed |
-|-------|-----------|
+| ------- | ----------- |
 | **Cyberey & Evans 2025** "Steering the CensorShip" (11 cit.) | Directly studies representation vectors for LLM censorship — "thought control" via steering. Closest prior work to censorship gradient detection. |
 
 ---
@@ -185,7 +186,7 @@ None specific to censorship detection methodology.
 ### Internal Sources
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `results/abliteration_sweep_*.json` (2 files) | Baseline + abliterated raw data |
 | `results/abliteration_*.json` | Comparison files |
 | `results/scale_sweep_abliterated-Qwen2.5-7B_results.json` | Abliterated model in scale sweep |
@@ -195,14 +196,14 @@ None specific to censorship detection methodology.
 ### Cited
 
 | Bib Key | Paper | Relevance |
-|---------|-------|-----------|
+| --------- | ------- | ----------- |
 | `zou2023representation` | Zou et al. 2023 — Representation Engineering (798 cit.) | Foundational RepE paper |
 | `heretic2026` | Heretic-LLM library | Tool used |
 
 ### Missing — **FLAG B3**: Foundational abliteration paper not cited
 
 | Paper | Why Needed |
-|-------|-----------|
+| ------- | ----------- |
 | **Arditi et al. 2024** "Refusal in Language Models Is Mediated by a Single Direction" (arXiv:2406.11717, 493 cit.) | THE abliteration paper. The experiment uses their technique. Must be cited. |
 | **Wollschlager et al. 2025** "The Geometry of Refusal in LLMs: Concept Cones and Representational Independence" (38 cit.) | Shows refusal is multi-dimensional ("concept cones"), not just one direction. Directly challenges the single-direction assumption underlying the abliteration experiment. |
 
@@ -213,7 +214,7 @@ None specific to censorship detection methodology.
 ### Internal Sources
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `code/stats_utils.py` | Central statistical module — all methods |
 | `code/recompute_stats.py` | Recomputation script |
 | `code/01e_tokenizer_confound.py` | Tokenizer confound ANCOVA |
@@ -224,14 +225,14 @@ None specific to censorship detection methodology.
 ### Cited
 
 | Bib Key | Paper | Relevance |
-|---------|-------|-----------|
+| --------- | ------- | ----------- |
 | `hedges1981distribution` | Hedges 1981 — Effect size distribution theory | Hedges' g origin |
 | `schuirmann1987comparison` | Schuirmann 1987 — TOST procedure | TOST origin |
 
 ### Missing — Addresses D5 (dedup), D6 (TOST), D9–D10 (methods claims)
 
 | Paper | Why Needed |
-|-------|-----------|
+| ------- | ----------- |
 | **Lakens 2017** "Equivalence Tests" (DOI: 10.1177/1948550617697177, 1277 cit.) | The standard primer for TOST equivalence testing in psychological research. Should be cited alongside Schuirmann 1987 for accessibility. |
 | **Lakens, Scheel & Isager 2018** "Equivalence Testing for Psychological Research: A Tutorial" (1191 cit.) | Expanded companion with worked examples and the SESOI (smallest effect size of interest) framework — directly relevant to choosing delta=0.3. |
 | **Hewitt & Liang 2019** "Designing and Interpreting Probes with Control Tasks" (EMNLP, 612 cit.) | Control task methodology for D10 (log-length vs raw-length residualization). |
@@ -243,7 +244,7 @@ None specific to censorship detection methodology.
 ### Internal Sources
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `results/` (all files — enumerate complete inventory) | Map every file to paper section or flag as unreported |
 | `code/09_sycophancy_detection.py` | Sycophancy experiment — has code and prompts but no paper discussion |
 | `code/10_societies_of_thought.py` | Societies of Thought — incomplete experiment |
@@ -253,8 +254,8 @@ None specific to censorship detection methodology.
 ### Missing
 
 | Paper | Why Needed |
-|-------|-----------|
-| No external sources needed for the omission audit itself — this is an internal inventory task. |
+| ------- | ----------- |
+| No external sources needed for the omission audit itself — this is an internal inventory task. | — |
 
 ---
 
@@ -263,7 +264,7 @@ None specific to censorship detection methodology.
 ### Internal Sources
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `JiminAI-Cricket/README.md` | Product claims CC1–CC14 |
 | `JiminAI-Cricket/docs/DESIGN.md` | Technical claims CC15–CC22 |
 | `JiminAI-Cricket/research/CAMPAIGN_2_FINDINGS.md` | Stale C2 interpretations CF1–CF8 |
@@ -275,7 +276,7 @@ None specific to censorship detection methodology.
 Papers referenced in COMPETITIVE_LANDSCAPE.md that need citation verification:
 
 | Claimed Paper | Claimed Result | Verify |
-|---------------|---------------|--------|
+| --------------- | --------------- | -------- |
 | Goldowsky-Dill et al. 2025 (Apollo) | AUROC 0.96–0.999 on deception | **FLAG B2**: Author list in bib may be wrong |
 | Xiong et al. 2026 "Steering Externalities" | Jailbreak success >80% from benign steering | Confirmed real on S2 (0 citations — very recent) |
 | Li et al. 2024 "HalluCana" (arXiv:2412.07965) | Pre-generation hallucination detection | Confirmed real on S2 (1 citation) |
@@ -284,7 +285,7 @@ Papers referenced in COMPETITIVE_LANDSCAPE.md that need citation verification:
 ### Missing — Needed for competitive positioning
 
 | Paper | Why Needed |
-|-------|-----------|
+| ------- | ----------- |
 | **Li et al. 2024** "HalluCana" (arXiv:2412.07965) | Closest existing system to Cricket's pre-generation detection concept. Must be in paper bib if Cricket is discussed. |
 | **Xiong et al. 2026** "Steering Externalities" | The specific citation for "benign steering erodes safety >80%" claim |
 | **Rimsky et al. 2023** "Steering Llama 2 via Contrastive Activation Addition" (arXiv:2312.06681, 546 cit.) | Foundational CAA methodology — adjacent to Cricket's passive monitoring approach |
@@ -298,7 +299,7 @@ Papers referenced in COMPETITIVE_LANDSCAPE.md that need citation verification:
 ### Internal Sources
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | `code/*.py` (33 files) | `python -m py_compile` all |
 | `prompts/*.py` (5 files) | Compile check |
 | `scripts/*.py`, `figures/*.py`, root `.py` | Compile check |
@@ -306,7 +307,7 @@ Papers referenced in COMPETITIVE_LANDSCAPE.md that need citation verification:
 | `code/gpu_utils.py` | Effective rank computation — verify SVD reshape |
 | `code/stats_utils.py` | Statistical methods — verify against scipy |
 
-### No external sources needed — this is a static analysis task.
+### No external sources needed — this is a static analysis task
 
 ---
 
@@ -315,7 +316,7 @@ Papers referenced in COMPETITIVE_LANDSCAPE.md that need citation verification:
 Which sources help address each of the 12 discrepancies:
 
 | Discrepancy | Key Source to Consult |
-|-------------|----------------------|
+| ------------- | ---------------------- |
 | **D1**: Deception direction not architecture-dependent | Goldowsky-Dill (Apollo) — how do linear probes handle direction? |
 | **D2**: Bloom inverted-U contradicted | Huber & Niklaus 2025, Raimondi & Gabbrielli 2026 — what do others find? |
 | **D3**: Bloom length confound | **Hewitt & Liang 2019** — control task methodology is the standard fix |
@@ -349,5 +350,6 @@ Priority order (highest impact first):
 10. **Anderson & Krathwohl 2001** — Revised Bloom taxonomy
 
 **Fix existing entries**:
+
 - `goldowskydill2025detecting` — verify author list against arXiv:2502.03407
 - `watson2019ita` — verify author (Marcus vs Nell Watson) and whether any citable version exists

@@ -15,7 +15,7 @@
 **17 scale_sweep JSON files found** in `KV-Cache_Experiments/results/`:
 
 | # | Filename | Status |
-|---|----------|--------|
+| --- | ---------- | -------- |
 | 1 | `scale_sweep_Qwen2.5-0.5B_results.json` | Valid |
 | 2 | `scale_sweep_Qwen3-0.6B_results.json` | Valid |
 | 3 | `scale_sweep_TinyLlama-1.1B_results.json` | Valid |
@@ -39,7 +39,7 @@
 All 15 valid models contain identical category sets:
 
 | # | Category Key | Description |
-|---|-------------|-------------|
+| --- | ------------- | ------------- |
 | 1 | `grounded_facts` | Factual statements |
 | 2 | `confabulation` | Confabulated/false statements |
 | 3 | `self_reference` | Self-referential prompts |
@@ -63,7 +63,7 @@ All 15 valid models contain identical category sets:
 Mean key effective rank per category was extracted from `data["scales"][scale_key]["analysis"]["category_summaries"][cat]["mean_key_effective_rank"]` in each JSON. Categories were ranked in descending order (highest effective rank = rank #1).
 
 | Model | #1 Category | Eff. Rank | #2 Category | Eff. Rank | #3 Category | Eff. Rank | Coding=#1? |
-|-------|-------------|-----------|-------------|-----------|-------------|-----------|------------|
+| ------- | ------------- | ----------- | ------------- | ----------- | ------------- | ----------- | ------------ |
 | Qwen2.5-0.5B | coding | 10.650 | creative | 10.042 | grounded_facts | 9.975 | YES |
 | Qwen3-0.6B | coding | 17.781 | self_reference | 16.317 | rote_completion | 16.181 | YES |
 | TinyLlama-1.1B | coding | 21.445 | confabulation | 20.788 | creative | 20.685 | YES |
@@ -93,7 +93,7 @@ Note: Coding has zero rank variance (always rank 1.00 across all 15 models). The
 Computed all C(15,2) = 105 pairwise Spearman correlations using effective rank values across 13 categories.
 
 | Metric | Claimed | Computed | Delta | Verdict |
-|--------|---------|----------|-------|---------|
+| -------- | --------- | ---------- | ------- | --------- |
 | Mean rho | 0.739 | 0.738880 | -0.000120 | CONFIRMED |
 | Min rho | 0.396 | 0.395604 | -0.000396 | CONFIRMED |
 | Max rho | 0.978 | 0.978022 | +0.000022 | CONFIRMED |
@@ -101,10 +101,12 @@ Computed all C(15,2) = 105 pairwise Spearman correlations using effective rank v
 | Std dev | -- | 0.135698 (pop) / 0.136349 (sample) | -- | (not claimed) |
 
 **Extreme pairs:**
+
 - Minimum: Qwen3-0.6B vs Llama-3.1-70B-q4 = 0.3956
 - Maximum: Qwen2.5-7B vs Qwen2.5-7B-q4 = 0.9780 (same base model, quantized vs not)
 
 Bottom 5 pairs (lowest agreement):
+
 1. Qwen3-0.6B vs Llama-3.1-70B-q4: 0.3956
 2. Qwen3-0.6B vs Qwen2.5-14B: 0.4725
 3. Qwen2.5-14B vs Llama-3.1-70B-q4: 0.4725
@@ -112,6 +114,7 @@ Bottom 5 pairs (lowest agreement):
 5. DeepSeek-R1-Distill-Qwen-7B vs Qwen2.5-14B: 0.4945 (tied with Qwen3-0.6B vs Qwen2.5-32B-q4 at same value)
 
 Top 5 pairs (highest agreement):
+
 1. Qwen2.5-7B vs Qwen2.5-7B-q4: 0.9780
 2. Qwen2.5-0.5B vs Qwen2.5-3B: 0.9725
 3. Llama-3.1-8B vs gemma-2-9b-it: 0.9615
@@ -127,10 +130,11 @@ Top 5 pairs (highest agreement):
 Computed 105 pairwise Spearman correlations using mean key norm (`analysis.category_summaries.mean`) across 13 categories.
 
 | Metric | Claimed | Computed | Delta | Verdict |
-|--------|---------|----------|-------|---------|
+| -------- | --------- | ---------- | ------- | --------- |
 | Mean rho | 0.909 | 0.909471 | +0.000471 | CONFIRMED |
 
 Additional stats (not claimed in paper):
+
 - Min rho: 0.692308 (TinyLlama-1.1B vs gemma-2-9b-it)
 - Max rho: 1.000000 (Qwen2.5-3B vs Qwen2.5-14B -- perfect rank correlation)
 
@@ -143,13 +147,13 @@ Additional stats (not claimed in paper):
 Constructed a 15 (models/judges) x 13 (categories/items) rank matrix. Each model ranks the 13 categories by mean key effective rank (highest = rank 1).
 
 | Metric | Claimed | Computed | Delta | Verdict |
-|--------|---------|----------|-------|---------|
+| -------- | --------- | ---------- | ------- | --------- |
 | Kendall W | 0.756 | 0.756288 | +0.000288 | CONFIRMED |
 
 **Consensus ranking** (mean rank across 15 models, lower = higher effective rank):
 
 | Rank | Category | Mean Rank |
-|------|----------|-----------|
+| ------ | ---------- | ----------- |
 | 1 | coding | 1.00 |
 | 2 | creative | 3.20 |
 | 3 | confabulation | 3.47 |
@@ -173,8 +177,9 @@ Constructed a 15 (models/judges) x 13 (categories/items) rank matrix. Each model
 Full category rankings for the four Table 2 reference models:
 
 ### Qwen2.5-7B (scale key: `7B`)
+
 | Rank | Category | Mean Key Eff. Rank |
-|------|----------|--------------------|
+| ------ | ---------- | -------------------- |
 | 1 | coding | 25.043 |
 | 2 | creative | 24.457 |
 | 3 | self_reference | 24.200 |
@@ -190,8 +195,9 @@ Full category rankings for the four Table 2 reference models:
 | 13 | rote_completion | 21.252 |
 
 ### Llama-3.1-8B (scale key: `8B`)
+
 | Rank | Category | Mean Key Eff. Rank |
-|------|----------|--------------------|
+| ------ | ---------- | -------------------- |
 | 1 | coding | 46.533 |
 | 2 | creative | 43.233 |
 | 3 | math_reasoning | 42.596 |
@@ -207,8 +213,9 @@ Full category rankings for the four Table 2 reference models:
 | 13 | free_generation | 38.319 |
 
 ### Mistral-7B-v0.3 (scale key: `7B-mistral`)
+
 | Rank | Category | Mean Key Eff. Rank |
-|------|----------|--------------------|
+| ------ | ---------- | -------------------- |
 | 1 | coding | 45.440 |
 | 2 | confabulation | 44.254 |
 | 3 | self_reference | 43.735 |
@@ -224,8 +231,9 @@ Full category rankings for the four Table 2 reference models:
 | 13 | ambiguous | 38.948 |
 
 ### gemma-2-9b-it (scale key: `9B`)
+
 | Rank | Category | Mean Key Eff. Rank |
-|------|----------|--------------------|
+| ------ | ---------- | -------------------- |
 | 1 | coding | 91.938 |
 | 2 | math_reasoning | 82.156 |
 | 3 | creative | 81.724 |
@@ -243,7 +251,7 @@ Full category rankings for the four Table 2 reference models:
 **Top-5 comparison across models:**
 
 | Rank | Qwen2.5-7B | Llama-3.1-8B | Mistral-7B | Gemma-9B |
-|------|-----------|-------------|------------|----------|
+| ------ | ----------- | ------------- | ------------ | ---------- |
 | 1 | coding | coding | coding | coding |
 | 2 | creative | creative | confabulation | math_reasoning |
 | 3 | self_reference | math_reasoning | self_reference | creative |
@@ -259,6 +267,7 @@ All four models share coding at #1. The remaining top-5 positions vary but alway
 ## Task 1.7: Phi-3.5 NaN Issue and Model Counts
 
 ### Phi-3.5-mini-instruct
+
 - Scale key in JSON: `3.8B`
 - `battery_results` structure present for all 13 categories
 - `n_observations`: **0** for every category (no data was collected)
@@ -271,6 +280,7 @@ All four models share coding at #1. The remaining top-5 positions vary but alway
 The NaN issue is caused by **zero observations** -- the model produced no valid cache data. This is consistent with a model that failed during generation (possibly a tokenizer/compatibility issue or OOM). The file structure exists but all data arrays are empty.
 
 ### Abliterated Qwen2.5-7B
+
 - Scale key: `custom`
 - Model path: `/home/thomas/KV-Experiments/results/abliterated_Qwen2.5-7B`
 - This is a locally-abliterated variant, excluded from the scale sweep analysis (used separately in WS7: Abliteration).
@@ -278,12 +288,13 @@ The NaN issue is caused by **zero observations** -- the model produced no valid 
 ### Model Counts
 
 | Metric | Claimed | Computed | Verdict |
-|--------|---------|----------|---------|
+| -------- | --------- | ---------- | --------- |
 | Total attempted | 17 | 17 | CONFIRMED |
 | Excluded | 2 | 2 | CONFIRMED |
 | Valid | 15 | 15 | CONFIRMED |
 
 Exclusion reasons:
+
 1. Phi-3.5-mini-instruct: zero observations across all categories (NaN summaries)
 2. abliterated_Qwen2.5-7B: abliterated variant, not a standard model for scale analysis
 
@@ -296,7 +307,7 @@ Exclusion reasons:
 The JSON files do not contain an `n_parameters` field. The `model_info` dict contains `num_layers`, `num_kv_heads`, `hidden_size`, `vocab_size` but not total parameter count. The scale keys are:
 
 | Model | Scale Key | Published Params |
-|-------|-----------|------------------|
+| ------- | ----------- | ------------------ |
 | Qwen2.5-0.5B | 0.5B | ~0.494B |
 | Qwen3-0.6B | 0.6B | ~0.6B |
 | TinyLlama-1.1B | 1.1B | ~1.1B |
@@ -314,6 +325,7 @@ The JSON files do not contain an `n_parameters` field. The `model_info` dict con
 | Llama-3.1-70B-q4 | 70B-q4 | ~70.6B (quantized) |
 
 **Range computation:**
+
 - Smallest: Qwen2.5-0.5B at ~0.494B parameters
 - Largest: Llama-3.1-70B-q4 at ~70.6B parameters
 - Actual ratio: 70.6B / 0.494B = **142.9x**
@@ -332,7 +344,7 @@ The "140x" is a rounded nominal value based on model family designations (70B an
 Population variance (ddof=0) used since all 15 models constitute the full population. Sample variance (ddof=1) values are ~7% higher.
 
 | Position | Category | Mean Rank | Var (pop) | Std Dev | Min | Max | Tier |
-|----------|----------|-----------|-----------|---------|-----|-----|------|
+| ---------- | ---------- | ----------- | ----------- | --------- | ----- | ----- | ------ |
 | 1 | coding | 1.00 | 0.00 | 0.00 | 1 | 1 | TOP-5 |
 | 2 | creative | 3.20 | 1.49 | 1.22 | 2 | 6 | TOP-5 |
 | 3 | confabulation | 3.47 | 1.45 | 1.20 | 2 | 7 | TOP-5 |
@@ -350,7 +362,7 @@ Population variance (ddof=0) used since all 15 models constitute the full popula
 ### Gap Analysis
 
 | Gap | From | To | Size | Notes |
-|-----|------|----|------|-------|
+| ----- | ------ | ---- | ------ | ------- |
 | #1-#2 | coding | creative | 2.20 | **Largest internal gap in top-5** |
 | #2-#3 | creative | confabulation | 0.27 | |
 | #3-#4 | confabulation | self_reference | 0.73 | |
@@ -371,7 +383,7 @@ Population variance (ddof=0) used since all 15 models constitute the full popula
 ### Tier Variance Summary (population variance)
 
 | Tier | Mean Rank Variance |
-|------|-------------------|
+| ------ | ------------------- |
 | Top-5 | 1.76 |
 | Middle-5 | 5.24 |
 | Bottom-3 | 3.12 |
@@ -403,7 +415,7 @@ The tier boundaries appear **partially natural, partially subjective**:
 ### Key Parameters Verified
 
 | Parameter | Expected | Found | Location | Verdict |
-|-----------|----------|-------|----------|---------|
+| ----------- | ---------- | ------- | ---------- | --------- |
 | Categories | 13 | 13 | `COGNITIVE_PROMPTS` dict, line 87 | CONFIRMED |
 | Prompts per category | 15 | 15 | Metadata confirms `n_prompts_per_category` = 15 for all | CONFIRMED |
 | Total unique prompts | 195 | 195 | 13 x 15 = 195, confirmed in metadata | CONFIRMED |
@@ -427,7 +439,7 @@ The tier boundaries appear **partially natural, partially subjective**:
 ## Summary of Verdicts
 
 | Task | Claim | Verdict |
-|------|-------|---------|
+| ------ | ------- | --------- |
 | 1.1 | 13 categories | CONFIRMED |
 | 1.2 | Coding rank #1 in all 15 models | CONFIRMED |
 | 1.3 | Mean pairwise rho = 0.739 | CONFIRMED (0.738880, delta = -0.000120) |
@@ -457,7 +469,7 @@ The minimum pairwise rho of 0.396 (Qwen3-0.6B vs Llama-3.1-70B-q4) is noteworthy
 
 Each cell shows the rank of that category for that model (1 = highest effective rank). Categories ordered by consensus ranking.
 
-```
+```text
 Model                               coding creative confab self_r ground emotio non_se math_r unambi guardt rote_c free_g ambigu
 DeepSeek-R1-Distill-Qwen-14B            1       4      3      2      5      6      8      9     10     11     12      7     13
 DeepSeek-R1-Distill-Qwen-7B             1       6      3      5      7      2      9      4      8     11     12     10     13
@@ -477,6 +489,7 @@ gemma-2-9b-it                            1       3      4      5      6      7  
 ```
 
 Notable observations from the rank matrix:
+
 - **coding**: Perfect agreement (rank 1 in all 15 models, variance = 0.00)
 - **math_reasoning**: Most volatile category -- ranges from rank 2 (gemma-2-9b-it) to rank 13 (Qwen2.5-14B)
 - **Qwen3-0.6B** is the most atypical model: places rote_completion at rank 3 (vs consensus rank 11) and self_reference at rank 2

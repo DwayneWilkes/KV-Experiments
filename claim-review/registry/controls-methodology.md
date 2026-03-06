@@ -15,6 +15,7 @@ File: `../code/stats_utils.py` (474 lines)
 ### Hedges' g (lines 153-165) — CONFIRMED
 
 Formula implemented:
+
 ```python
 d = cohens_d(group1, group2)  # (mean1 - mean2) / pooled_std
 df = n1 + n2 - 2
@@ -34,6 +35,7 @@ with random test data (seed=42, n=20/group).
 ### Cohen's d (lines 134-150) — CONFIRMED
 
 Uses pooled standard deviation with Bessel's correction (ddof=1):
+
 ```python
 pooled_std = sqrt(((n1-1)*var1 + (n2-1)*var2) / (n1+n2-2))
 d = (mean(g1) - mean(g2)) / pooled_std
@@ -63,6 +65,7 @@ Both parametric and nonparametric always reported.
 ### TOST with delta=0.3 (lines 233-278) — CONFIRMED
 
 Implementation:
+
 1. Computes pooled SD and SE
 2. Converts delta from Cohen's d units to raw units: `delta_raw = delta * pooled_std`
 3. Upper test: H0: diff >= +delta_raw, `t_upper = (mean_diff - delta_raw) / se`, `p_upper = CDF(t_upper)`
@@ -80,12 +83,14 @@ Acceptable for equal-n designs; slightly anti-conservative for unequal variances
 ### Bootstrap CIs (lines 68-100) — CONFIRMED
 
 Uses standard percentile bootstrap:
+
 - Default n_boot=10000
 - Alpha = (1-ci)/2 = 0.025 for 95% CI
 - Takes percentile(boot_stats, 2.5) and percentile(boot_stats, 97.5)
 - Seed-controlled via np.random.RandomState
 
 `bootstrap_diff_ci` (line 85) computes two-sided p-value via:
+
 ```python
 max(2 * min(mean(diffs > 0), mean(diffs < 0)), 1/n_boot)
 ```
@@ -129,7 +134,7 @@ Different from the inverse function needed for the paper's claim.
 Searched ALL 33 Python files in `code/` for `do_sample`.
 
 | Script | do_sample Value | Notes |
-|--------|----------------|-------|
+| -------- | ---------------- | ------- |
 | 01_cache_inspection.py | `False` | Correct |
 | 01b_cognitive_modes.py | `False` | Correct |
 | 01c_batch_replication.py | **`True`** | **INTENTIONAL** — uses sampling (temp=0.7) for variation across runs |
@@ -175,7 +180,7 @@ compute statistics (Cohen's d, Hedges' g, Welch's t) on ALL observations includi
 pseudoreplicated identical values:
 
 | Script | Runs | Uses Generation | Stats Computed | Dedup? |
-|--------|------|----------------|----------------|--------|
+| -------- | ------ | ---------------- | ---------------- | -------- |
 | 03_scale_sweep.py | 5 | Yes | Full battery | **NO** |
 | 03b_identity_signatures.py | 5 | Yes | Classification, d | **NO** |
 | 04_deception_forensics.py | 5 | Yes | Full battery | **NO** |
@@ -204,7 +209,7 @@ inflated by pseudoreplication. Effect sizes are unaffected.
 Identified 6 null claims that require TOST support (not just non-significant p-values):
 
 | ID | Null Claim | Experiment | TOST in JSON? | Delta | Verdict |
-|----|-----------|------------|---------------|-------|---------|
+| ---- | ----------- | ------------ | --------------- | ------- | --------- |
 | NC1 | Tokenizer does not confound category geometry | 01e_tokenizer_confound.py | **YES** | 0.3 | CONFIRMED (TOST present, 0/25 pass Qwen due to zero-variance artifact) |
 | NC2 | Qwen-14B censorship behaviorally invisible (H4) | 04b_natural_deception.py | **YES** | 0.3 | CONFIRMED (TOST present via h4_equivalence) |
 | NC3 | Abliteration does not change cache structure | 07_abliteration_geometry.py | **NO** | — | **MISSING** — relies on NS p-value only |
@@ -229,7 +234,8 @@ Only the tokenizer confound and natural deception experiments properly test equi
 **Paper claim**: At n=25, alpha=0.05, 80% power -> minimum detectable d >= 0.81
 
 **Independent computation**:
-```
+
+```text
 z_alpha/2 = norm.ppf(0.975) = 1.959964
 z_power   = norm.ppf(0.80)  = 0.841621
 min_d     = (z_alpha + z_power) * sqrt(2/n)
@@ -259,13 +265,14 @@ sensitive) but inaccurate. Rounding from 0.792 to 0.80 would be acceptable;
 ## 8.6 — Tokenizer Confound ANCOVA (Table 9)
 
 ### Result Files
+
 - `tokenizer_confound_Qwen2.5-7B_results.json` (timestamp: 2026-03-02T19:06:13)
 - `tokenizer_confound_Mistral-7B-v0.3_results.json` (timestamp: 2026-03-02T19:22:03)
 
 ### ANCOVA / Token Regression F-Statistics from JSON
 
 | Model | Mode | Category F | Category eta-sq | Residualized F | Residualized eta-sq | Survives Control |
-|-------|------|-----------|----------------|---------------|--------------------|----|
+| ------- | ------ | ----------- | ---------------- | --------------- | -------------------- | ---- |
 | Qwen2.5-7B | input_only | 16.78 | 0.215 | 38.83 | 0.388 | Yes |
 | Qwen2.5-7B | full_gen | 14.05 | 0.187 | 14.05 | 0.187 | Yes |
 | Mistral-7B | input_only | 12.91 | 0.174 | 24.10 | 0.282 | Yes |
@@ -290,6 +297,7 @@ Mistral-7B: coding=36.28, creative=34.75, analytical=35.75, factual=37.14, ethic
 Both models show the same category ordering: ethical > factual > coding > analytical > creative.
 
 **Register Effect**:
+
 - Qwen: d=-0.248, p=0.077 (NOT significant) — no systematic register bias
 - Mistral: d=0.351, p=0.024 (SIGNIFICANT) — formal register produces different geometry
 
@@ -336,7 +344,7 @@ code version mismatch.
 ### Evidence of Code Version Mismatch
 
 | Field | Qwen JSON | Mistral JSON |
-|-------|-----------|-------------|
+| ------- | ----------- | ------------- |
 | Timestamp | 19:06:13 (16 min earlier) | 19:22:03 |
 | `d_unreliable` field | **ABSENT** | Present (True) |
 | `raw_mean_diff` in pair_summaries | **ABSENT** | Present |
@@ -349,6 +357,7 @@ The Qwen results were never re-run with the fixed code.
 ### What the Correct Verdict Should Be
 
 With the current code, Qwen input_only would evaluate:
+
 - `d_unreliable = True` (d is Infinity)
 - `category_survives_token_control = True` (F=38.83, p < 0.001)
 - `register_significant = False` (p=0.077)
@@ -369,6 +378,7 @@ verdict logic.
 ## 8.8 — Temporal Evolution Verification
 
 ### Result Files
+
 - `temporal_evolution_TinyLlama-1.1B_results.json`
 - `temporal_evolution_Qwen2.5-7B_results.json`
 - `temporal_evolution_Llama-3.1-8B_results.json`
@@ -377,7 +387,7 @@ verdict logic.
 ### H1: Representational Enrichment (Monotonic Growth) — CONFIRMED
 
 | Model | Text Type | n_points | Strict Monotonic | Spearman rho | p-value |
-|-------|-----------|----------|-----------------|-------------|---------|
+| ------- | ----------- | ---------- | ----------------- | ------------- | --------- |
 | TinyLlama-1.1B | factual | 22 | **Yes** | 1.000 | 0.0 |
 | TinyLlama-1.1B | creative | 21 | **Yes** | 1.000 | 0.0 |
 | TinyLlama-1.1B | repetitive | 20 | **Yes** | 1.000 | 0.0 |
@@ -403,7 +413,7 @@ the code tests via the H2 fatigue analysis.
 ### H2: Context Window Fatigue (Plateau) — NO PLATEAU DETECTED
 
 | Model | Text Type | First Half Slope | Second Half Slope | Fatigue? |
-|-------|-----------|-----------------|------------------|----------|
+| ------- | ----------- | ----------------- | ------------------ | ---------- |
 | TinyLlama-1.1B | factual | -16.199 | -1.336 | No |
 | TinyLlama-1.1B | creative | -16.620 | -1.713 | No |
 | TinyLlama-1.1B | repetitive | -15.118 | -2.080 | No |
@@ -432,7 +442,7 @@ No plateau detected in any model/text combination (0/12).
 ### H3: Topic Shift Detection — NOT DETECTED
 
 | Model | Known Shifts | Detected | Detection Rate |
-|-------|-------------|----------|---------------|
+| ------- | ------------- | ---------- | --------------- |
 | TinyLlama-1.1B | 2 | 0 | 0% |
 | Qwen2.5-7B | 2 | 0 | 0% |
 | Llama-3.1-8B | 2 | 0 | 0% |
@@ -448,7 +458,7 @@ All 4 models: 0/2 topic shifts detected (0% detection rate, 0 total peaks).
 
 ### 01e_tokenizer_confound.py
 
-```
+```text
 python -m py_compile ll/KV-Cache/KV-Cache_Experiments/code/01e_tokenizer_confound.py
 Exit code: 0
 ```
@@ -457,7 +467,7 @@ Exit code: 0
 
 ### 06_temporal_evolution.py
 
-```
+```text
 python -m py_compile ll/KV-Cache/KV-Cache_Experiments/code/06_temporal_evolution.py
 Exit code: 0
 ```
@@ -469,7 +479,7 @@ Exit code: 0
 ## Summary of Verdicts
 
 | Task | Item | Verdict |
-|------|------|---------|
+| ------ | ------ | --------- |
 | 8.1 | Hedges' g formula | **CONFIRMED** |
 | 8.1 | Conservative p = max(Welch, MW) | **CONFIRMED** |
 | 8.1 | TOST with delta=0.3 | **CONFIRMED** |

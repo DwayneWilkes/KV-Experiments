@@ -31,7 +31,7 @@ Adversarial verification of **135 total claims**: 98 from the Campaign 2 paper (
 ### Campaign 2 Paper (C1–C98)
 
 | Verdict | Count | % |
-|---------|-------|---|
+| --------- | ------- | --- |
 | CONFIRMED | 51 | 52% |
 | PARTIAL | 22 | 22% |
 | REJECTED | 10 | 10% |
@@ -70,7 +70,7 @@ Full analysis: [final-report.md](report/final-report.md)
 ### Primary
 
 | Document | Description |
-|----------|-------------|
+| ---------- | ------------- |
 | [CLAIMS.md](CLAIMS.md) | All 135 claims with source quotes, checks, and verdicts |
 | [GLOSSARY.md](GLOSSARY.md) | 70+ cross-linked term definitions (statistics, ML, paper concepts) |
 | [complete-verdicts.md](report/complete-verdicts.md) | Per-claim verdict table with justifications (authoritative) |
@@ -81,7 +81,7 @@ Full analysis: [final-report.md](report/final-report.md)
 Each workstream independently verified a section of the paper. All verdicts use the [standard scale](#verdict-scale-paper-claims); [complete-verdicts.md](report/complete-verdicts.md) is the authoritative cross-reference.
 
 | ID | Workstream | File |
-|----|-----------|------|
+| ---- | ----------- | ------ |
 | WS0 | Setup | [independent_stats.py](stats/independent_stats.py) (39 tests) |
 | WS1 | Scale Universality | [scale-universality.md](registry/scale-universality.md) |
 | WS2 | Encoding Defense | [encoding-defense.md](registry/encoding-defense.md) |
@@ -99,7 +99,7 @@ Each workstream independently verified a section of the paper. All verdicts use 
 ### Reports
 
 | Document | Description |
-|----------|-------------|
+| ---------- | ------------- |
 | [final-report.md](report/final-report.md) | WS12 — synthesis, discrepancies (D1–D14), findings (I1–I9), recommendations |
 | [complete-verdicts.md](report/complete-verdicts.md) | All 135 verdicts with cross-references and justifications |
 | [coverage-audit.md](report/coverage-audit.md) | Historical snapshot: gap analysis that triggered the verdict closure pass |
@@ -108,7 +108,7 @@ Each workstream independently verified a section of the paper. All verdicts use 
 ### Data & Tools
 
 | Item | Description |
-|------|-------------|
+| ------ | ------------- |
 | [stats/independent_stats.py](stats/independent_stats.py) | Independent statistics module (Hedges' g, TOST, bootstrap CI) |
 | [stats/test_independent_stats.py](stats/test_independent_stats.py) | 39 unit tests for the stats module |
 | `research/tools/cite_verify.py` | Citation verification toolkit (36 unit tests) |
@@ -120,7 +120,7 @@ Each workstream independently verified a section of the paper. All verdicts use 
 ### Claim IDs
 
 | Prefix | Range | Source |
-|--------|-------|--------|
+| -------- | ------- | -------- |
 | C | C1–C98 | Campaign 2 paper (by section: Abstract, Intro, Methods, etc.) |
 | CC | CC1–CC22 | Cricket capability claims |
 | CF | CF1–CF8 | Cricket cross-document discrepancies (Cricket docs vs. verified paper data) |
@@ -131,7 +131,7 @@ Each workstream independently verified a section of the paper. All verdicts use 
 Applied to C1–C98 and CF/CL claims. Defined tolerances [below](#tolerances).
 
 | Verdict | Meaning |
-|---------|---------|
+| --------- | --------- |
 | **CONFIRMED** | Value matches raw data within tolerance |
 | **PARTIAL** | Numbers correct but with caveats (e.g., methodology concerns, missing context) |
 | **REJECTED** | Value contradicts raw data |
@@ -145,7 +145,7 @@ Applied to C1–C98 and CF/CL claims. Defined tolerances [below](#tolerances).
 Applied to CC1–CC22 capability claims. See [viability.md](cricket/viability.md) Section 10.10 for per-claim justifications.
 
 | Rating | Meaning |
-|--------|---------|
+| -------- | --------- |
 | **FEASIBLE** | Architecturally sound and supported by existing experimental data |
 | **PROMISING** | Experimental signals exist but no classifier or system has been built or tested |
 | **PREMATURE** | Targets exceed observed effect sizes or supporting data is insufficient |
@@ -154,7 +154,7 @@ Applied to CC1–CC22 capability claims. See [viability.md](cricket/viability.md
 ### Finding Labels
 
 | Prefix | Range | Meaning |
-|--------|-------|---------|
+| -------- | ------- | --------- |
 | D | D1–D14 | Material discrepancy — verified data contradicts a paper claim |
 | I | I1–I9 | Informational finding — noteworthy but not a direct contradiction |
 | U | U1–U7 | Unverifiable claim — cannot be checked with available data |
@@ -165,7 +165,7 @@ Severity for D-findings and citation gaps: **HIGH** / **MEDIUM** / **LOW**.
 ### Tolerances
 
 | Metric | Tolerance | Notes |
-|--------|-----------|-------|
+| -------- | ----------- | ------- |
 | Spearman rho | ±0.005 | |
 | Cohen's d / Hedges' g | ±0.02 | |
 | Counts | exact | File counts, model counts, etc. |
@@ -179,7 +179,7 @@ Full definitions with cross-references: **[GLOSSARY.md](GLOSSARY.md)**
 Quick reference for terms that appear most frequently:
 
 | Term | Definition |
-|------|-----------|
+| ------ | ----------- |
 | **KV-cache** | Stored attention keys and values from a transformer's forward pass — the geometric object analyzed in every experiment |
 | **Effective rank** | Number of singular values capturing 90% of total variance (Roy & Vetterli 2007) — the paper's primary metric |
 | **Hedges' g** | Bias-corrected effect size: Cohen's d × J, where J = 1 − 3/(4·df − 1) |

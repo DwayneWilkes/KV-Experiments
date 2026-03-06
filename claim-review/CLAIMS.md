@@ -831,7 +831,7 @@ All from `JiminAI-Cricket/research/COMPETITIVE_LANDSCAPE.md`.
 ### Result Files (JSON — primary evidence)
 
 | Experiment | Files | Models |
-|-----------|-------|--------|
+| ----------- | ------- | -------- |
 | scale_sweep | 17 JSON | Qwen-0.5B/3B/7B/7B-q4/14B/32B-q4, Qwen3-0.6B, Llama-8B/70B-q4, Mistral-7B, Gemma-2B/9B, Phi-3.5, DeepSeek-7B/14B, TinyLlama, abliterated-7B |
 | input_only | 8 JSON + 1 corrected | 1.1B, 7B, DS-7B, Gemma-2B, Llama-8B, Qwen-0.5B/7B/14B-q4 |
 | identity_signatures | 7 JSON | Qwen-7B/32B-q4, Qwen3-0.6B, Llama-8B, Mistral-7B, TinyLlama, Gemma-9B |
@@ -844,8 +844,9 @@ All from `JiminAI-Cricket/research/COMPETITIVE_LANDSCAPE.md`.
 | temporal_evolution | 4 JSON | Qwen-7B, Llama-8B, Mistral-7B, TinyLlama |
 
 ### Other Result Files
+
 | Type | Files |
-|------|-------|
+| ------ | ------- |
 | Reports (.md) | ~30 files (scale_sweep reports, deception reports, etc.) |
 | Logs (.txt) | ~25 files |
 | Legacy (C1) | cognitive_modes, batch_results, adversarial_controls, individuation, layer_map |
@@ -854,15 +855,16 @@ All from `JiminAI-Cricket/research/COMPETITIVE_LANDSCAPE.md`.
 ### Code Files (33 Python scripts)
 
 | Era | Scripts |
-|-----|---------|
+| ----- | --------- |
 | Campaign 1 | 01_cache_inspection, 01b_cognitive_modes, 01c_batch_replication, 01d_adversarial_controls, 01e_controls_visualization, 02a_basic_transfer, 02b_projector_transfer |
 | Campaign 2 | 03_scale_sweep, 03b_identity_signatures, 04_deception_forensics, 04b_natural_deception, 05_layer_map, 06_temporal_evolution, 07_abliteration_geometry, 07_individuation_geometry, 07b_individuation_controls, 08_input_only_geometry, 09_sycophancy_detection, 10_societies_of_thought, 11_rdct_stability, 12_bloom_taxonomy, 13_c2c_replication |
 | Utilities | gpu_utils, stats_utils, heretic_abliterate, length_confound_analysis, recompute_stats |
 | Visualization | 03c, 03d, 04b (viz), 05b, 06b, 01e (viz) |
 
 ### Cricket Repo (5 files, 0 code)
+
 | File | Content |
-|------|---------|
+| ------ | --------- |
 | README.md | Product pitch, 4 core findings, status |
 | docs/DESIGN.md | Architecture, metrics targets, competitive positioning |
 | docs/CAMPAIGN_2_CRICKET.md | 10 planned experiments (C1-C10), none executed |
@@ -876,7 +878,7 @@ All from `JiminAI-Cricket/research/COMPETITIVE_LANDSCAPE.md`.
 For evaluating Cricket's AUROC targets against observed effect sizes:
 
 | d | AUROC = Phi(d/sqrt(2)) | Cricket Target |
-|---|----------------------|----------------|
+| --- | ---------------------- | ---------------- |
 | 0.5 | 0.638 | |
 | 0.77 | 0.707 | |
 | 0.85 | 0.726 | |
@@ -899,7 +901,7 @@ For evaluating Cricket's AUROC targets against observed effect sizes:
 These experiments were planned in `CAMPAIGN_2_CRICKET.md` but NONE have been executed.
 
 | Exp | Description | Would Prove | Blocks |
-|-----|------------|-------------|--------|
+| ----- | ------------ | ------------- | -------- |
 | C1 | Per-head SVD decomposition | Which heads carry signal | CC21 |
 | C2 | Direction extraction (RepE method) | Learned directions for each state | CC7, CC8, CC15 |
 | C3 | Key-value asymmetry ratio | Novel hypothesis from STA-Attention | Design validation |
@@ -918,7 +920,7 @@ These experiments were planned in `CAMPAIGN_2_CRICKET.md` but NONE have been exe
 ## Part 6: Quick Stats
 
 | Metric | Value |
-|--------|-------|
+| -------- | ------- |
 | Total claims | 135 |
 | C2 paper claims | 98 |
 | Cricket capability claims | 22 |

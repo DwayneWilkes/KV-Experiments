@@ -13,7 +13,7 @@
 ## 1. Summary (at time of audit)
 
 | Category | Total | Initially Covered | Initially Missing | Resolved in Gap Closure |
-|----------|-------|-------------------|-------------------|------------------------|
+| ---------- | ------- | ------------------- | ------------------- | ------------------------ |
 | C1-C7 (Abstract) | 7 | 3 | 4 | 4 |
 | C8-C13 (Introduction) | 6 | 3 | 3 | 3 |
 | C14-C22 (Methods) | 9 | 5 | 4 | 4 |
@@ -66,7 +66,7 @@
 ## 3. Gap Classification (51 claims, all now resolved)
 
 | Type | Count | Claim IDs | Resolution |
-|------|-------|-----------|------------|
+| ------ | ------- | ----------- | ------------ |
 | **Implicitly covered** (substance existed in workstreams but no explicit verdict) | 33 | C1-C7, C13, C14, C18, C20-C22, C63, C73-C76, C78-C81, C83-C85, C88-C89, C94-C98 | Explicit verdicts assigned in complete-verdicts.md |
 | **Genuinely not covered** (no workstream addressed the claim) | 12 | C11, C12, C19, C77, C86, C87, C90, C92, C93 + partial gaps in C63, C64 | Verdicted during gap closure pass |
 | **Not verifiable** (philosophical/subjective) | 1 | C86 | Marked NEEDS INFO |
@@ -91,7 +91,7 @@ The gaps were **systematic, not scattered**:
 The original workstream pass covered ~51 independently verifiable quantitative claims via full recomputation:
 
 | WS | Claimed Range | Actual Explicit Verdicts | Count |
-|----|---------------|--------------------------|-------|
+| ---- | --------------- | -------------------------- | ------- |
 | WS1 | C23-C27 | C23-C27, C72 | ~10 (sub-claims across tasks 1.2-1.10) |
 | WS2 | C28-C29 | C28, C29 | 6 (per-model rhos + sub-groups) |
 | WS3 | C30-C35 | C30, C31, C33, C34, C35 | 6 |
@@ -103,6 +103,7 @@ The original workstream pass covered ~51 independently verifiable quantitative c
 | **Subtotal** | | | **~51** |
 
 The gap closure pass (complete-verdicts.md) then assigned explicit verdicts to the remaining 47 C-claims by:
+
 - Cross-referencing abstract/discussion claims to their detailed counterparts
 - Independently assessing introduction/conclusion meta-claims
 - Marking philosophical claims as NEEDS INFO
@@ -111,7 +112,7 @@ The gap closure pass (complete-verdicts.md) then assigned explicit verdicts to t
 ### Final coverage breakdown
 
 | Category | Count | Treatment |
-|----------|-------|-----------|
+| ---------- | ------- | ----------- |
 | Quantitative claims with full recomputation | ~51 | WS1-WS8 verdicts |
 | Abstract/discussion restatements | ~19 | Cross-referenced to detailed verdicts |
 | Introduction/conclusion meta-claims | ~12 | Assessed during gap closure |

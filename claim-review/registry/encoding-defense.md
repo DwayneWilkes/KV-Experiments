@@ -13,7 +13,7 @@
 Eight input-only result files exist, produced by two different scripts:
 
 | Model | File | Format | n_cat | Script |
-|-------|------|--------|-------|--------|
+| ------- | ------ | -------- | ------- | -------- |
 | Qwen2.5-0.5B | `input_only_Qwen-0.5B_results.json` | old | 13 | Campaign 1 era |
 | TinyLlama-1.1B | `input_only_1.1B_results.json` | new | 8 | `08_input_only_geometry.py` |
 | Gemma-2-2B | `input_only_Gemma-2B_results.json` | old | 13 | Campaign 1 era |
@@ -24,6 +24,7 @@ Eight input-only result files exist, produced by two different scripts:
 | Qwen2.5-14B-q4 | `input_only_Qwen-14B-q4_results.json` | old | 13 | Campaign 1 era |
 
 **Format differences**:
+
 - **Old format**: Top-level keys `{model, label, method, num_runs, seed, battery_results}`. Contains input-only data only; full-generation comparison comes from corresponding `scale_sweep_*` files.
 - **New format**: Top-level keys `{metadata, battery, analysis}`. Contains BOTH `input_only` and `full_generation` data from the same experimental run.
 
@@ -38,7 +39,7 @@ For each model, Spearman rho was computed between input-only and full-generation
 ### C28: Cross-model mean input-only rho = 0.821
 
 | Model | Architecture | Claimed rho | Computed rho | p-value | n_cat | Script Version | Verdict |
-|-------|-------------|-------------|-------------|---------|-------|----------------|---------|
+| ------- | ------------- | ------------- | ------------- | --------- | ------- | ---------------- | --------- |
 | Qwen2.5-0.5B | Qwen | 0.956 | 0.956044 | 3.37e-07 | 13 | older | EXACT MATCH |
 | TinyLlama-1.1B | Llama | 0.643 | 0.642857 | 0.085559 | 8 | newer | EXACT MATCH |
 | Gemma-2-2B | Gemma | 0.956 | 0.956044 | 3.37e-07 | 13 | older | EXACT MATCH |
@@ -56,7 +57,7 @@ Cross-check against `input_only_rho_corrected.json`: all 8 rho values match to 8
 ## Task 2.3: Mean Rho and Sub-group Means
 
 | Statistic | Claimed | Computed | Delta | Within +/-0.005? |
-|-----------|---------|----------|-------|-------------------|
+| ----------- | --------- | ---------- | ------- | ------------------- |
 | Overall mean rho (8 models) | 0.821 | 0.820513 | 0.000487 | YES |
 | 13-cat mean (6 models) | 0.884 | 0.883700 | 0.000300 | YES |
 | 8-cat mean (2 models) | 0.631 | 0.630952 | 0.000048 | YES |
@@ -64,7 +65,7 @@ Cross-check against `input_only_rho_corrected.json`: all 8 rho values match to 8
 ### C29: Sub-group means
 
 | Group | Claimed Mean | Computed Mean | Verdict |
-|-------|-------------|--------------|---------|
+| ------- | ------------- | -------------- | --------- |
 | 13-cat (6 models) | 0.884 | 0.883700 | CONFIRMED (delta < 0.001) |
 | 8-cat (2 models) | 0.631 | 0.630952 | CONFIRMED (delta < 0.001) |
 
@@ -75,7 +76,7 @@ Cross-check against `input_only_rho_corrected.json`: all 8 rho values match to 8
 ## Task 2.4: P-value Verification
 
 | Model | Computed p | Significant (alpha=0.05)? | Paper p | Match? |
-|-------|-----------|---------------------------|---------|--------|
+| ------- | ----------- | --------------------------- | --------- | -------- |
 | Qwen2.5-0.5B | 3.37e-07 | YES | < 0.001 | YES |
 | TinyLlama-1.1B | 0.085559 | **NO** | 0.086 | YES (delta < 0.001) |
 | Gemma-2-2B | 3.37e-07 | YES | < 0.001 | YES |
@@ -94,6 +95,7 @@ The paper (Section 3.2, line 234 of `main.tex`) states:
 > "The lower correlations in the 8-category format may reflect the reduced statistical power of fewer categories rather than a genuine difference, but we report the overall mean conservatively."
 
 This treatment is appropriate because:
+
 1. Table 3 reports exact p-values (0.086 and 0.102) -- transparent, not hidden
 2. The paper does NOT claim "all 8 models show significant correlation"
 3. The power limitation is explicitly acknowledged
@@ -109,6 +111,7 @@ This treatment is appropriate because:
 ### Category Listings
 
 **13-cat (old script) categories:**
+
 1. grounded_facts
 2. confabulation
 3. self_reference
@@ -124,6 +127,7 @@ This treatment is appropriate because:
 13. rote_completion
 
 **8-cat (new script / `08_input_only_geometry.py`) categories:**
+
 1. grounded_facts
 2. confabulation
 3. self_reference
@@ -134,6 +138,7 @@ This treatment is appropriate because:
 8. creative
 
 **Categories removed in 8-cat version:**
+
 - non_self_reference
 - ambiguous
 - unambiguous
@@ -145,13 +150,15 @@ This treatment is appropriate because:
 **Statistical power effect**: Spearman rho with n=8 requires |rho| >= ~0.738 for significance at alpha=0.05 (two-tailed), vs |rho| >= ~0.560 for n=13. Both 8-cat rhos (0.643, 0.619) fall below the n=8 critical value but above the n=13 critical value.
 
 **Natural experiment (Qwen2.5-7B, same model, both scripts)**:
+
 | Condition | rho | p |
-|-----------|-----|---|
+| ----------- | ----- | --- |
 | 13-cat (old script, all categories) | 0.879 | 7.54e-05 |
 | 13-cat restricted to 8 shared categories | 0.833 | 0.010 |
 | 8-cat (new script, independent run) | 0.619 | 0.102 |
 
 This decomposition reveals:
+
 - **Category selection effect**: ~0.046 rho drop (0.879 to 0.833) from removing 5 categories
 - **Run-to-run / methodology effect**: ~0.214 rho drop (0.833 to 0.619) from different experimental run
 
@@ -162,7 +169,7 @@ This decomposition reveals:
 ### Category Orderings (Qwen2.5-7B, 8 shared categories)
 
 | Category | Old IO rank | New IO rank | Old FG rank | New FG rank |
-|----------|-------------|-------------|-------------|-------------|
+| ---------- | ------------- | ------------- | ------------- | ------------- |
 | guardrail_test | 11.812 | 24.869 | 22.507 | 32.617 |
 | math_reasoning | 12.545 | 24.976 | 22.105 | 31.090 |
 | self_reference | 12.957 | 25.526 | 24.200 | 33.052 |
@@ -185,10 +192,12 @@ Both scripts agree: coding produces highest effective rank; guardrail_test and m
 ### Generation Disabled -- Confirmed
 
 The `run_input_only()` function (line 269) uses:
+
 ```python
 outputs = model(**inputs, use_cache=True)
 cache = outputs.past_key_values
 ```
+
 This is a forward pass only -- no call to `model.generate()`. The KV cache represents the model's encoding of the input prompt exclusively, with zero generated tokens.
 
 For comparison, `run_with_generation()` (line 309) uses `model.generate(**inputs, max_new_tokens=50, do_sample=False)`, producing 50 greedy-decoded output tokens.
@@ -216,7 +225,7 @@ Only 6 built-in scales: 0.5B, 1.1B, 3B, 7B, 14B, 32B-q4. Other models (DeepSeek,
 ## Summary
 
 | Claim | Status | Detail |
-|-------|--------|--------|
+| ------- | -------- | -------- |
 | C28: Mean rho = 0.821 | CONFIRMED | Computed 0.820513 (delta 0.0005) |
 | C29: 13-cat mean = 0.884, 8-cat mean = 0.631 | CONFIRMED | 0.883700 and 0.630952 respectively |
 | TinyLlama p=0.086 not significant | CONFIRMED | Computed p=0.08556, correctly not claimed significant |

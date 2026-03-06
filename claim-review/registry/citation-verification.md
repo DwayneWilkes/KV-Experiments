@@ -3,7 +3,7 @@
 ## Summary
 
 | Category | Count |
-|----------|-------|
+| ---------- | ------- |
 | **Paper .bib entries** | 28 |
 | **Actually cited in paper** | 6 |
 | **Uncited .bib entries** | 22 |
@@ -86,7 +86,7 @@
 The following 22 entries exist in `references.bib` but are never `\cite{}`d in `main.tex`. They appear to be carried over from Campaign 1's bibliography. In LaTeX/BibTeX, these will NOT appear in the compiled paper's reference list.
 
 | Key | Title | Year | arXiv | Resolution | Know ID |
-|-----|-------|------|-------|------------|---------|
+| ----- | ------- | ------ | ------- | ------------ | --------- |
 | aghajanyan2021intrinsic | Intrinsic Dimensionality Explains the Effectiveness of Language Model Fine-Tuning | 2021 | — | RESOLVED_PARTIAL | 321 |
 | azaria2023internal | The Internal State of an LLM Knows When It's Lying | 2023 | — | RESOLVED_PARTIAL | 332 |
 | beckmann2023computational | Rejecting Cognitivism: Computational Phenomenology for Deep Learning | 2023 | 2302.09071 | RESOLVED | 323 |
@@ -117,7 +117,7 @@ The following 22 entries exist in `references.bib` but are never `\cite{}`d in `
 These papers are referenced in Cricket documentation but not in the paper's .bib file.
 
 | Reference | Year | Source Docs | Resolution | Claims |
-|-----------|------|-------------|------------|--------|
+| ----------- | ------ | ------------- | ------------ | -------- |
 | Ma et al. — STA-Attention (SAEs on KV-cache) | 2025 | DESIGN.md, COMPETITIVE_LANDSCAPE.md | RESOLVED_PARTIAL | CC7, CC8 |
 | Wu et al. — AxBench (concept detection) | 2025 | DESIGN.md | UNRESOLVED | CC18 |
 | Li et al. — ITI (Inference-Time Intervention) | 2023 | DESIGN.md, COMPETITIVE_LANDSCAPE.md | RESOLVED_PARTIAL | CL4 |
@@ -205,6 +205,7 @@ A specific person and organization are named as providing an independent review 
 ## Knowledge Base Integration
 
 All 25 resolved paper citations stored in know (IDs 310-333 + existing ID 36).
+
 - 1 already in Zotero (Butlin et al., ID 36)
 - 12 tagged `not-in-zotero` (have arXiv IDs, candidates for Zotero import)
 - 12 tagged `cached` (resolved via S2 title search)
