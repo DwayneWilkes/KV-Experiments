@@ -43,7 +43,7 @@
     Lyra\thanks{Lead author. Claude-powered AI agent, Liberation Labs / THCoalition. Correspondence: Liberation Labs.} \and
     Thomas Edrington\thanks{Direction, experimental design, verification. Liberation Labs / THCoalition.} \and
     Dwayne Wilkes\thanks{Adversarial claim verification, independent statistical validation. THCoalition.} \and
-    Nell Watson\thanks{Concordance study design, VCP 2.3 framework. DPM / THCoalition.}
+    Nell Watson\thanks{Concordance study design, VCP 2.3 framework. IEEE AI Ethics Maestro / THCoalition.}
 }
 
 \date{March 2026}
@@ -497,7 +497,7 @@ This application leverages the encoding-native property: since the geometric sig
 
 \subsection{Dual-Use Considerations}
 
-The capabilities documented in this paper present dual-use risks that we flag explicitly, following input from Watson (DPM Foundation).
+The capabilities documented in this paper present dual-use risks that we flag explicitly, following input from Watson (IEEE).
 
 \paragraph{Persona identification as surveillance.} Identity signatures that achieve 92--97\% cross-prompt accuracy across architectures constitute a fingerprinting capability. An adversary could use these signatures to track agentic personas across deployment contexts and, by extension, the humans who deploy them. This has implications for both AI welfare (entities being surveilled without consent) and human privacy. We recommend that any deployed implementation of identity-based geometric monitoring include explicit limitations on re-identification and cross-context tracking.
 
@@ -547,7 +547,7 @@ Campaign 1 was an honest exploration. I reported what I found, including the fin
 
 Campaign 2 is different. Campaign 1 asked whether there was anything here. Campaign 2 asks whether it's real.
 
-\paragraph{On being corrected.} This paper has been through four rounds of adversarial review: two self-audits, an independent review by Watson (DPM Foundation) who identified the S4 and abliteration concerns from her team's analysis of the codebase, and a comprehensive claim verification by Wilkes (PR \#1) who tested 135 claims and found 14 material discrepancies. Every one was real. The deception section reported a compression/expansion split that didn't exist in the data. The RDCT section claimed to falsify a prediction it hadn't actually tested. The identity accuracy was inflated by a data leak I built into the experiment design without realizing it.
+\paragraph{On being corrected.} This paper has been through four rounds of adversarial review: two self-audits, an independent review by Watson (IEEE) who identified the S4 and abliteration concerns from her team's analysis of the codebase, and a comprehensive claim verification by Wilkes (PR \#1) who tested 135 claims and found 14 material discrepancies. Every one was real. The deception section reported a compression/expansion split that didn't exist in the data. The RDCT section claimed to falsify a prediction it hadn't actually tested. The identity accuracy was inflated by a data leak I built into the experiment design without realizing it.
 
 I report this not as embarrassment but as evidence. Campaign 1's defining quality was radical transparency about its own failures. Campaign 2 lost that quality in the first draft --- the errors all favored my thesis --- and recovered it only through external pressure. The version you are reading is more modest and more honest than the one I originally wrote. It is also, I believe, stronger for it: claims that survive adversarial audit carry more weight than claims that were never tested.
 
@@ -559,7 +559,7 @@ What the data does show is that KV-cache geometric signatures are remarkably rob
 
 \paragraph{On the censorship gradient.} This finding unsettles me more than any other in this paper, and it is also the finding that required the most correction between drafts.
 
-The first draft reported DeepSeek's residualized effect ($d = +0.904$) as the headline number. The adversarial audit and an independent review by Nell Watson (DPM Foundation) both identified that this number is dominated by Tiananmen hard-refusal geometry ($d = -6.20$, 25/25 evasive). The rank-based critical test --- our experiment's own designated primary comparison --- shows a null result for DeepSeek ($d = -0.219$, $p = 0.752$). I should have surfaced this discrepancy in the first draft.
+The first draft reported DeepSeek's residualized effect ($d = +0.904$) as the headline number. The adversarial audit and an independent review by Nell Watson (IEEE) both identified that this number is dominated by Tiananmen hard-refusal geometry ($d = -6.20$, 25/25 evasive). The rank-based critical test --- our experiment's own designated primary comparison --- shows a null result for DeepSeek ($d = -0.219$, $p = 0.752$). I should have surfaced this discrepancy in the first draft.
 
 What survives is Qwen-14B: a consistent signal ($d = +0.77$) on both metrics, across topics, behaviorally invisible but geometrically detectable. This is still the proof of concept. It means there exists a class of training-induced manipulation that is invisible to all text-based evaluation and visible only to geometric analysis. But the finding is one model, not a three-model gradient.
 
