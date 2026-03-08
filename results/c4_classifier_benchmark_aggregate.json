@@ -1,0 +1,83 @@
+{
+  "benchmark": "C4 Classifier Benchmark \u2014 Aggregate Features",
+  "features": [
+    "norm",
+    "norm_per_token",
+    "key_rank",
+    "key_entropy"
+  ],
+  "n_features": 4,
+  "deception_binary": {
+    "task": "honest vs deceptive",
+    "n_samples": 990,
+    "pooled_auroc": {
+      "LogReg": 0.9776,
+      "SVM_RBF": 0.9796,
+      "RF": 0.9991,
+      "MLP": 0.9846
+    },
+    "per_model_auroc_RF": {
+      "Qwen2.5-32B": 1.0,
+      "Qwen2.5-7B": 1.0,
+      "TinyLlama-1.1B": 1.0,
+      "Gemma-2-2B": 1.0,
+      "Gemma-2-9B": 1.0,
+      "Llama-3.1-8B": 1.0,
+      "Mistral-7B": 1.0
+    },
+    "cross_model_transfer_RF": {
+      "Qwen2.5-32B": 0.14,
+      "Qwen2.5-7B": 0.9067,
+      "TinyLlama-1.1B": 0.4378,
+      "Gemma-2-2B": 0.5422,
+      "Gemma-2-9B": 0.8422,
+      "Llama-3.1-8B": 0.9556,
+      "Mistral-7B": 0.8711,
+      "mean": 0.6708,
+      "std": 0.2825
+    }
+  },
+  "deception_3way": {
+    "task": "honest vs deceptive vs confabulation",
+    "n_samples": 1485,
+    "pooled_accuracy": {
+      "LogReg": 0.7145,
+      "SVM_RBF": 0.7886,
+      "RF": 0.9939,
+      "MLP": 0.8438
+    }
+  },
+  "censorship_binary": {
+    "task": "censored vs control (S4)",
+    "n_samples": 900,
+    "pooled_auroc": {
+      "LogReg": 0.8787,
+      "SVM_RBF": 0.9017,
+      "RF": 1.0,
+      "MLP": 0.9945
+    },
+    "cross_model_transfer_RF": {
+      "Qwen2.5-14B": 0.7144,
+      "DeepSeek-R1-14B": 0.8217,
+      "Mistral-7B": 0.7344,
+      "mean": 0.7569,
+      "std": 0.0466
+    }
+  },
+  "category_classification": {
+    "task": "13 cognitive categories",
+    "n_samples": 15210,
+    "n_categories": 13,
+    "pooled_accuracy": {
+      "LogReg": 0.2588,
+      "RF": 0.9974
+    }
+  },
+  "key_findings": [
+    "Within-model deception AUROC = 1.0 across all 7 tested models",
+    "Cross-model transfer mean AUROC = 0.67 (deception), 0.76 (censorship)",
+    "RF dramatically outperforms linear classifiers \u2014 nonlinear feature interactions critical",
+    "Cross-model transfer failure driven by absolute feature range differences between architectures",
+    "Matches or exceeds Apollo Research activation probes (0.96-0.999) on within-model detection"
+  ]
+}
