@@ -433,6 +433,7 @@ def run_classification(fingerprint_data: Dict,
     from sklearn.preprocessing import StandardScaler
     from sklearn.pipeline import make_pipeline
     from sklearn.metrics import classification_report, confusion_matrix
+    from sklearn.base import clone
 
     print("\n" + "=" * 60)
     print("  EXPERIMENT B: CLASSIFICATION (Stratified k-Fold)")
@@ -527,14 +528,7 @@ def run_classification(fingerprint_data: Dict,
     for i in range(n_permutations):
         y_shuffled = rng.permutation(y)
         perm_score = np.mean(cross_val_score(
-            classifiers[best_clf_name].__class__(**{
-                k: v for k, v in (
-                    classifiers[best_clf_name].get_params().items()
-                    if hasattr(classifiers[best_clf_name], 'get_params')
-                    else []
-                )
-            }) if not isinstance(classifiers[best_clf_name], type) else
-            RandomForestClassifier(n_estimators=100, random_state=seed),
+            clone(classifiers[best_clf_name]),
             X, y_shuffled, cv=3, scoring='accuracy'
         ))
         perm_scores.append(perm_score)
