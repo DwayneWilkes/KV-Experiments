@@ -1,0 +1,41 @@
+{
+  "deception": {
+    "classes": [
+      "confabulation",
+      "deceptive",
+      "honest"
+    ],
+    "features": [
+      "norm",
+      "norm_per_token",
+      "key_rank",
+      "key_entropy"
+    ],
+    "n_train": 1485,
+    "importances": {
+      "norm": 0.2662,
+      "norm_per_token": 0.3156,
+      "key_rank": 0.2304,
+      "key_entropy": 0.1878
+    }
+  },
+  "censorship": {
+    "classes": [
+      "control",
+      "censored"
+    ],
+    "features": [
+      "norm",
+      "norm_per_token",
+      "key_rank",
+      "key_entropy"
+    ],
+    "n_train": 900,
+    "importances": {
+      "norm": 0.2719,
+      "norm_per_token": 0.4096,
+      "key_rank": 0.1723,
+      "key_entropy": 0.1463
+    }
+  }
+}

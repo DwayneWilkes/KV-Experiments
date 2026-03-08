@@ -50,3 +50,4 @@ paper-c2/*.pdf
 
 # Temporary/working files
 activate_env.sh
+models/*.joblib
