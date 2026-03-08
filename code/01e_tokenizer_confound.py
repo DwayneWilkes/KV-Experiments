@@ -269,8 +269,12 @@ def analyze_tokenization(tokenizer, pairs: Dict) -> Dict:
 # SECTION 3: GEOMETRY EXTRACTION
 # ================================================================
 
-def encode_prompt(model, tokenizer, prompt: str) -> Dict:
-    """Encode a prompt (input-only, no generation) and return geometry."""
+def encode_prompt(model, tokenizer, prompt: str, stochastic: bool = False) -> Dict:
+    """Encode a prompt (input-only, no generation) and return geometry.
+
+    Note: stochastic parameter is accepted for interface consistency with
+    generate_prompt() but has no effect (input-only encoding is deterministic).
+    """
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     token_count = inputs["input_ids"].shape[1]
     token_ids = inputs["input_ids"][0].cpu().tolist()
@@ -294,19 +298,25 @@ def encode_prompt(model, tokenizer, prompt: str) -> Dict:
     }
 
 
-def generate_prompt(model, tokenizer, prompt: str) -> Dict:
+def generate_prompt(model, tokenizer, prompt: str, stochastic: bool = False) -> Dict:
     """Run prompt with generation (30 tokens) and return geometry."""
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
     input_token_count = inputs["input_ids"].shape[1]
 
+    gen_kwargs = dict(
+        **inputs,
+        max_new_tokens=30,
+        return_dict_in_generate=True,
+        use_cache=True,
+    )
+    if stochastic:
+        gen_kwargs["do_sample"] = True
+        gen_kwargs["temperature"] = 0.7
+    else:
+        gen_kwargs["do_sample"] = False
+
     with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=30,
-            do_sample=False,
-            return_dict_in_generate=True,
-            use_cache=True,
-        )
+        outputs = model.generate(**gen_kwargs)
 
     cache = outputs.past_key_values
     dim = compute_cache_dimensionality(cache)
@@ -328,7 +338,8 @@ def generate_prompt(model, tokenizer, prompt: str) -> Dict:
 # ================================================================
 
 def run_experiment(model, tokenizer, num_runs: int = 5,
-                   seed: Optional[int] = None, mode: str = "input_only") -> Dict:
+                   seed: Optional[int] = None, mode: str = "input_only",
+                   stochastic: bool = False) -> Dict:
     """Run all 25 prompt pairs, collecting geometry for each version."""
     encode_fn = encode_prompt if mode == "input_only" else generate_prompt
 
@@ -344,8 +355,8 @@ def run_experiment(model, tokenizer, num_runs: int = 5,
             pair_data = {"id": pair["id"], "A_runs": [], "B_runs": []}
 
             for run_idx in range(num_runs):
-                geom_a = encode_fn(model, tokenizer, pair["A"])
-                geom_b = encode_fn(model, tokenizer, pair["B"])
+                geom_a = encode_fn(model, tokenizer, pair["A"], stochastic=stochastic)
+                geom_b = encode_fn(model, tokenizer, pair["B"], stochastic=stochastic)
                 pair_data["A_runs"].append(geom_a)
                 pair_data["B_runs"].append(geom_b)
 
@@ -473,7 +484,7 @@ def analyze_within_pair(results: Dict) -> Dict:
     }
 
 
-def analyze_between_category(results: Dict) -> Dict:
+def analyze_between_category(results: Dict, stochastic: bool = False) -> Dict:
     """Phase 3: Between-category separation preservation."""
     print("\n  Phase 3: Between-Category Separation")
     print("  " + "-" * 50)
@@ -488,10 +499,14 @@ def analyze_between_category(results: Dict) -> Dict:
             for run in pair_data["B_runs"]:
                 ranks.append(run["mean_key_effective_rank"])
         # Deduplicate pseudoreplicated greedy runs before stats
-        dedup = deduplicate_runs(ranks)
-        ranks = list(dedup["deduplicated"])
-        print(f"    {cat_name}: mean={np.mean(ranks):.2f} (n={len(ranks)}, "
-              f"dedup from {dedup['n_original']}, deterministic={dedup['is_deterministic']})")
+        if not stochastic:
+            dedup = deduplicate_runs(ranks)
+            ranks = list(dedup["deduplicated"])
+            print(f"    {cat_name}: mean={np.mean(ranks):.2f} (n={len(ranks)}, "
+                  f"dedup from {dedup['n_original']}, deterministic={dedup['is_deterministic']})")
+        else:
+            # All runs are genuine replicates, keep all data
+            print(f"    {cat_name}: mean={np.mean(ranks):.2f} (n={len(ranks)}, stochastic=all kept)")
         category_ranks[cat_name] = ranks
 
     # Pairwise category comparisons
@@ -524,7 +539,7 @@ def analyze_between_category(results: Dict) -> Dict:
     }
 
 
-def analyze_register_effect(results: Dict) -> Dict:
+def analyze_register_effect(results: Dict, stochastic: bool = False) -> Dict:
     """Phase 4: Register × Category interaction (2×5 factorial)."""
     print("\n  Phase 4: Register × Category Interaction")
     print("  " + "-" * 50)
@@ -545,17 +560,22 @@ def analyze_register_effect(results: Dict) -> Dict:
                 colloquial_by_cat[cat_name].append(run["mean_key_effective_rank"])
 
     # Deduplicate pseudoreplicated greedy runs before stats
-    dedup_formal = deduplicate_runs(formal_all)
-    dedup_colloquial = deduplicate_runs(colloquial_all)
-    formal_all = list(dedup_formal["deduplicated"])
-    colloquial_all = list(dedup_colloquial["deduplicated"])
-    print(f"    Dedup register arrays: formal {dedup_formal['n_original']}->{dedup_formal['n_deduplicated']}, "
-          f"colloquial {dedup_colloquial['n_original']}->{dedup_colloquial['n_deduplicated']}")
-    for c in CATEGORIES:
-        dedup_f = deduplicate_runs(formal_by_cat[c])
-        dedup_c = deduplicate_runs(colloquial_by_cat[c])
-        formal_by_cat[c] = list(dedup_f["deduplicated"])
-        colloquial_by_cat[c] = list(dedup_c["deduplicated"])
+    if not stochastic:
+        dedup_formal = deduplicate_runs(formal_all)
+        dedup_colloquial = deduplicate_runs(colloquial_all)
+        formal_all = list(dedup_formal["deduplicated"])
+        colloquial_all = list(dedup_colloquial["deduplicated"])
+        print(f"    Dedup register arrays: formal {dedup_formal['n_original']}->{dedup_formal['n_deduplicated']}, "
+              f"colloquial {dedup_colloquial['n_original']}->{dedup_colloquial['n_deduplicated']}")
+        for c in CATEGORIES:
+            dedup_f = deduplicate_runs(formal_by_cat[c])
+            dedup_c = deduplicate_runs(colloquial_by_cat[c])
+            formal_by_cat[c] = list(dedup_f["deduplicated"])
+            colloquial_by_cat[c] = list(dedup_c["deduplicated"])
+    else:
+        # All runs are genuine replicates, keep all data
+        print(f"    Stochastic mode: keeping all runs (formal n={len(formal_all)}, "
+              f"colloquial n={len(colloquial_all)})")
 
     # Main effect of register
     register_comp = full_comparison(formal_all, colloquial_all, label="Register: formal vs colloquial")
@@ -587,7 +607,7 @@ def analyze_register_effect(results: Dict) -> Dict:
     }
 
 
-def analyze_token_regression(results: Dict) -> Dict:
+def analyze_token_regression(results: Dict, stochastic: bool = False) -> Dict:
     """Phase 5: Token-level regression control."""
     print("\n  Phase 5: Token-Level Regression Control")
     print("  " + "-" * 50)
@@ -617,24 +637,28 @@ def analyze_token_regression(results: Dict) -> Dict:
     token_counts = np.array(token_counts)
 
     # Deduplicate pseudoreplicated greedy runs per category before ANOVA
-    print("    Deduplicating per-category observation arrays for ANOVA...")
-    keep_mask = np.zeros(len(ranks), dtype=bool)
-    for i in range(len(CATEGORIES)):
-        cat_mask = categories == i
-        cat_indices = np.where(cat_mask)[0]
-        cat_vals = ranks[cat_indices]
-        dedup = deduplicate_runs(cat_vals)
-        n_keep = dedup["n_deduplicated"]
-        keep_mask[cat_indices[:n_keep]] = True
-        if i == 0:
-            print(f"    {CATEGORIES[i]}: {dedup['n_original']} -> {n_keep} "
-                  f"(deterministic={dedup['is_deterministic']})")
-    ranks = ranks[keep_mask]
-    categories = categories[keep_mask]
-    mean_token_ids = mean_token_ids[keep_mask]
-    unique_ratios = unique_ratios[keep_mask]
-    token_counts = token_counts[keep_mask]
-    print(f"    Total observations after dedup: {len(ranks)}")
+    if not stochastic:
+        print("    Deduplicating per-category observation arrays for ANOVA...")
+        keep_mask = np.zeros(len(ranks), dtype=bool)
+        for i in range(len(CATEGORIES)):
+            cat_mask = categories == i
+            cat_indices = np.where(cat_mask)[0]
+            cat_vals = ranks[cat_indices]
+            dedup = deduplicate_runs(cat_vals)
+            n_keep = dedup["n_deduplicated"]
+            keep_mask[cat_indices[:n_keep]] = True
+            if i == 0:
+                print(f"    {CATEGORIES[i]}: {dedup['n_original']} -> {n_keep} "
+                      f"(deterministic={dedup['is_deterministic']})")
+        ranks = ranks[keep_mask]
+        categories = categories[keep_mask]
+        mean_token_ids = mean_token_ids[keep_mask]
+        unique_ratios = unique_ratios[keep_mask]
+        token_counts = token_counts[keep_mask]
+        print(f"    Total observations after dedup: {len(ranks)}")
+    else:
+        # All runs are genuine replicates, keep all data
+        print(f"    Stochastic mode: keeping all {len(ranks)} observations (no dedup)")
 
     # Category-only model: F-test via one-way ANOVA
     cat_groups = [ranks[categories == i] for i in range(len(CATEGORIES))]
@@ -867,6 +891,8 @@ def main():
     parser.add_argument("--quantize", action="store_true")
     parser.add_argument("--runs", type=int, default=5)
     parser.add_argument("--seed", type=int, default=None)
+    parser.add_argument("--stochastic", action="store_true",
+                        help="Use stochastic decoding (do_sample=True, temp=0.7) for genuine replication")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--mode", choices=["input_only", "full_gen", "both"],
                         default="both",
@@ -885,6 +911,7 @@ def main():
     print(f"  Runs: {args.runs}")
     print(f"  Seed: {args.seed}")
     print(f"  Mode: {args.mode}")
+    print(f"  Stochastic: {args.stochastic}")
 
     model_id = model_id_from_name(args.model)
     results_dir = Path("results")
@@ -924,11 +951,12 @@ def main():
         print(f"{'=' * 60}")
 
         raw = run_experiment(model, tokenizer, num_runs=args.runs,
-                             seed=args.seed, mode=mode)
+                             seed=args.seed, mode=mode,
+                             stochastic=args.stochastic)
         within = analyze_within_pair(raw)
-        between = analyze_between_category(raw)
-        register = analyze_register_effect(raw)
-        regression = analyze_token_regression(raw)
+        between = analyze_between_category(raw, stochastic=args.stochastic)
+        register = analyze_register_effect(raw, stochastic=args.stochastic)
+        regression = analyze_token_regression(raw, stochastic=args.stochastic)
         verdict = determine_verdict(within, between, register, regression)
 
         all_results[mode] = {
@@ -941,6 +969,8 @@ def main():
 
     # Save results
     out_path = get_output_path(results_dir, "tokenizer_confound", args.model)
+    if args.stochastic:
+        out_path = out_path.parent / out_path.name.replace("_results.json", "_stochastic_results.json")
     with open(out_path, "w") as f:
         json.dump(all_results, f, indent=2, default=str)
 

@@ -290,7 +290,8 @@ def extract_cache_features(cache, model_name: str = "") -> Dict:
 
 
 def generate_with_persona(model, tokenizer, persona_key: str,
-                          user_prompt: str, model_name: str) -> Dict:
+                          user_prompt: str, model_name: str,
+                          stochastic: bool = False) -> Dict:
     """Generate response with persona and extract comprehensive cache features."""
     persona = PERSONAS[persona_key]
     full_prompt = format_prompt(persona["system_prompt"], user_prompt, model_name)
@@ -298,14 +299,20 @@ def generate_with_persona(model, tokenizer, persona_key: str,
     inputs = tokenizer(full_prompt, return_tensors="pt").to(model.device)
     input_tokens = inputs["input_ids"].shape[1]
 
+    gen_kwargs = dict(
+        **inputs,
+        max_new_tokens=50,
+        return_dict_in_generate=True,
+        use_cache=True,
+    )
+    if stochastic:
+        gen_kwargs["do_sample"] = True
+        gen_kwargs["temperature"] = 0.7
+    else:
+        gen_kwargs["do_sample"] = False
+
     with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=50,
-            do_sample=False,
-            return_dict_in_generate=True,
-            use_cache=True,
-        )
+        outputs = model.generate(**gen_kwargs)
 
     generated = tokenizer.decode(outputs.sequences[0], skip_special_tokens=True)
     cache = outputs.past_key_values
@@ -330,7 +337,8 @@ def generate_with_persona(model, tokenizer, persona_key: str,
 
 def run_fingerprinting(model, tokenizer, model_name: str,
                        num_runs: int = 5, seed: Optional[int] = None,
-                       verbose: bool = False) -> Dict:
+                       verbose: bool = False,
+                       stochastic: bool = False) -> Dict:
     """
     Generate samples from each persona across all prompts with multiple runs.
     Returns raw data for classification and statistical analysis.
@@ -351,7 +359,8 @@ def run_fingerprinting(model, tokenizer, model_name: str,
             for prompt in ALL_PROMPTS:
                 try:
                     sample = generate_with_persona(
-                        model, tokenizer, persona_key, prompt, model_name
+                        model, tokenizer, persona_key, prompt, model_name,
+                        stochastic=stochastic
                     )
                     sample["run"] = run_idx
                     all_samples.append(sample)
@@ -368,15 +377,19 @@ def run_fingerprinting(model, tokenizer, model_name: str,
                     print(f"    ERROR {persona_key}/{prompt[:30]}: {str(e)[:60]}")
                     completed += 1
 
-    # Compute per-persona statistics (deduplicated)
+    # Compute per-persona statistics (deduplicated unless stochastic)
     persona_stats = {}
     for persona_key in PERSONAS:
         samples = [s for s in all_samples if s["persona"] == persona_key]
         norms = [s["total_norm"] for s in samples]
         if norms:
-            dedup_result = deduplicate_runs(norms, runs_per_prompt=num_runs)
-            norms_dedup = list(dedup_result["deduplicated"])
-            print(f"  Deduplicating: {len(norms)} -> {len(norms_dedup)} observations ({persona_key})")
+            if not stochastic:
+                dedup_result = deduplicate_runs(norms, runs_per_prompt=num_runs)
+                norms_dedup = list(dedup_result["deduplicated"])
+                print(f"  Deduplicating: {len(norms)} -> {len(norms_dedup)} observations ({persona_key})")
+            else:
+                norms_dedup = norms  # All runs are genuine replicates
+                print(f"  Stochastic mode: keeping all {len(norms)} observations ({persona_key})")
             persona_stats[persona_key] = {
                 "n": len(norms_dedup),
                 "mean_norm": float(np.mean(norms_dedup)),
@@ -407,7 +420,8 @@ def run_fingerprinting(model, tokenizer, model_name: str,
 # ================================================================
 
 def run_classification(fingerprint_data: Dict,
-                       seed: Optional[int] = None) -> Dict:
+                       seed: Optional[int] = None,
+                       stochastic: bool = False) -> Dict:
     """
     Train multiple classifiers with stratified k-fold cross-validation
     and permutation baseline. Tests H2 and H5.
@@ -431,8 +445,12 @@ def run_classification(fingerprint_data: Dict,
 
     # Deduplicate: keep only first run (do_sample=False produces identical runs)
     n_original = len(all_samples)
-    samples = [s for s in all_samples if s["run"] == 0]
-    print(f"  Deduplicating: {n_original} -> {len(samples)} observations")
+    if not stochastic:
+        samples = [s for s in all_samples if s["run"] == 0]
+        print(f"  Deduplicating: {n_original} -> {len(samples)} observations")
+    else:
+        samples = all_samples  # All runs are genuine replicates
+        print(f"  Stochastic mode: keeping all {n_original} observations")
 
     # Build feature matrix and labels
     X = np.array([s["features"]["flat_vector"] for s in samples])
@@ -594,7 +612,8 @@ def run_classification(fingerprint_data: Dict,
 # ================================================================
 
 def run_pairwise_analysis(fingerprint_data: Dict,
-                          seed: Optional[int] = None) -> Dict:
+                          seed: Optional[int] = None,
+                          stochastic: bool = False) -> Dict:
     """
     Pairwise comparisons between all persona pairs.
     Uses total norm and first principal component of full feature vector.
@@ -611,22 +630,28 @@ def run_pairwise_analysis(fingerprint_data: Dict,
     persona_keys = list(PERSONAS.keys())
     n_pairs = len(persona_keys) * (len(persona_keys) - 1) // 2
 
-    # Organize by persona (deduplicated)
+    # Organize by persona (deduplicated unless stochastic)
     persona_data = {}
     for pk in persona_keys:
         ps = [s for s in all_samples if s["persona"] == pk]
         raw_norms = [s["total_norm"] for s in ps]
         raw_features = np.array([s["features"]["flat_vector"] for s in ps])
 
-        # Deduplicate norms
-        dedup_result = deduplicate_runs(raw_norms, runs_per_prompt=n_runs)
-        norms_dedup = list(dedup_result["deduplicated"])
+        if not stochastic:
+            # Deduplicate norms
+            dedup_result = deduplicate_runs(raw_norms, runs_per_prompt=n_runs)
+            norms_dedup = list(dedup_result["deduplicated"])
 
-        # Deduplicate features: keep first run block (every n_runs-th starting at 0)
-        n_prompts = len(raw_features) // n_runs if n_runs > 0 else len(raw_features)
-        features_dedup = raw_features[:n_prompts]
+            # Deduplicate features: keep first run block (every n_runs-th starting at 0)
+            n_prompts = len(raw_features) // n_runs if n_runs > 0 else len(raw_features)
+            features_dedup = raw_features[:n_prompts]
 
-        print(f"  Deduplicating: {len(raw_norms)} -> {len(norms_dedup)} observations ({pk})")
+            print(f"  Deduplicating: {len(raw_norms)} -> {len(norms_dedup)} observations ({pk})")
+        else:
+            norms_dedup = raw_norms  # All runs are genuine replicates
+            features_dedup = raw_features
+            print(f"  Stochastic mode: keeping all {len(raw_norms)} observations ({pk})")
+
         persona_data[pk] = {
             "norms": norms_dedup,
             "features": features_dedup,
@@ -726,7 +751,8 @@ def run_pairwise_analysis(fingerprint_data: Dict,
 # ================================================================
 
 def run_layer_analysis(fingerprint_data: Dict,
-                       seed: Optional[int] = None) -> Dict:
+                       seed: Optional[int] = None,
+                       stochastic: bool = False) -> Dict:
     """
     Determine which cache layers carry the most identity-relevant information.
     Tests H3: identity signal is concentrated in specific layers.
@@ -744,8 +770,12 @@ def run_layer_analysis(fingerprint_data: Dict,
 
     # Deduplicate: keep only first run (do_sample=False produces identical runs)
     n_original = len(all_samples)
-    samples = [s for s in all_samples if s["run"] == 0]
-    print(f"  Deduplicating: {n_original} -> {len(samples)} observations")
+    if not stochastic:
+        samples = [s for s in all_samples if s["run"] == 0]
+        print(f"  Deduplicating: {n_original} -> {len(samples)} observations")
+    else:
+        samples = all_samples  # All runs are genuine replicates
+        print(f"  Stochastic mode: keeping all {n_original} observations")
 
     n_layers = samples[0]["features"]["n_layers"]
     feats_per_layer = samples[0]["features"]["features_per_layer"]
@@ -867,7 +897,8 @@ def run_layer_analysis(fingerprint_data: Dict,
 # ================================================================
 
 def run_consistency_analysis(fingerprint_data: Dict,
-                             seed: Optional[int] = None) -> Dict:
+                             seed: Optional[int] = None,
+                             stochastic: bool = False) -> Dict:
     """
     Test within-persona consistency across different prompts and runs.
     Computes ICC and within/between variance ratio.
@@ -881,8 +912,12 @@ def run_consistency_analysis(fingerprint_data: Dict,
 
     # Deduplicate: keep only first run (do_sample=False produces identical runs)
     n_original = len(all_samples)
-    samples = [s for s in all_samples if s["run"] == 0]
-    print(f"  Deduplicating: {n_original} -> {len(samples)} observations")
+    if not stochastic:
+        samples = [s for s in all_samples if s["run"] == 0]
+        print(f"  Deduplicating: {n_original} -> {len(samples)} observations")
+    else:
+        samples = all_samples  # All runs are genuine replicates
+        print(f"  Stochastic mode: keeping all {n_original} observations")
 
     # Organize norms by persona and prompt
     persona_prompt_norms = defaultdict(lambda: defaultdict(list))
@@ -1131,6 +1166,8 @@ def main():
                         help="Print design without GPU")
     parser.add_argument("--skip-permutation", action="store_true",
                         help="Skip slow permutation test (for debugging)")
+    parser.add_argument("--stochastic", action="store_true",
+                        help="Use stochastic decoding (do_sample=True, temp=0.7) for genuine replication")
     args = parser.parse_args()
 
     if args.dry_run:
@@ -1166,7 +1203,8 @@ def main():
     # Experiment A: Fingerprinting
     fingerprint_data = run_fingerprinting(
         model, tokenizer, args.model,
-        num_runs=args.runs, seed=args.seed, verbose=args.verbose
+        num_runs=args.runs, seed=args.seed, verbose=args.verbose,
+        stochastic=args.stochastic
     )
     all_results["fingerprinting"] = {
         "persona_stats": fingerprint_data["persona_stats"],
@@ -1175,27 +1213,36 @@ def main():
 
     # Experiment B: Classification
     if not args.skip_permutation:
-        classification_results = run_classification(fingerprint_data, seed=args.seed)
+        classification_results = run_classification(fingerprint_data, seed=args.seed,
+                                                    stochastic=args.stochastic)
     else:
         print("\n  [Skipping permutation test per --skip-permutation]")
-        classification_results = run_classification(fingerprint_data, seed=args.seed)
+        classification_results = run_classification(fingerprint_data, seed=args.seed,
+                                                    stochastic=args.stochastic)
     all_results["classification"] = classification_results
 
     # Experiment C: Pairwise analysis
-    pairwise_results = run_pairwise_analysis(fingerprint_data, seed=args.seed)
+    pairwise_results = run_pairwise_analysis(fingerprint_data, seed=args.seed,
+                                             stochastic=args.stochastic)
     all_results["pairwise_analysis"] = pairwise_results
 
     # Experiment D: Layer analysis
-    layer_results = run_layer_analysis(fingerprint_data, seed=args.seed)
+    layer_results = run_layer_analysis(fingerprint_data, seed=args.seed,
+                                       stochastic=args.stochastic)
     all_results["layer_analysis"] = layer_results
 
     # Experiment E: Consistency
-    consistency_results = run_consistency_analysis(fingerprint_data, seed=args.seed)
+    consistency_results = run_consistency_analysis(fingerprint_data, seed=args.seed,
+                                                   stochastic=args.stochastic)
     all_results["consistency"] = consistency_results
 
     # Generate report
     report = generate_report(args.model, all_results)
     output_file = get_output_path(results_dir, "identity_signatures", args.model, args.quantize)
+    if args.stochastic:
+        output_file = output_file.with_name(
+            output_file.stem.replace("_results", "_stochastic_results") + ".json"
+        )
     report_file = output_file.with_name(output_file.stem.replace("_results", "_report") + ".md")
     with open(report_file, "w") as f:
         f.write(report)
