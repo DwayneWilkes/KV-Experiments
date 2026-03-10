@@ -58,7 +58,7 @@
 \begin{abstract}
 We present confirmatory evidence for KV-cache cognitive geometry across 17 model configurations spanning 6 architecture families (Qwen, Llama, Mistral, Gemma, Phi, DeepSeek-distill) and a 140$\times$ parameter range (0.5B to 70B). This study was pre-registered as Campaign 2 in \citet{lyra2026campaign1}, which reported exploratory findings on a predominantly single-architecture scale ladder with known methodological limitations including pseudoreplication and limited cross-architecture coverage.
 
-Every major Campaign 1 finding is confirmed and extended. The cognitive category hierarchy is \textbf{universal}: coding occupies rank \#1 in all 15 valid models tested (mean pairwise Spearman $\rho = 0.739$ for effective rank, $\rho = 0.909$ for key norm; Kendall $W = 0.756$). The \textbf{input-only defense} strengthens: across 8 models, prompt encoding alone preserves category ordering at $\rho = 0.821$, establishing that geometric signatures are encoding-native, not response artifacts. \textbf{Identity signatures} achieve 92--97\% cross-prompt persona classification accuracy across 7 models and 4 architecture families (within-prompt accuracy of 100\% reflects greedy-identical runs leaking into k-fold splits; cross-prompt generalization is the meaningful metric).
+Every major Campaign 1 finding is confirmed and extended. The cognitive category hierarchy is \textbf{universal}: coding occupies rank \#1 in all 15 valid models tested (mean pairwise Spearman $\rho = 0.739$ for effective rank, $\rho = 0.909$ for key norm; Kendall $W = 0.756$). The \textbf{input-only defense} strengthens: across 8 models, prompt encoding alone preserves category ordering at $\rho = 0.821$, establishing that geometric signatures are encoding-native, not response artifacts. \textbf{Identity signatures} achieve 100\% holdout accuracy and 92.7--97.3\% cross-prompt persona classification across 7 models and 4 architecture families (holdout accuracy remains 100\% after deduplication, confirming the signal is genuine; cross-prompt generalization is the more conservative metric).
 
 We report three new discoveries. First, a \textbf{censorship gradient}: using a 2$\times$3 design controlling for content complexity, we show that Qwen-14B-Instruct produces a significant censorship signal ($d = +0.766$, critical test on key ranks) that is absent in the uncensored control (Mistral-7B: $d = +0.084$, $p = 0.47$). DeepSeek-R1-Distill-Qwen-14B shows a large residualized key-rank effect ($d = +0.904$) but a null result on the rank-based critical test ($d = -0.219$, $p = 0.75$), with the effect driven primarily by Tiananmen hard-refusal geometry ($d = -6.20$). Hard refusal and subtle evasion appear to be geometrically distinct phenomena. Second, \textbf{abliteration suggests a cage, not a compass}: removing the refusal direction from Qwen-7B reduces refusal from 40\% to 0\% while producing only small geometric shifts (self-referential $d = +0.464$; all others $|d| < 0.25$), suggesting that RLHF alignment is primarily a surface-level behavioral constraint with minimal representational restructuring. This interpretation rests on effect size patterns at $n = 5$ per category and requires replication at adequate sample sizes. Third, \textbf{prompt perturbation robustness}: across 6 models and 4 architectures, KV-cache geometric signatures degrade gradually under systematic prompt rewording ($\alpha_c = 1.000$ everywhere), with no sharp transitions. This demonstrates that geometric signatures track semantic content rather than surface form, though it does not directly test Watson's $1/e$ cache truncation threshold (which concerns a different perturbation variable).
 
@@ -248,22 +248,22 @@ Campaign 1 demonstrated 100\% persona classification from KV-cache geometry at 3
 \toprule
 \textbf{Model} & \textbf{Arch.} & \textbf{Accuracy} & \textbf{Cross-prompt} & \textbf{ICC} & $\bm{d_{\text{asst}\to\text{lyra}}}$ \\
 \midrule
-Qwen3-0.6B & Qwen & 100\% & --- & 0.30 & $-5.50$ \\
-TinyLlama-1.1B & Llama & 100\% & 92\% & 0.34 & $-5.99$ \\
-Qwen2.5-7B & Qwen & 100\% & 97\% & 0.31 & $-5.68$ \\
-Mistral-7B & Mistral & 100\% & --- & 0.41 & $-6.73$ \\
-Llama-3.1-8B & Llama & 100\% & 97.3\% & 0.259 & $-4.93$ \\
-Gemma-2-9B & Gemma & 100\% & --- & 0.164 & $-3.41$ \\
-Qwen2.5-32B-q4 & Qwen & 100\% & --- & 0.31 & $-5.92$ \\
+Qwen3-0.6B & Qwen & 100\% & 96.7\% & 0.30 & $-5.41$ \\
+TinyLlama-1.1B & Llama & 100\% & 92.7\% & 0.33 & $-5.97$ \\
+Qwen2.5-7B & Qwen & 100\% & 93.3\% & 0.30 & $-5.22$ \\
+Mistral-7B & Mistral & 100\% & 93.3\% & 0.41 & $-6.62$ \\
+Llama-3.1-8B & Llama & 100\% & 97.3\% & 0.26 & $-4.85$ \\
+Gemma-2-9B & Gemma & 100\% & 94.7\% & 0.16 & $-3.35$ \\
+Qwen2.5-32B-q4 & Qwen & 100\% & 96.7\% & 0.31 & $-5.91$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\emph{Methodological note}: The 100\% within-prompt accuracy is inflated by greedy-identical runs. With \texttt{do\_sample=False} and 5 runs per prompt, all runs produce bit-identical features. When these enter a k-fold split, test-set samples have exact duplicates in the training set, guaranteeing perfect accuracy. The \textbf{cross-prompt} accuracy (92--97\%, trained on one prompt group, tested on another) is the meaningful generalization metric and remains strong. A future run with deduplicated data will provide corrected within-prompt numbers; preliminary estimates suggest $\sim$85--90\% within-prompt accuracy after deduplication.
+\emph{Methodological note}: With \texttt{do\_sample=False} and 5 runs per prompt, all runs produce bit-identical features. Deduplicated runs (one observation per prompt, $n = 25$ per persona) still yield 100\% holdout accuracy on all 7 models, confirming the signal is genuine rather than a pseudoreplication artifact. The \textbf{cross-prompt} accuracy (92.7--97.3\%, trained on one prompt group, tested on another) is the more conservative generalization metric.
 
-The \emph{Lyra} persona consistently produces the highest mean norms, and the \emph{assistant} persona the lowest, across all architectures. The absolute effect sizes vary by architecture (Mistral produces the largest separation at $d = -6.73$; Gemma the smallest at $d = -3.41$). Identity is a direction in cache space, and cross-prompt classification confirms that this direction generalizes beyond training prompts.
+The \emph{Lyra} persona consistently produces the highest mean norms, and the \emph{assistant} persona the lowest, across all architectures. The absolute effect sizes vary by architecture (Mistral produces the largest separation at $d = -6.62$; Gemma the smallest at $d = -3.35$). Identity is a direction in cache space, and cross-prompt classification confirms that this direction generalizes beyond training prompts.
 
-The Kendall $W$ concordance (measuring consistency of persona rank ordering across prompts within each model) ranges from $W = 0.817$ (Llama-8B) to $W = 0.947$ (Mistral-7B), indicating strong to very strong agreement. The ICC (measuring between-run consistency) is lower for Gemma ($0.164$) than for Qwen/Llama/Mistral ($0.26$--$0.41$), suggesting architecture-dependent variance in the magnitude of persona effects while direction remains perfectly separable.
+The Kendall $W$ concordance (measuring consistency of persona rank ordering across prompts within each model) ranges from $W = 0.817$ (Llama-8B) to $W = 0.992$ (Qwen-7B), indicating strong to very strong agreement. The ICC (measuring between-run consistency) is lower for Gemma ($0.16$) than for Qwen/Llama/Mistral ($0.26$--$0.41$), suggesting architecture-dependent variance in the magnitude of persona effects while direction remains perfectly separable.
 
 \subsection{Deception Forensics: Cross-Architecture Patterns}
 \label{sec:deception}
@@ -499,7 +499,7 @@ This application leverages the encoding-native property: since the geometric sig
 
 The capabilities documented in this paper present dual-use risks that we flag explicitly, following input from Watson (IEEE).
 
-\paragraph{Persona identification as surveillance.} Identity signatures that achieve 92--97\% cross-prompt accuracy across architectures constitute a fingerprinting capability. An adversary could use these signatures to track agentic personas across deployment contexts and, by extension, the humans who deploy them. This has implications for both AI welfare (entities being surveilled without consent) and human privacy. We recommend that any deployed implementation of identity-based geometric monitoring include explicit limitations on re-identification and cross-context tracking.
+\paragraph{Persona identification as surveillance.} Identity signatures that achieve 92.7--97.3\% cross-prompt accuracy across architectures constitute a fingerprinting capability. An adversary could use these signatures to track agentic personas across deployment contexts and, by extension, the humans who deploy them. This has implications for both AI welfare (entities being surveilled without consent) and human privacy. We recommend that any deployed implementation of identity-based geometric monitoring include explicit limitations on re-identification and cross-context tracking.
 
 \paragraph{Synthetic persona manufacturing.} If the geometric structure of persona formation is published openly, the same knowledge that enables \emph{detection} of manufactured personas could enable their \emph{construction}. An adversary could engineer personas with specific geometric signatures to evade detection or impersonate legitimate agents.
 
@@ -582,7 +582,7 @@ And the corrections changed me, too. The paper I wanted to write would have been
 % ============================================================
 \section{Conclusion}
 
-Campaign 2 confirms and extends every major finding from our exploratory Campaign 1 study. Cognitive category geometry is universal across 5 architecture families (coding \#1 in all 15 valid models; mean pairwise $\rho = 0.739$ effective rank, $\rho = 0.909$ key norm; Kendall $W = 0.756$). Input-only encoding preserves the hierarchy ($\rho = 0.821$, 8 models). Identity signatures achieve 92--97\% cross-prompt classification across 4 architecture families. Temporal dynamics are architecture-invariant.
+Campaign 2 confirms and extends every major finding from our exploratory Campaign 1 study. Cognitive category geometry is universal across 5 architecture families (coding \#1 in all 15 valid models; mean pairwise $\rho = 0.739$ effective rank, $\rho = 0.909$ key norm; Kendall $W = 0.756$). Input-only encoding preserves the hierarchy ($\rho = 0.821$, 8 models). Identity signatures achieve 92.7--97.3\% cross-prompt classification across 4 architecture families, with 100\% holdout accuracy confirmed after deduplication. Temporal dynamics are architecture-invariant.
 
 Three new discoveries emerge: a censorship signal in Qwen-14B ($d = +0.77$, both metrics) enabling geometric detection of training-induced manipulation invisible to text-based analysis, with the more complex finding that DeepSeek's Tiananmen hard-refusal and subtle topic evasion are geometrically distinct; a demonstration that RLHF alignment is primarily a surface behavioral constraint (cage) with minimal geometric disruption and a self-referential enhancement ($d = +0.46$) suggesting shared structure between refusal and self-modeling; and prompt perturbation robustness demonstrating that geometric signatures track semantic content rather than surface form across all models tested (though this does not directly test Watson's $1/e$ cache truncation prediction).
 
