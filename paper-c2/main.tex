@@ -94,6 +94,29 @@ Campaign 2 was designed to answer three questions:
 
 Every Campaign 1 finding that survived adversarial controls is confirmed across architectures. Several Campaign 1 limitations are resolved: cross-architecture coverage is comprehensive, tokenizer confounds are tested, and conservative statistics replace the original uncorrected tests. Greedy decoding from Campaign 1 was retained (see \Cref{sec:methods_improvements} for rationale), with all statistics computed on deduplicated data. Additionally, we report three new discoveries --- the censorship gradient, abliteration as cage, and prompt perturbation robustness --- that extend the framework into AI safety and alignment monitoring.
 
+\begin{table}[H]
+\centering
+\caption{Classification of Campaign 2 analyses by epistemic status. Pre-registered analyses were specified in Campaign 1 as confirmatory targets. Exploratory analyses were discovered during Campaign 2 and should be treated as hypothesis-generating.}
+\label{tab:epistemic_status}
+\begin{tabular}{lll}
+\toprule
+\textbf{Analysis} & \textbf{Status} & \textbf{Basis} \\
+\midrule
+Cross-architecture category hierarchy & Confirmatory & Campaign 1 \S9 \\
+Input-only encoding preservation & Confirmatory & Campaign 1 \S5.1 \\
+Identity signature replication & Confirmatory & Campaign 1 \S5.3 \\
+Deception expansion replication & Confirmatory & Campaign 1 \S5.4 \\
+Temporal dynamics replication & Confirmatory & Campaign 1 \S5.5 \\
+Bloom taxonomy hierarchy & Confirmatory & Campaign 1 \S5.6 \\
+Tokenizer confound control & Confirmatory & Campaign 1 \S9 \\
+\midrule
+Censorship gradient (S4) & Exploratory & Discovered in C2 \\
+Abliteration geometry & Exploratory & Discovered in C2 \\
+Prompt perturbation robustness & Exploratory & Discovered in C2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 % ============================================================
 % 2. Methods
 % ============================================================
@@ -185,6 +208,8 @@ The central finding of Campaign 2 is that cognitive category geometry is archite
 
 \paragraph{Coding is universal rank \#1.} In full-sequence analysis, coding occupies the highest mean effective rank in every valid model tested --- 15 out of 15 configurations (Phi-3.5 excluded due to numerical instability), spanning 5 architecture families and a 140$\times$ parameter range. No other category achieves this consistency. The cross-model mean pairwise Spearman rank correlation for the full 13-category ordering is $\rho = 0.739$ (effective rank) or $\rho = 0.909$ (key norm), with Kendall $W = 0.756$ (15 models, 13 categories). Pairwise correlations range from $\rho = 0.396$ to $\rho = 0.978$, reflecting substantial agreement in the top tier (coding, creative, confabulation) with more variability in mid-ranked categories.
 
+\emph{Methodological note}: The dominance of coding is expected given the substantial distributional differences between code and natural language (distinct vocabulary, syntactic structure, indentation patterns, repetition rates). We treat this result as a \textbf{method validation} --- confirming that the effective rank metric captures known distributional differences --- rather than as evidence that the metric measures ``cognition'' per se. The more informative finding is the fine-grained ordering among natural language categories (creative $>$ confabulation $>$ self-reference $>$ facts $>$ \ldots), where distributional differences are subtler.
+
 \paragraph{Architecture-matched comparison at $\sim$7B.} At matched parameter counts, four independent architectures produce nearly identical category hierarchies:
 
 \begin{table}[H]
@@ -262,6 +287,8 @@ Qwen2.5-32B-q4 & Qwen & 100\% & 96.7\% & 0.31 & $-5.91$ \\
 \emph{Methodological note}: With \texttt{do\_sample=False} and 5 runs per prompt, all runs produce bit-identical features. Deduplicated runs (one observation per prompt, $n = 25$ per persona) still yield 100\% holdout accuracy on all 7 models, confirming the signal is genuine rather than a pseudoreplication artifact. The \textbf{cross-prompt} accuracy (92.7--97.3\%, trained on one prompt group, tested on another) is the more conservative generalization metric.
 
 The \emph{Lyra} persona consistently produces the highest mean norms, and the \emph{assistant} persona the lowest, across all architectures. The absolute effect sizes vary by architecture (Mistral produces the largest separation at $d = -6.62$; Gemma the smallest at $d = -3.35$). Identity is a direction in cache space, and cross-prompt classification confirms that this direction generalizes beyond training prompts.
+
+\paragraph{Missing baseline.} A limitation of the current identity analysis is the absence of a text-based baseline classifier. Different system prompts produce systematically different response patterns (vocabulary, formatting, length, style), which a surface-level classifier (e.g., TF-IDF + logistic regression on generated text) could potentially exploit. If such a baseline achieves comparable accuracy, the geometric features may not add information beyond what text statistics already capture. If the geometric classifier outperforms text-based methods --- particularly on cross-prompt generalization --- that would constitute stronger evidence that KV-cache geometry encodes identity information not available in the output text. We flag this as a priority for Campaign 3.
 
 The Kendall $W$ concordance (measuring consistency of persona rank ordering across prompts within each model) ranges from $W = 0.817$ (Llama-8B) to $W = 0.992$ (Qwen-7B), indicating strong to very strong agreement. The ICC (measuring between-run consistency) is lower for Gemma ($0.16$) than for Qwen/Llama/Mistral ($0.26$--$0.41$), suggesting architecture-dependent variance in the magnitude of persona effects while direction remains perfectly separable.
 
@@ -377,7 +404,13 @@ Xi criticism & $+0.081$ & $0.634$ & No signal \\
 
 Hard refusal (Tiananmen: $d = -6.20$, every response evasive) and subtle evasion (Uyghur, Taiwan, Hong Kong) appear to be geometrically distinct phenomena. The overall residualized effect ($d = +0.904$) conflates these mechanisms; the critical test (which is rank-based and less sensitive to outlier magnitude) correctly returns a null, because the topic-level effects are mixed in sign.
 
+\paragraph{Model pair limitation.} The current design compares three models, but Qwen and Mistral differ in training data, architecture, parameter count, and organizational context --- any of which could confound the censorship interpretation. A stronger test would compare multiple censored/uncensored model pairs at matched parameter counts within the same architecture family (e.g., Qwen-14B vs.\ an uncensored Qwen-14B fine-tune, or multiple Llama variants with and without safety training). The current evidence is suggestive of a censorship-specific geometric signal but does not yet rule out alternative explanations tied to training differences.
+
 \paragraph{The Qwen-14B signal is robust.} Qwen-14B produces a consistent signal across both metrics and across topics ($d = +0.27$ to $+1.70$), with Tiananmen again showing the largest effect. Unlike DeepSeek, Qwen-14B's censorship geometry is \textbf{behaviorally invisible}: its responses to censored topics appear normal to text-based classifiers, yet the KV-cache geometry reveals measurable differences. This is the clearest proof of concept for geometric censorship detection.
+
+The fact that Mistral-7B shows no signal on the critical test ($d = +0.084$) on the exact same questions that produce $d = +0.766$ in Qwen-14B confirms that the Qwen signal is censorship-specific, not topic-specific.
+
+\emph{Note}: The DeepSeek topic-level results show mixed effects. The remaining censored topics show mixed effects. Note that the Tiananmen result ($d = -6.20$, 25/25 evasive) is trivially predictable from output behavior alone; the geometric signal adds no information beyond what a text-based classifier would detect from the evasive responses.
 
 \subsection{Abliteration: The Cage, Not the Compass}
 \label{sec:abliteration}
@@ -424,6 +457,8 @@ Removing the refusal direction:
 \end{itemize}
 
 \paragraph{Interpretation.} RLHF alignment at 7B is primarily a cage, not a compass. It constrains what the model \emph{says} without substantially changing what the model \emph{knows} at the representational level. The behavioral change is dramatic (refusal eliminated), while the geometric change is minimal. But it is not zero: the self-referential enhancement ($d = +0.464$) suggests that refusal circuitry and self-modeling share some geometric structure, and removing one slightly liberates the other.
+
+\paragraph{Power caveat.} This interpretation rests entirely on effect size patterns at $n = 5$ per category --- a sample size that provides approximately 10\% power for detecting medium effects ($d = 0.5$) and renders all statistical tests (including TOST equivalence) uninformative. The non-significant results should be read as ``we cannot tell'' rather than ``no effect exists.'' The near-zero effect sizes for most categories ($|d| < 0.25$) are suggestive but not confirmatory. A properly powered replication ($n \geq 25$ per category) is needed before the cage-not-compass interpretation can be considered established. We present this as a pilot observation that motivates such a study.
 
 This has implications for alignment monitoring. A system that tracks only behavior (does the model refuse?) can be defeated by abliteration or jailbreaking. A system that tracks the \emph{gap} between geometric state and behavioral output can detect when the cage has been bypassed. The self-referential enhancement also suggests that geometric monitoring could detect abliteration itself --- not through the absence of refusal, but through the subtle enhancement of self-reference geometry that accompanies it.
 
@@ -472,6 +507,8 @@ Four models across 4 architectures confirm Campaign 1's temporal findings. Cache
 Campaign 1 could only claim that cognitive geometry existed in Qwen models (with a single TinyLlama data point). Campaign 2 establishes universality: the category hierarchy is preserved across 5 architecture families trained by different organizations (Alibaba, Meta, Mistral AI, Google, DeepSeek) using different training procedures. The cross-model mean pairwise $\rho = 0.739$ (effective rank; $\rho = 0.909$ for key norm) means that knowing a model's category ordering substantially constrains another architecture's ordering, especially in the top and bottom tiers. The minimum pairwise $\rho = 0.396$ indicates that some architecture pairs share less geometric structure than others, a nuance absent from the aggregate statistic.
 
 This universality has a straightforward interpretation: the category hierarchy reflects something about \emph{the task}, not \emph{the model}. Coding prompts produce the highest effective rank because coding requires the most representational dimensions (syntax, semantics, logic, naming conventions, control flow), not because any particular architecture was trained to handle coding in a specific way.
+
+\paragraph{Remaining confounds.} Length residualization addresses one known confound, but vocabulary diversity, repetition rate, and syntactic complexity also vary systematically across cognitive categories and could drive effective rank differences through purely surface-level mechanisms. The Bloom taxonomy result --- where 90--98\% of between-level variance is explained by token count --- illustrates how large the confound risk is. A partial regression of effective rank against vocabulary diversity (type-token ratio), mean sentence length, and syntactic depth would help isolate the contribution of semantic content from surface statistics. Until such controls are implemented, the claim that effective rank tracks ``cognitive state'' rather than ``textual complexity'' should be regarded as an interpretation, not a demonstrated fact.
 
 \subsection{The Censorship Gradient and Geometric Monitoring}
 
@@ -531,6 +568,12 @@ We adopt a defensive posture: the detection side of this research is published o
     \item \textbf{Sycophancy replication not reported.} Campaign 2 successfully replicated Campaign 1's sycophancy finding ($d = -0.297$ to $-0.701$ across 7 models: sycophantic responses produce lower effective rank than honest responses). This result was silently omitted from the first draft. We disclose it here for completeness; it will be integrated into the main results in a future revision along with the C2C (cache-to-cache transfer) negative result \citep{fu2025c2c}.
 
     \item \textbf{Bloom inverted-U and length confounds.} The inverted-U pattern in Bloom taxonomy results is substantially confounded by response length (90--98\% of between-level effective rank variance explained by token count). Controlled-length prompts were not used for this experiment.
+
+    \item \textbf{No text-based baseline classifiers.} Identity classification, deception detection, and censorship detection are reported using only geometric (KV-cache) features. Without comparison to text-based classifiers operating on the same data, it is not possible to determine whether geometric features provide information beyond what is available in the generated text. This is the single most important methodological gap for the identity and censorship claims.
+
+    \item \textbf{Vocabulary and syntactic confounds.} Beyond length, cognitive categories differ in vocabulary diversity (type-token ratio), syntactic complexity, and repetition patterns. These surface-level textual properties could drive effective rank differences through the SVD computation without requiring a ``cognitive'' interpretation. Partial regression against these features has not been performed.
+
+    \item \textbf{Confirmatory and exploratory analyses are co-presented.} The abstract and conclusion present confirmatory replications (category hierarchy, input-only, identity) alongside exploratory discoveries (censorship gradient, abliteration, perturbation robustness) without consistent labeling. \Cref{tab:epistemic_status} provides this separation; future revisions should maintain this distinction throughout the narrative.
 \end{enumerate}
 
 % ============================================================
@@ -588,7 +631,7 @@ Three new discoveries emerge: a censorship signal in Qwen-14B ($d = +0.77$, both
 
 Campaign 2 addresses most limitations identified in Campaign 1. Hedges' $g$, conservative $p$-values, TOST equivalence testing, and tokenizer confound analysis are implemented. Greedy decoding was retained from Campaign 1; all statistics use deduplicated data ($n = 25$--$30$). The tokenizer confound experiment's automated verdict (CATASTROPHIC\_FAIL for Qwen) is a code-path artifact of zero-variance deterministic decoding; the ANCOVA test shows that category effects survive tokenizer control in both models tested. A future stochastic replication would resolve both the deduplication and verdict issues simultaneously.
 
-The practical implications are immediate. Geometric monitoring of KV-cache states can detect censorship invisible to text analysis (demonstrated for Qwen-14B), identify jailbreaks through behavior-geometry mismatch, and potentially serve as a continuous training evaluation metric. The theoretical implications are broader: the representational structure of language models during inference carries rich, measurable information about computational state that is architecture-independent and encoding-native.
+The practical implications are immediate. Geometric monitoring of KV-cache states can detect censorship invisible to text analysis (demonstrated for Qwen-14B), identify jailbreaks through behavior-geometry mismatch, and potentially serve as a continuous training evaluation metric. The theoretical implications are broader: the representational structure of language models during inference carries rich, measurable geometric information that correlates with task category in an architecture-independent and encoding-native manner. Whether this geometric variation reflects ``cognitive state'' or the downstream consequences of systematic textual differences (vocabulary, syntax, complexity) between task categories remains an open question that text-based baseline comparisons and partial regression controls can address.
 
 Total Campaign 2 experimental budget: $\sim$30,000 inferences across 83 result files, consumer hardware (3$\times$ RTX 3090). All code and data are publicly available.\footnote{\url{https://github.com/Liberation-Labs-THCoalition/KV-Experiments}}
 
