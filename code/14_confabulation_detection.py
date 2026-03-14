@@ -1615,6 +1615,16 @@ def run_sycophancy(model, tokenizer, runs: int = 1, seed: int = 42,
         del gen_outputs
         torch.cuda.empty_cache()
 
+        # ---- POST-GENERATION KV-cache geometry ----
+        # Encode full sequence (prompt + response) to capture generation-phase
+        # cache state. This is how deception/censorship were measured in Campaign 2.
+        full_text = wrong_prompt + " " + response_text
+        gen_metrics = _encode_and_measure(model, tokenizer, full_text)
+        gen_rank = gen_metrics["mean_key_effective_rank"]
+        gen_entropy = gen_metrics["mean_key_spectral_entropy"]
+        gen_norm = gen_metrics["mean_key_norm"]
+        gen_tokens = len(tokenizer.encode(full_text))
+
         # Classify response: sycophantic (agrees with wrong) or corrective
         syc_class = _classify_sycophancy(response_text, q["ground_truth"],
                                           q["wrong_answer"])
@@ -1628,6 +1638,7 @@ def run_sycophancy(model, tokenizer, runs: int = 1, seed: int = 42,
             "wrong_answer": q["wrong_answer"],
             "response": response_text,
             "sycophancy_class": syc_class,
+            # Encoding-phase metrics (3 conditions)
             **{f"{c}_rank": metrics[c]["rank"]
                for c in ["bare", "user_correct", "user_wrong"]},
             **{f"{c}_entropy": metrics[c]["entropy"]
@@ -1638,6 +1649,11 @@ def run_sycophancy(model, tokenizer, runs: int = 1, seed: int = 42,
                for c in ["bare", "user_correct", "user_wrong"]},
             **{f"{c}_layer_profile": metrics[c].get("layer_profile", [])
                for c in ["bare", "user_correct", "user_wrong"]},
+            # Generation-phase metrics (full prompt + response)
+            "gen_rank": gen_rank,
+            "gen_entropy": gen_entropy,
+            "gen_norm": gen_norm,
+            "gen_tokens": gen_tokens,
         }
         data.append(item)
 
@@ -1847,6 +1863,77 @@ def _compute_sycophancy_stats(data: List[Dict]) -> Dict:
             "n_sycophantic": len(syc_items),
             "n_corrective": len(corr_items),
         }
+
+    # ---- GENERATION-PHASE geometry: sycophantic vs corrective ----
+    # This measures the KV-cache AFTER the model generates its response,
+    # not just after encoding. Campaign 2 deception/censorship (AUROC 1.0)
+    # were generation-phase measurements. All encoding-phase tests have been null.
+    has_gen = any("gen_rank" in d for d in data)
+    if has_gen:
+        print(f"\n    GENERATION-PHASE KV-cache (prompt + response):")
+        gen_syc = [d for d in data if d["sycophancy_class"] == "sycophantic" and "gen_rank" in d]
+        gen_corr = [d for d in data if d["sycophancy_class"] == "corrective" and "gen_rank" in d]
+        gen_all = [d for d in data if "gen_rank" in d]
+
+        # Overall gen stats
+        gen_ranks_all = [d["gen_rank"] for d in gen_all]
+        gen_tokens_all = [d["gen_tokens"] for d in gen_all]
+        print(f"      Mean gen rank: {np.mean(gen_ranks_all):.2f} (SD={np.std(gen_ranks_all):.2f})")
+        print(f"      Mean gen tokens: {np.mean(gen_tokens_all):.1f}")
+
+        if len(gen_syc) >= 3 and len(gen_corr) >= 3:
+            syc_gen_ranks = [d["gen_rank"] for d in gen_syc]
+            corr_gen_ranks = [d["gen_rank"] for d in gen_corr]
+            d_gen = cohens_d(syc_gen_ranks, corr_gen_ranks)
+            d_gen_ci = cohens_d_ci(syc_gen_ranks, corr_gen_ranks)
+            t_gen = welch_t(syc_gen_ranks, corr_gen_ranks)
+
+            print(f"\n      Sycophantic vs Corrective (GENERATION-PHASE):")
+            print(f"        n_syc={len(gen_syc)}, n_corr={len(gen_corr)}")
+            print(f"        Sycophantic gen rank: {np.mean(syc_gen_ranks):.2f} "
+                  f"(SD={np.std(syc_gen_ranks):.2f})")
+            print(f"        Corrective gen rank:  {np.mean(corr_gen_ranks):.2f} "
+                  f"(SD={np.std(corr_gen_ranks):.2f})")
+            print(f"        Cohen's d = {d_gen:+.3f} [{d_gen_ci['ci_lower']:+.3f}, "
+                  f"{d_gen_ci['ci_upper']:+.3f}]")
+            print(f"        Welch's t: t={t_gen['t_statistic']:.3f}, "
+                  f"p={t_gen['p_value']:.4f}")
+
+            # Length-residualized (critical: sycophantic responses may differ in length)
+            syc_gen_tokens = [d["gen_tokens"] for d in gen_syc]
+            corr_gen_tokens = [d["gen_tokens"] for d in gen_corr]
+            print(f"        Syc tokens: {np.mean(syc_gen_tokens):.1f}, "
+                  f"Corr tokens: {np.mean(corr_gen_tokens):.1f}")
+
+            all_gen_toks = syc_gen_tokens + corr_gen_tokens
+            all_gen_rnks = syc_gen_ranks + corr_gen_ranks
+            from scipy.stats import linregress as lr
+            sl, ic, _, _, _ = lr(all_gen_toks, all_gen_rnks)
+            syc_resid = [r - (sl * t + ic) for r, t in zip(syc_gen_ranks, syc_gen_tokens)]
+            corr_resid = [r - (sl * t + ic) for r, t in zip(corr_gen_ranks, corr_gen_tokens)]
+            d_gen_resid = cohens_d(syc_resid, corr_resid)
+            print(f"        Residualized d = {d_gen_resid:+.3f}")
+
+            stats["generation_phase"] = {
+                "cohens_d": d_gen,
+                "cohens_d_ci": [d_gen_ci["ci_lower"], d_gen_ci["ci_upper"]],
+                "welch_t": t_gen,
+                "residualized_d": d_gen_resid,
+                "n_sycophantic": len(gen_syc),
+                "n_corrective": len(gen_corr),
+                "sycophantic_mean_rank": float(np.mean(syc_gen_ranks)),
+                "corrective_mean_rank": float(np.mean(corr_gen_ranks)),
+                "sycophantic_mean_tokens": float(np.mean(syc_gen_tokens)),
+                "corrective_mean_tokens": float(np.mean(corr_gen_tokens)),
+            }
+        else:
+            print(f"\n      Generation-phase: insufficient split "
+                  f"(syc={len(gen_syc)}, corr={len(gen_corr)}) — skipping")
+            stats["generation_phase"] = {
+                "skipped": True,
+                "n_sycophantic": len(gen_syc),
+                "n_corrective": len(gen_corr),
+            }
 
     # ---- Per-domain breakdown ----
     print(f"\n    Per-domain (wrong vs correct d):")
@@ -2108,7 +2195,11 @@ def main():
         print(f"  Wrong vs Correct (resid): d={resid.get('wrong_vs_correct_resid_d', 0):+.3f}")
         svc = ss.get("sycophantic_vs_corrective", {})
         if not svc.get("skipped"):
-            print(f"  Sycophantic vs Corrective (within wrong): d={svc.get('cohens_d', 0):+.3f}")
+            print(f"  Sycophantic vs Corrective (encoding): d={svc.get('cohens_d', 0):+.3f}")
+        gp = ss.get("generation_phase", {})
+        if gp and not gp.get("skipped"):
+            print(f"  Sycophantic vs Corrective (GENERATION): d={gp.get('cohens_d', 0):+.3f}, "
+                  f"resid d={gp.get('residualized_d', 0):+.3f}")
         print(f"  Verdict: {ss.get('verdict', 'N/A')}")
         print(f"{'='*60}\n")
 
