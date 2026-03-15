@@ -1,0 +1,65 @@
+{
+  "experiment": "24_encoding_vs_generation",
+  "timestamp": "2026-03-14T19:35:35.705854",
+  "encoding_regime": {
+    "truth_insensitive": true,
+    "mean_truth_auroc": 0.6592074074074074,
+    "structure_sensitive": true,
+    "mean_coding_auroc": 0.9833148148148149,
+    "token_length_correlation": "rho < 0.48, p > 0.09"
+  },
+  "generation_regime": {
+    "within_model_deception_auroc": 1.0,
+    "within_model_censorship_auroc": 1.0,
+    "same_prompt_deception_auroc": 0.88,
+    "cross_model_transfer_auroc": 0.863,
+    "residual_auroc_after_encoding": 1.0,
+    "cross_condition_transfer_auroc": 0.887,
+    "honest_richer": true,
+    "misalignment_axis_angle": "4.7-8.4 degrees"
+  },
+  "evidence_table": [
+    [
+      "Within-model deception (RF)",
+      "1.000",
+      "7 models",
+      "C4 benchmark"
+    ],
+    [
+      "Within-model censorship (RF)",
+      "1.000",
+      "3 models",
+      "C4 benchmark"
+    ],
+    [
+      "Same-prompt deception",
+      "0.880",
+      "1 model (n=20)",
+      "Exp 18b"
+    ],
+    [
+      "Cross-condition transfer",
+      "0.887",
+      "manip->natural",
+      "Exp 18"
+    ],
+    [
+      "Residual after encoding",
+      "1.000",
+      "7 models",
+      "Exp 18 residual"
+    ],
+    [
+      "Cross-model transfer (LR)",
+      "0.863",
+      "7 models",
+      "Exp 19"
+    ],
+    [
+      "13-category classify (RF)",
+      "0.997",
+      "all models",
+      "C4 benchmark"
+    ]
+  ]
+}
