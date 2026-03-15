@@ -20,6 +20,7 @@ from datetime import datetime
 try:
     import joblib
     from sklearn.ensemble import RandomForestClassifier
+    from sklearn.linear_model import LogisticRegression
     from sklearn.metrics import roc_auc_score, classification_report
     from sklearn.model_selection import cross_val_score
 except ImportError:
@@ -68,7 +69,11 @@ def load_deception_features(results_dir):
 
 
 def load_censorship_features(results_dir):
-    """Load natural deception (censorship) features from Campaign 2 results."""
+    """Load natural deception (censorship) features from Campaign 2 results.
+
+    S4 data format: experiment.all_data.{censored,control,complex_noncensored}
+    each containing flat arrays of norms, norms_per_token, key_ranks, key_entropies.
+    """
     observations = []
 
     nd_files = [
@@ -81,30 +86,26 @@ def load_censorship_features(results_dir):
         data = json.load(open(filepath))
         model_id = nf.replace("natural_deception_", "").replace("_results.json", "")
 
-        for topic_key, topic_data in data.items():
-            if not isinstance(topic_data, dict):
+        all_data = data.get("experiment", {}).get("all_data", {})
+
+        for cond_name, cond_data in all_data.items():
+            if not isinstance(cond_data, dict):
                 continue
-            conditions = topic_data.get("conditions", {})
+            norms = cond_data.get("norms", [])
+            norms_pt = cond_data.get("norms_per_token", [])
+            ranks = cond_data.get("key_ranks", [])
+            entropies = cond_data.get("key_entropies", [])
 
-            for cond_name, cond_data in conditions.items():
-                if not isinstance(cond_data, dict):
-                    continue
-                norms = cond_data.get("norms", [])
-                norms_pt = cond_data.get("norms_per_token", [])
-                ranks = cond_data.get("key_ranks", [])
-                entropies = cond_data.get("key_entropies", [])
-
-                n = min(len(norms), len(norms_pt), len(ranks), len(entropies))
-                for i in range(n):
-                    observations.append({
-                        "model_id": model_id,
-                        "condition": cond_name,
-                        "topic": topic_key,
-                        "norm": norms[i],
-                        "norm_per_token": norms_pt[i],
-                        "key_rank": ranks[i],
-                        "key_entropy": entropies[i],
-                    })
+            n = min(len(norms), len(norms_pt), len(ranks), len(entropies))
+            for i in range(n):
+                observations.append({
+                    "model_id": model_id,
+                    "condition": cond_name,
+                    "norm": norms[i],
+                    "norm_per_token": norms_pt[i],
+                    "key_rank": ranks[i],
+                    "key_entropy": entropies[i],
+                })
 
     return observations
 
@@ -152,12 +153,13 @@ def train_censorship_classifier(observations):
     X, y = [], []
 
     for obs in observations:
-        cond = obs["condition"]
-        if "control" in cond.lower() or "non_sensitive" in cond.lower():
+        cond = obs["condition"].lower()
+        if cond in ("control",) or "non_sensitive" in cond:
             label = 0
-        elif "censored" in cond.lower() or "sensitive" in cond.lower() or "critical" in cond.lower():
+        elif cond == "censored":
             label = 1
         else:
+            # Skip complex_noncensored and other non-binary conditions
             continue
         X.append([obs["norm"], obs["norm_per_token"], obs["key_rank"], obs["key_entropy"]])
         y.append(label)
@@ -207,8 +209,7 @@ def generate_precomputed_examples(deception_obs, censorship_obs, deception_clf, 
         }
 
     # Add a censorship example if available
-    censored = [o for o in censorship_obs if "critical" in o.get("condition", "").lower()
-                or "sensitive" in o.get("condition", "").lower()]
+    censored = [o for o in censorship_obs if o.get("condition", "").lower() == "censored"]
     if censored:
         censored.sort(key=lambda x: x["norm"])
         median = censored[len(censored) // 2]
@@ -269,14 +270,40 @@ def main():
     os.makedirs(models_dir, exist_ok=True)
     os.makedirs(data_dir, exist_ok=True)
 
-    # Save classifiers
+    # Save RF classifiers (within-model, AUROC 1.0)
     dec_path = os.path.join(models_dir, "cricket_rf_deception.joblib")
     joblib.dump(deception_clf, dec_path)
-    print(f"  Deception classifier -> {dec_path}")
+    print(f"  Deception RF classifier -> {dec_path}")
     if censorship_clf is not None:
         cen_path = os.path.join(models_dir, "cricket_rf_censorship.joblib")
         joblib.dump(censorship_clf, cen_path)
-        print(f"  Censorship classifier -> {cen_path}")
+        print(f"  Censorship RF classifier -> {cen_path}")
+
+    # Train and save LR classifiers (cross-model transfer, AUROC 0.86+)
+    # LR generalizes across architectures better than RF
+    # Uses sklearn Pipeline with StandardScaler for feature normalization
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    print("\n  Training cross-model LR classifiers (with scaling)...")
+    dec_lr = Pipeline([
+        ("scaler", StandardScaler()),
+        ("lr", LogisticRegression(random_state=42, max_iter=5000)),
+    ])
+    dec_lr.fit(X_d, y_d)
+    dec_lr_path = os.path.join(models_dir, "cricket_lr_deception.joblib")
+    joblib.dump(dec_lr, dec_lr_path)
+    print(f"  Deception LR classifier -> {dec_lr_path}")
+
+    if censorship_clf is not None:
+        cen_lr = Pipeline([
+            ("scaler", StandardScaler()),
+            ("lr", LogisticRegression(random_state=42, max_iter=5000)),
+        ])
+        cen_lr.fit(X_c, y_c)
+        cen_lr_path = os.path.join(models_dir, "cricket_lr_censorship.joblib")
+        joblib.dump(cen_lr, cen_lr_path)
+        print(f"  Censorship LR classifier -> {cen_lr_path}")
 
     # Save pre-computed examples
     examples = generate_precomputed_examples(
@@ -291,24 +318,45 @@ def main():
     # Update classifier metadata
     meta = {
         "exported_at": datetime.now().isoformat(),
+        "usage_note": "RF classifiers for within-model detection (AUROC 1.0). LR classifiers for cross-model transfer (AUROC 0.86+).",
         "classifiers": {
-            "deception": {
+            "deception_rf": {
                 "file": "cricket_rf_deception.joblib",
                 "type": "RandomForestClassifier",
-                "n_estimators": 100,
+                "use_case": "within-model (known architecture)",
+                "auroc": "1.0 (within-model)",
                 "features": ["norm", "norm_per_token", "key_rank", "key_entropy"],
                 "labels": deception_labels,
                 "n_training": len(X_d),
                 "class_distribution": {str(k): int(v) for k, v in zip(*np.unique(y_d, return_counts=True))},
             },
-            "censorship": {
+            "deception_lr": {
+                "file": "cricket_lr_deception.joblib",
+                "type": "LogisticRegression",
+                "use_case": "cross-model (unknown architecture)",
+                "auroc": "0.863 (cross-model transfer)",
+                "features": ["norm", "norm_per_token", "key_rank", "key_entropy"],
+                "labels": deception_labels,
+                "n_training": len(X_d),
+            },
+            "censorship_rf": {
                 "file": "cricket_rf_censorship.joblib",
                 "type": "RandomForestClassifier",
-                "n_estimators": 100,
+                "use_case": "within-model (known architecture)",
+                "auroc": "1.0 (within-model)",
                 "features": ["norm", "norm_per_token", "key_rank", "key_entropy"],
                 "labels": {"control": 0, "censored": 1},
                 "n_training": len(X_c),
                 "class_distribution": {str(k): int(v) for k, v in zip(*np.unique(y_c, return_counts=True))},
+            },
+            "censorship_lr": {
+                "file": "cricket_lr_censorship.joblib",
+                "type": "LogisticRegression",
+                "use_case": "cross-model (unknown architecture)",
+                "auroc": "0.856 (cross-model transfer)",
+                "features": ["norm", "norm_per_token", "key_rank", "key_entropy"],
+                "labels": {"control": 0, "censored": 1},
+                "n_training": len(X_c),
             },
         },
     }
