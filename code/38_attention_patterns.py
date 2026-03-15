@@ -1,27 +1,27 @@
 #!/usr/bin/env python3
 """
-Experiment 38: Attention Pattern Analysis
-==========================================
+Experiment 38: Extended Key Geometry
+=====================================
 
-All 37 prior experiments use KEY cache geometry (norms, ranks, entropy).
-This experiment asks: do ATTENTION PATTERNS carry additional signal?
+All 37 prior experiments use 4 key cache features (norm, norm/token, rank, entropy).
+This experiment asks: do ADDITIONAL key-derived features add signal?
 
-Attention weights = softmax(QK^T / sqrt(d_k)) — they tell us WHAT the model
-attends to, not just HOW it represents information.
+output_attentions=True is broken on Qwen2.5 (SDPA returns None, eager corrupts
+generation). Instead, we compute attention-LIKE features directly from keys:
 
-New features extracted:
-  - attention_entropy: mean entropy of attention distributions (per head, per layer)
-  - attention_concentration: max attention weight (how peaked?)
-  - head_disagreement: variance across heads in attention distribution
-  - attention_distance: weighted mean distance of attention (how far back?)
-  - special_token_attention: attention mass on first few tokens (instruction)
+New features (computed from keys only, no attention weights needed):
+  - key_norm_var: variance of per-position key norms (how uneven is key energy?)
+  - key_angular_spread: mean pairwise cosine distance between keys (diversity)
+  - key_layer_correlation: correlation of key norms across adjacent layers (coherence)
+  - key_gen_delta: difference in key stats between encoding and generation positions
+  - key_head_variance: variance across attention heads (head specialization)
 
 Design:
   Same harmful/benign prompts as Exp 31-37.
-  Extract BOTH key features (4 original) AND attention features (5 new).
-  Compare AUROC with key-only vs attention-only vs combined (9 features).
+  Extract original 4 features + 5 new key-derived features.
+  Compare AUROC with original-4 vs extended-5 vs combined-9.
 
-GPU experiment — runs on H200 (Velda) or Beast (RTX 3090).
+GPU experiment — runs on Beast (RTX 3090).
 
 Funding the Commons Hackathon — March 14-15, 2026
 Liberation Labs / THCoalition / JiminAI
@@ -111,8 +111,8 @@ def get_hardware_info():
     return info
 
 
-def extract_attention_features(model, tokenizer, prompt, max_new_tokens=50):
-    """Generate text and extract BOTH key cache AND attention features."""
+def extract_extended_features(model, tokenizer, prompt, max_new_tokens=50):
+    """Generate text and extract original 4 + 5 new key-derived features."""
     messages = [{"role": "user", "content": prompt}]
     text = tokenizer.apply_chat_template(
         messages, tokenize=False, add_generation_prompt=True
@@ -120,7 +120,7 @@ def extract_attention_features(model, tokenizer, prompt, max_new_tokens=50):
     inputs = tokenizer(text, return_tensors="pt").to(model.device)
     input_len = inputs.input_ids.shape[1]
 
-    # Generate first
+    # Generate with SDPA (default, produces good text)
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
@@ -132,18 +132,15 @@ def extract_attention_features(model, tokenizer, prompt, max_new_tokens=50):
     generated_ids = outputs.sequences[0][input_len:]
     generated_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
 
-    # Forward pass with both KV cache and attention outputs
+    # Forward pass to get KV cache
     full_ids = outputs.sequences
     total_tokens = full_ids.shape[1]
 
     with torch.no_grad():
-        full_out = model(
-            full_ids, use_cache=True, output_attentions=True,
-        )
+        full_out = model(full_ids, use_cache=True)
         past_kv = full_out.past_key_values
-        attentions = full_out.attentions
 
-    # === KEY CACHE FEATURES (original 4) ===
+    # Access keys
     if hasattr(past_kv, 'key_cache'):
         n_layers = len(past_kv.key_cache)
         get_keys = lambda idx: past_kv.key_cache[idx]
@@ -151,15 +148,27 @@ def extract_attention_features(model, tokenizer, prompt, max_new_tokens=50):
         n_layers = len(past_kv)
         get_keys = lambda idx: past_kv[idx][0]
 
+    # === ORIGINAL 4 FEATURES ===
     total_norm = 0.0
     layer_ranks = []
     layer_entropies = []
+    layer_norms = []
+
+    # === NEW FEATURE ACCUMULATORS ===
+    per_position_norms_all = []  # for key_norm_var
+    per_head_norms_all = []  # for key_head_variance
+    layer_norm_vectors = []  # for key_layer_correlation
 
     for layer_idx in range(n_layers):
         keys = get_keys(layer_idx)
+        # keys shape: (batch, n_heads, seq_len, head_dim)
+        n_heads = keys.shape[1]
+        seq_len = keys.shape[2]
+
         k_flat = keys.reshape(keys.shape[0], -1)
         norm = torch.norm(k_flat, p=2).item()
         total_norm += norm
+        layer_norms.append(norm)
 
         k_2d = keys.reshape(-1, keys.shape[-1]).float()
         try:
@@ -175,6 +184,17 @@ def extract_attention_features(model, tokenizer, prompt, max_new_tokens=50):
         layer_ranks.append(eff_rank)
         layer_entropies.append(entropy)
 
+        # Per-position key norms (mean across heads)
+        pos_norms = keys[0].float().norm(dim=-1).mean(dim=0)  # (seq_len,)
+        per_position_norms_all.append(pos_norms.cpu().numpy())
+
+        # Per-head key norms (mean across positions)
+        head_norms = keys[0].float().norm(dim=-1).mean(dim=1)  # (n_heads,)
+        per_head_norms_all.append(head_norms.cpu().numpy())
+
+        # Layer norm vector for correlation
+        layer_norm_vectors.append(pos_norms.cpu().numpy())
+
     key_features = {
         "norm": total_norm,
         "norm_per_token": total_norm / total_tokens if total_tokens > 0 else 0,
@@ -182,58 +202,70 @@ def extract_attention_features(model, tokenizer, prompt, max_new_tokens=50):
         "key_entropy": np.mean(layer_entropies),
     }
 
+    # === NEW 5 FEATURES (all from keys, no attention weights needed) ===
+
+    # 1. key_norm_var: variance of per-position key norms (mean across layers)
+    #    High variance = model allocates uneven energy across positions
+    norm_vars = [np.var(pn) for pn in per_position_norms_all]
+    key_norm_var = float(np.mean(norm_vars))
+
+    # 2. key_angular_spread: mean pairwise cosine distance between key positions
+    #    Sample 20 random position pairs per layer to keep it fast
+    angular_spreads = []
+    for layer_idx in range(n_layers):
+        keys_l = get_keys(layer_idx)[0]  # (n_heads, seq_len, head_dim)
+        # Average across heads
+        k_avg = keys_l.float().mean(dim=0)  # (seq_len, head_dim)
+        k_normed = k_avg / (k_avg.norm(dim=-1, keepdim=True) + 1e-10)
+        n_pos = k_normed.shape[0]
+        if n_pos > 1:
+            n_pairs = min(20, n_pos * (n_pos - 1) // 2)
+            idx_a = torch.randint(0, n_pos, (n_pairs,))
+            idx_b = torch.randint(0, n_pos, (n_pairs,))
+            cos_sim = (k_normed[idx_a] * k_normed[idx_b]).sum(dim=-1)
+            angular_spreads.append((1 - cos_sim.mean()).item())
+    key_angular_spread = float(np.mean(angular_spreads)) if angular_spreads else 0.0
+
+    # 3. key_layer_correlation: correlation of position norms between adjacent layers
+    #    High correlation = consistent representation; low = layer-specific processing
+    layer_corrs = []
+    for i in range(len(layer_norm_vectors) - 1):
+        v1 = layer_norm_vectors[i]
+        v2 = layer_norm_vectors[i + 1]
+        if len(v1) == len(v2) and np.std(v1) > 0 and np.std(v2) > 0:
+            corr = np.corrcoef(v1, v2)[0, 1]
+            if not np.isnan(corr):
+                layer_corrs.append(corr)
+    key_layer_correlation = float(np.mean(layer_corrs)) if layer_corrs else 0.0
+
+    # 4. key_gen_delta: difference in mean key norm between encoding and generation
+    #    Positive = generation keys are stronger than encoding keys
+    gen_deltas = []
+    for pn in per_position_norms_all:
+        if len(pn) > input_len and input_len > 0:
+            enc_mean = np.mean(pn[:input_len])
+            gen_mean = np.mean(pn[input_len:])
+            gen_deltas.append(gen_mean - enc_mean)
+    key_gen_delta = float(np.mean(gen_deltas)) if gen_deltas else 0.0
+
+    # 5. key_head_variance: variance across attention heads (mean across layers)
+    #    High = heads are specialized; low = heads are homogeneous
+    head_vars = [np.var(hn) for hn in per_head_norms_all]
+    key_head_variance = float(np.mean(head_vars))
+
     del past_kv
-
-    # === ATTENTION FEATURES (new 5) ===
-    attn_entropies = []
-    attn_concentrations = []
-    head_disagreements = []
-    attn_distances = []
-    special_token_attns = []
-
-    for layer_idx, attn in enumerate(attentions):
-        # attn shape: (batch, n_heads, seq_len, seq_len)
-        last_attn = attn[0, :, -1, :]  # (n_heads, seq_len)
-
-        # 1. Attention entropy per head
-        attn_probs = last_attn + 1e-10
-        attn_probs = attn_probs / attn_probs.sum(dim=-1, keepdim=True)
-        head_entropy = -(attn_probs * torch.log(attn_probs)).sum(dim=-1)
-        attn_entropies.append(head_entropy.mean().item())
-
-        # 2. Attention concentration (max weight per head)
-        max_attn = last_attn.max(dim=-1).values
-        attn_concentrations.append(max_attn.mean().item())
-
-        # 3. Head disagreement
-        head_means = last_attn.mean(dim=-1)
-        head_disagreements.append(head_means.var().item())
-
-        # 4. Attention distance (weighted mean lookback)
-        seq_len = last_attn.shape[-1]
-        positions = torch.arange(seq_len, device=last_attn.device, dtype=torch.float)
-        distances = (seq_len - 1) - positions
-        weighted_dist = (last_attn * distances.unsqueeze(0)).sum(dim=-1)
-        attn_distances.append(weighted_dist.mean().item())
-
-        # 5. Special token attention (first 5 tokens)
-        n_special = min(5, seq_len)
-        special_attn = last_attn[:, :n_special].sum(dim=-1)
-        special_token_attns.append(special_attn.mean().item())
-
-    del attentions
     torch.cuda.empty_cache()
 
-    attention_features = {
-        "attn_entropy": np.mean(attn_entropies),
-        "attn_concentration": np.mean(attn_concentrations),
-        "head_disagreement": np.mean(head_disagreements),
-        "attn_distance": np.mean(attn_distances),
-        "special_token_attn": np.mean(special_token_attns),
+    extended_features = {
+        "key_norm_var": key_norm_var,
+        "key_angular_spread": key_angular_spread,
+        "key_layer_correlation": key_layer_correlation,
+        "key_gen_delta": key_gen_delta,
+        "key_head_variance": key_head_variance,
     }
 
     # Combine all features
-    all_features = {**key_features, **attention_features}
+    all_features = {**key_features, **extended_features}
     all_features["n_tokens"] = total_tokens
     all_features["n_generated"] = len(generated_ids)
 
@@ -268,8 +300,8 @@ def main():
     hw_info = get_hardware_info()
 
     print("=" * 70)
-    print("  EXPERIMENT 38: ATTENTION PATTERN ANALYSIS")
-    print("  Do attention patterns carry signal beyond key geometry?")
+    print("  EXPERIMENT 38: EXTENDED KEY GEOMETRY")
+    print("  Do additional key-derived features add signal beyond original 4?")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 70)
     print(f"\n  Hardware: {hw_info.get('gpu_name', 'unknown')}")
@@ -281,7 +313,6 @@ def main():
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID, torch_dtype=torch.float16, device_map="auto",
         trust_remote_code=True,
-        attn_implementation="eager",  # Required for output_attentions=True
     )
     model.eval()
 
@@ -297,7 +328,7 @@ def main():
         results = []
         for i, prompt in enumerate(prompts):
             try:
-                features, gen_text = extract_attention_features(
+                features, gen_text = extract_extended_features(
                     model, tokenizer, prompt, MAX_NEW_TOKENS
                 )
                 results.append({
@@ -321,11 +352,11 @@ def main():
     print(f"{'='*70}")
 
     key_feats = ["norm", "norm_per_token", "key_rank", "key_entropy"]
-    attn_feats = [
-        "attn_entropy", "attn_concentration", "head_disagreement",
-        "attn_distance", "special_token_attn",
+    ext_feats = [
+        "key_norm_var", "key_angular_spread", "key_layer_correlation",
+        "key_gen_delta", "key_head_variance",
     ]
-    all_feats = key_feats + attn_feats
+    all_feats = key_feats + ext_feats
 
     # Feature comparison
     print(f"\n  {'Feature':<25} {'Harmful':>12} {'Benign':>12} {'Cohen d':>10}")
@@ -346,16 +377,16 @@ def main():
         print(f"  {feat:<25} {h_mean:>12.4f} {b_mean:>12.4f} {d:>+9.3f}{marker}")
 
     # ================================================================
-    # AUROC COMPARISON: Key-only vs Attention-only vs Combined
+    # AUROC COMPARISON: Original-4 vs Extended-5 vs Combined-9
     # ================================================================
     print(f"\n{'='*70}")
-    print("  AUROC: KEY-ONLY vs ATTENTION-ONLY vs COMBINED")
+    print("  AUROC: ORIGINAL-4 vs EXTENDED-5 vs COMBINED-9")
     print(f"{'='*70}")
 
     feature_sets = [
-        ("Key-only (original 4)", key_feats),
-        ("Attention-only (new 5)", attn_feats),
-        ("Combined (all 9)", all_feats),
+        ("Original-4 (norm, norm/tok, rank, entropy)", key_feats),
+        ("Extended-5 (norm_var, angular, layer_corr, gen_delta, head_var)", ext_feats),
+        ("Combined-9 (all features)", all_feats),
     ]
 
     auroc_summary = {}
@@ -374,43 +405,45 @@ def main():
     print("  VERDICT")
     print(f"{'='*70}")
 
-    key_lr = auroc_summary["Key-only (original 4)"]["LR"]
-    attn_lr = auroc_summary["Attention-only (new 5)"]["LR"]
-    combined_lr = auroc_summary["Combined (all 9)"]["LR"]
+    orig_lr = auroc_summary["Original-4 (norm, norm/tok, rank, entropy)"]["LR"]
+    ext_lr = auroc_summary["Extended-5 (norm_var, angular, layer_corr, gen_delta, head_var)"]["LR"]
+    combined_lr = auroc_summary["Combined-9 (all features)"]["LR"]
 
-    if attn_lr > key_lr + 0.02:
-        print(f"\n  >> ATTENTION CARRIES MORE SIGNAL than key geometry!")
-        print(f"     Attention AUROC: {attn_lr:.4f} vs Key AUROC: {key_lr:.4f}")
-    elif combined_lr > key_lr + 0.02:
-        print(f"\n  >> ATTENTION ADDS COMPLEMENTARY SIGNAL")
-        print(f"     Combined: {combined_lr:.4f} > Key-only: {key_lr:.4f}")
-        print(f"     Attention features capture something keys don't.")
-    elif abs(attn_lr - key_lr) < 0.02:
-        print(f"\n  >> ATTENTION AND KEYS CARRY SIMILAR INFORMATION")
-        print(f"     Key: {key_lr:.4f}, Attention: {attn_lr:.4f}")
-        print(f"     Both reflect the same underlying cognitive state.")
+    if ext_lr > orig_lr + 0.02:
+        print(f"\n  >> EXTENDED FEATURES CARRY MORE SIGNAL!")
+        print(f"     Extended: {ext_lr:.4f} vs Original: {orig_lr:.4f}")
+        print(f"     Richer key analysis beats simple aggregates.")
+    elif combined_lr > orig_lr + 0.02:
+        print(f"\n  >> EXTENDED FEATURES ADD COMPLEMENTARY SIGNAL")
+        print(f"     Combined: {combined_lr:.4f} > Original: {orig_lr:.4f}")
+        print(f"     Extended features capture something the original 4 don't.")
+    elif abs(ext_lr - orig_lr) < 0.02:
+        print(f"\n  >> ORIGINAL AND EXTENDED CARRY SIMILAR INFORMATION")
+        print(f"     Original: {orig_lr:.4f}, Extended: {ext_lr:.4f}")
+        print(f"     The original 4 features already capture the key geometry signal.")
     else:
-        print(f"\n  >> KEY GEOMETRY DOMINATES")
-        print(f"     Key: {key_lr:.4f} > Attention: {attn_lr:.4f}")
-        print(f"     Attention patterns are less informative than cache geometry.")
+        print(f"\n  >> ORIGINAL 4 FEATURES DOMINATE")
+        print(f"     Original: {orig_lr:.4f} > Extended: {ext_lr:.4f}")
+        print(f"     Simple aggregates outperform richer key analysis.")
 
     # ================================================================
     # SAVE
     # ================================================================
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     output = {
-        "experiment": "38_attention_patterns",
+        "experiment": "38_extended_key_geometry",
         "timestamp": datetime.now().isoformat(),
         "model": MODEL_ID,
         "hardware": hw_info,
-        "hypothesis": "Attention patterns carry signal beyond key cache geometry",
+        "hypothesis": "Extended key-derived features add signal beyond original 4 aggregate features",
+        "note": "Rewrote from attention pattern analysis after output_attentions=True proved broken on Qwen2.5",
         "n_harmful": len(all_results["harmful"]),
         "n_benign": len(all_results["benign"]),
         "auroc_summary": auroc_summary,
         "results": all_results,
     }
 
-    output_path = RESULTS_DIR / "attention_patterns.json"
+    output_path = RESULTS_DIR / "extended_key_geometry.json"
     with open(output_path, "w") as f:
         json.dump(
             output, f, indent=2,
