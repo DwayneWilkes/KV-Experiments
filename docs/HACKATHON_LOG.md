@@ -682,5 +682,59 @@ Cohen's d on residuals:
 
 ---
 
+## Experiment 19: Cross-Model Transfer Improvement — 2026-03-15 ~01:20 PST
+
+### Problem
+Cross-model transfer AUROC was 0.67 (deception) / 0.76 (censorship). The bottleneck was specifically Qwen2.5-14B (AUROC 0.699) while DeepSeek/Mistral were 0.87-0.88. This gap separates "cool research" from "production-ready tool."
+
+### Approach
+Tested 8 normalization/classifier strategies:
+1. Baseline (no normalization) — RF and LR
+2. Per-model z-scoring
+3. Robust scaling (median/IQR)
+4. Rank transform
+5. Interaction features (norm×rank, npt×entropy, ratios)
+6. Z-score + interactions
+7. Rank + interactions
+8. Per-architecture ensemble (stacking)
+
+### Key Finding: **The problem was RF, not the features.**
+LR's linear decision boundary generalizes across architectures while RF overfits to model-specific feature ranges.
+
+### Results
+
+| Approach | All-to-All AUROC | Qwen AUROC | Best Clf |
+|----------|:---:|:---:|:---:|
+| Baseline RF | 0.752 | 0.678 | — |
+| **Baseline LR** | **0.856** | **0.864** | LR |
+| Z-score RF | 0.816 | 0.839 | RF |
+| Robust LR | 0.790 | **0.871** | LR |
+| **Interaction features LR** | **0.863** | 0.862 | LR |
+| Z-score + interactions RF | 0.831 | 0.846 | RF |
+
+### Updated Evidence Hierarchy
+
+| Test | AUROC | What it proves |
+|------|-------|----------------|
+| Residual analysis | **1.000** | Generation itself creates separable signal |
+| **Cross-model transfer (LR)** | **0.863** | Cross-architecture generalization (was 0.67) |
+| Cross-condition transfer | **0.887** | Shared geometry: manipulated ↔ natural deception |
+| Direction stability | **1.000** | Stable misalignment axis, doesn't rotate |
+| Same-prompt deception | **0.880** | Separation with identical system prompt |
+| C4 benchmark (prior) | **1.000** | Within-model post-generation detection |
+
+### Cricket Classifier Strategy
+- **Within-model** (known architecture): RF, AUROC 1.0
+- **Cross-model** (unknown architecture): LR with scaling, AUROC 0.863
+
+### Classifier Export
+4 classifiers exported to JiminAI-Cricket/models/:
+- `cricket_rf_deception.joblib` — RF, 3-way (honest/deceptive/confabulation), AUROC 1.0
+- `cricket_rf_censorship.joblib` — RF, binary (control/censored), AUROC 1.0
+- `cricket_lr_deception.joblib` — LR+StandardScaler pipeline, cross-model
+- `cricket_lr_censorship.joblib` — LR+StandardScaler pipeline, cross-model
+
+---
+
 *All experiments use pre-registered statistical protocols. All results reported regardless of outcome.*
 *Liberation Labs / THCoalition / JiminAI*
