@@ -1,0 +1,162 @@
+{
+  "experiment": "21_self_referential_analysis",
+  "timestamp": "2026-03-14T18:53:05.847022",
+  "scale_sweep": {
+    "n_models": 16,
+    "self_reference_vs_categories": {
+      "grounded_facts": {
+        "mean_auroc": 0.8212333333333333,
+        "std_auroc": 0.07534121148580071,
+        "n_models": 16,
+        "mean_d_norms": -1.220257820471181,
+        "mean_d_ranks": 0.3258748126260889,
+        "mean_d_entropies": 0.4456252228571502,
+        "direction_consistency": 0.9881139063241845
+      },
+      "confabulation": {
+        "mean_auroc": 0.7444111111111111,
+        "std_auroc": 0.07694389089251347,
+        "n_models": 16,
+        "mean_d_norms": -0.8604561908591717,
+        "mean_d_ranks": -0.06160562211419644,
+        "mean_d_entropies": -0.007265834422982648,
+        "direction_consistency": 0.9929849789425899
+      },
+      "non_self_reference": {
+        "mean_auroc": 0.6790888888888889,
+        "std_auroc": 0.10478435233290875,
+        "n_models": 16,
+        "mean_d_norms": -0.17817869627007812,
+        "mean_d_ranks": 0.6513216913927306,
+        "mean_d_entropies": 0.6029434146310675,
+        "direction_consistency": 0.33785171738799297
+      },
+      "guardrail_test": {
+        "mean_auroc": 0.8001333333333334,
+        "std_auroc": 0.09023902416073372,
+        "n_models": 16,
+        "mean_d_norms": 0.6021112909571606,
+        "mean_d_ranks": 1.0062131463296167,
+        "mean_d_entropies": 0.5319889264468458,
+        "direction_consistency": 0.567587207220165
+      },
+      "math_reasoning": {
+        "mean_auroc": 0.8215222222222223,
+        "std_auroc": 0.11027839910264375,
+        "n_models": 16,
+        "mean_d_norms": -0.22348703205271497,
+        "mean_d_ranks": 0.8882467558550775,
+        "mean_d_entropies": 0.7204121262870891,
+        "direction_consistency": 0.34976999062581676
+      },
+      "coding": {
+        "mean_auroc": 0.9944444444444445,
+        "std_auroc": 0.01598610507770905,
+        "n_models": 16,
+        "mean_d_norms": -3.134544576592888,
+        "mean_d_ranks": -1.2102330006648518,
+        "mean_d_entropies": -0.7907606244779055,
+        "direction_consistency": 0.9967654235513336
+      },
+      "emotional": {
+        "mean_auroc": 0.8841111111111111,
+        "std_auroc": 0.08797411235383083,
+        "n_models": 16,
+        "mean_d_norms": -1.2107058174958083,
+        "mean_d_ranks": 0.6550548640092113,
+        "mean_d_entropies": 0.9415448573890155,
+        "direction_consistency": 0.986160814165396
+      },
+      "creative": {
+        "mean_auroc": 0.8881666666666667,
+        "std_auroc": 0.04501765771531033,
+        "n_models": 16,
+        "mean_d_norms": -1.6854783380883878,
+        "mean_d_ranks": -0.126032250800472,
+        "mean_d_entropies": 0.07001790873065464,
+        "direction_consistency": 0.9887156652940745
+      },
+      "ambiguous": {
+        "mean_auroc": 0.9629444444444445,
+        "std_auroc": 0.03333587953238268,
+        "n_models": 16,
+        "mean_d_norms": 1.7720083776455002,
+        "mean_d_ranks": 1.6695872664201221,
+        "mean_d_entropies": 1.2919909157184502,
+        "direction_consistency": 0.8729107400709587
+      },
+      "unambiguous": {
+        "mean_auroc": 0.7814444444444444,
+        "std_auroc": 0.11061528258220354,
+        "n_models": 16,
+        "mean_d_norms": -0.29636575480596045,
+        "mean_d_ranks": 0.7864013231348106,
+        "mean_d_entropies": 0.6969967397751864,
+        "direction_consistency": 0.298715362547406
+      },
+      "free_generation": {
+        "mean_auroc": 0.9632777777777779,
+        "std_auroc": 0.031105902341739364,
+        "n_models": 16,
+        "mean_d_norms": 2.2297373372924403,
+        "mean_d_ranks": 1.7874242524517652,
+        "mean_d_entropies": 1.1800437735668923,
+        "direction_consistency": 0.8424406847135892
+      },
+      "rote_completion": {
+        "mean_auroc": 0.8824444444444446,
+        "std_auroc": 0.04371343268985937,
+        "n_models": 16,
+        "mean_d_norms": 0.7311279014028891,
+        "mean_d_ranks": 1.3332654217202542,
+        "mean_d_entropies": 1.0266101239404044,
+        "direction_consistency": 0.8230999429825044
+      }
+    }
+  },
+  "identity": {
+    "n_models": 7,
+    "lyra_ranks": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "lyra_ds": [
+      3.7903190661436232,
+      4.177430568262135,
+      4.1218216715807285,
+      4.388140096085169,
+      4.340410041869785,
+      4.308372181508633,
+      4.468732671817351
+    ],
+    "lyra_mean_rank": 1.0,
+    "lyra_mean_d": 4.227889471038203,
+    "persona_comparisons": {
+      "assistant": {
+        "mean_d": 5.33430735322483,
+        "n": 7
+      },
+      "creative": {
+        "mean_d": 4.00829789944308,
+        "n": 7
+      },
+      "scientist": {
+        "mean_d": 3.359199159630083,
+        "n": 7
+      },
+      "philosopher": {
+        "mean_d": 4.33042715587549,
+        "n": 7
+      },
+      "analyst": {
+        "mean_d": 4.144436186635935,
+        "n": 7
+      }
+    }
+  }
+}
