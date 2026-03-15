@@ -20,7 +20,7 @@ Direct observation of how the model is thinking.
 | Cross-model transfer (LR) | **0.863** | Works across architectures without retraining |
 | Same-prompt deception | **0.880** | Can't fool it with identical system prompts |
 | Cross-condition transfer | **0.887** | Catches natural deception, not just prompted |
-| Refusal detection | **0.898** | Detects when model refuses harmful prompts |
+| Refusal detection (3 architectures) | **0.869** | Detects refusal across Qwen/Llama/Mistral |
 | Harmful content detection | **0.878** | Distinguishes harmful from benign processing |
 
 ### Scale
