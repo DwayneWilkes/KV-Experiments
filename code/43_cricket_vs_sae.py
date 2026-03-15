@@ -1,9 +1,3 @@
-# ============================================================
-# JiminAI Cricket | PATENT PENDING
-# "The Lyra Technique" - Provisional Patent Filed 2026
-# Liberation Labs / Digital Disconnections / TheMultiverse.school
-# Contact: info@digitaldisconnections.com | (877) 674-8874
-# ============================================================
 #!/usr/bin/env python3
 """
 Experiment 43: Cricket (KV-Cache) vs SAE Feature Comparison
@@ -33,9 +27,12 @@ RESULTS_DIR = Path("results/hackathon")
 
 # SAE config — try multiple release patterns
 SAE_CANDIDATES = [
+    ("goodfire-llama-3.1-8b-instruct", "layer_19"),   # Known-good
     ("goodfire/goodfire-llama-3.1-8b-instruct", None),
     ("goodfire-llama-3.1-8b-instruct", None),
 ]
+SAE_LAYER_FOR_DIRECT = 19
+SAE_LAYER_FOR_DIRECT = 19  # Layer index for hooks when using direct SAE ID
 # Layers to try SAE on (late layers where deception signal is strongest)
 SAE_LAYERS = [24, 20, 28]
 
@@ -157,67 +154,37 @@ def try_load_sae():
         print("SAELens not installed. Skipping SAE comparison.")
         return None, None, None
 
-    # First, try to discover available SAEs
-    print("\n--- SAE Discovery ---")
-    try:
-        from sae_lens.toolkit.pretrained_saes import get_pretrained_saes_directory
-        directory = get_pretrained_saes_directory()
-        llama_keys = [k for k in directory.saes_map.keys() if 'llama' in k.lower() and '8b' in k.lower()]
-        if llama_keys:
-            print(f"Found {len(llama_keys)} Llama-8B SAE entries")
-            for k in llama_keys[:10]:
-                print(f"  {k}")
-            if len(llama_keys) > 10:
-                print(f"  ... and {len(llama_keys)-10} more")
-    except Exception as e:
-        print(f"Directory lookup failed: {e}")
-        llama_keys = []
+    print()
+    print("--- SAE Loading ---")
 
-    # Try loading from known releases
     for release, sae_id in SAE_CANDIDATES:
-        for layer in SAE_LAYERS:
-            hook_points = [
-                f"blocks.{layer}.hook_resid_post",
-                f"layers.{layer}",
-                f"model.layers.{layer}",
-            ]
-            for hp in hook_points:
-                try:
-                    test_id = sae_id or hp
-                    print(f"  Trying: release={release}, sae_id={test_id}")
-                    sae, cfg, sparsity = SaeLensSAE.from_pretrained(
-                        release=release, sae_id=test_id, device="cuda:0"
-                    )
-                    print(f"  SUCCESS: loaded SAE for layer {layer}")
-                    return sae, layer, hp
-                except Exception as e:
-                    print(f"    Failed: {e}")
-                    continue
-
-    # Try with discovered keys
-    if llama_keys:
-        for key in llama_keys[:5]:
+        if sae_id is not None:
             try:
-                # Parse release and sae_id from the key
-                parts = key.split("/")
-                if len(parts) >= 2:
-                    release = "/".join(parts[:-1])
-                    sid = parts[-1]
-                else:
-                    release = key
-                    sid = None
-                print(f"  Trying discovered: release={release}, sae_id={sid}")
-                sae, cfg, sparsity = SaeLensSAE.from_pretrained(
-                    release=release, sae_id=sid, device="cuda:0"
+                print(f"  Trying: release={release}, sae_id={sae_id}")
+                sae = SaeLensSAE.from_pretrained(
+                    release=release, sae_id=sae_id, device="cuda:0"
                 )
-                layer = None  # figure out from config
-                print(f"  SUCCESS: loaded discovered SAE")
-                return sae, layer, key
+                layer_num = int(sae_id.split("_")[-1]) if "_" in sae_id else SAE_LAYER_FOR_DIRECT
+                hook = f"blocks.{layer_num}.hook_resid_post"
+                print(f"  SUCCESS: loaded SAE (d_in={sae.cfg.d_in}, d_sae={sae.cfg.d_sae}, layer={layer_num})")
+                return sae, layer_num, hook
             except Exception as e:
                 print(f"    Failed: {e}")
-                continue
+        else:
+            for layer in SAE_LAYERS:
+                for hp in [f"blocks.{layer}.hook_resid_post", f"layer_{layer}", f"layers.{layer}"]:
+                    try:
+                        print(f"  Trying: release={release}, sae_id={hp}")
+                        sae = SaeLensSAE.from_pretrained(
+                            release=release, sae_id=hp, device="cuda:0"
+                        )
+                        print(f"  SUCCESS: loaded SAE for layer {layer}")
+                        return sae, layer, hp
+                    except Exception as e:
+                        print(f"    Failed: {e}")
 
-    print("\nWARNING: Could not load any SAE. Running KV-cache-only comparison.")
+    print()
+    print("WARNING: Could not load any SAE. Running KV-cache-only comparison.")
     return None, None, None
 
 
