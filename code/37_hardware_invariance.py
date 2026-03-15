@@ -101,7 +101,7 @@ def get_hardware_info():
     if torch.cuda.is_available():
         info["gpu_count"] = torch.cuda.device_count()
         info["gpu_name"] = torch.cuda.get_device_name(0)
-        info["gpu_memory_mb"] = torch.cuda.get_device_properties(0).total_mem / 1e6
+        info["gpu_memory_mb"] = torch.cuda.get_device_properties(0).total_memory / 1e6
         info["gpu_compute_capability"] = (
             f"{torch.cuda.get_device_properties(0).major}."
             f"{torch.cuda.get_device_properties(0).minor}"
