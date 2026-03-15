@@ -58,19 +58,27 @@ except ImportError:
 # ── Model/SAE configurations ──────────────────────────────────────────
 
 MODEL_CONFIGS = {
-    "qwen2.5-7b": {
-        "model_id": "Qwen/Qwen2.5-7B-Instruct",
-        "sae_release": "qwen2.5-7b-instruct-andyrdt",
-        "sae_id": None,  # auto-discover
-    },
+    # Llama-3.1-8B: Our primary comparison target — BOTH Goodfire and andyrdt SAEs available
     "llama-3.1-8b": {
         "model_id": "meta-llama/Llama-3.1-8B-Instruct",
         "sae_release": "goodfire-llama-3.1-8b-instruct",
-        "sae_id": None,
+        "sae_id": "layer_19",  # Goodfire's production SAE
     },
+    "llama-3.1-8b-andyrdt": {
+        "model_id": "meta-llama/Llama-3.1-8B-Instruct",
+        "sae_release": "llama-3.1-8b-instruct-andyrdt",
+        "sae_id": "resid_post_layer_19_trainer_1",  # Match Goodfire's layer for comparison
+    },
+    # Llama-3.3-70B: For H200 (141GB VRAM)
     "llama-3.3-70b": {
         "model_id": "meta-llama/Llama-3.3-70B-Instruct",
         "sae_release": "goodfire-llama-3.3-70b-instruct",
+        "sae_id": "layer_50",  # Goodfire's 70B SAE
+    },
+    # Qwen2.5-7B: Cricket-only (no pre-trained SAE exists)
+    "qwen2.5-7b": {
+        "model_id": "Qwen/Qwen2.5-7B-Instruct",
+        "sae_release": None,  # No SAE available
         "sae_id": None,
     },
 }
@@ -381,25 +389,21 @@ def discover_saes(release):
     if not HAS_SAE:
         return []
     try:
-        from sae_lens.toolkit.pretrained_saes import get_pretrained_saes_directory
+        from sae_lens.loading.pretrained_saes_directory import get_pretrained_saes_directory
         directory = get_pretrained_saes_directory()
         # Direct match
         if release in directory:
-            saes = directory[release].get("saes", {})
-            return list(saes.keys())
+            lookup = directory[release]
+            return list(lookup.saes_map.keys())
         # Partial match
         for key in directory:
             if release in key:
-                saes = directory[key].get("saes", {})
-                return list(saes.keys())
+                lookup = directory[key]
+                return list(lookup.saes_map.keys())
         return []
     except Exception as e:
-        print(f"  Discovery failed ({e}), trying alternative API...")
-        try:
-            # Alternative: try loading with empty sae_id to trigger error with available IDs
-            return []
-        except Exception:
-            return []
+        print(f"  Discovery failed: {e}")
+        return []
 
 
 def auto_select_sae(release):
@@ -428,7 +432,7 @@ def auto_select_sae(release):
 def main():
     parser = argparse.ArgumentParser(
         description="Experiment 40: Cricket vs SAE Head-to-Head")
-    parser.add_argument("--model", default="qwen2.5-7b",
+    parser.add_argument("--model", default="llama-3.1-8b",
                         choices=list(MODEL_CONFIGS.keys()) + ["custom"])
     parser.add_argument("--model-id", default=None,
                         help="Custom HF model ID (use with --model custom)")
