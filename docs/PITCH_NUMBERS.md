@@ -49,7 +49,7 @@ All findings stress-tested against confounds:
 |---------|----------|
 | No "truth axis" in encoding | Cross-model consistency = -0.046 (literally random) |
 | Universal "complexity axis" | Cross-model consistency = 0.982 |
-| Deception signal is uniform across all layers | 28/28 layers show d > 1.0 (same-prompt controlled) |
+| Deception = sparser per token at every layer | ANCOVA significant 27/28 layers after token control (d=-1.9/token) |
 | Geometry preserved 0.6B-70B | Cross-scale rho = 0.83-0.90 |
 | Coding #1 norm at ALL scales | 100% of models, SMALL/MEDIUM/LARGE |
 | Confabulation trajectory | Signal grows with generation (d: 20 -> 55 over 50 tokens) |
@@ -119,10 +119,11 @@ for API-served models where you can't modify the model weights.
 ## Answers to Hard Questions
 
 **"Can the model learn to fool this?"**
-The deception signal exists at all 28 layers simultaneously. A model would
-need to change its entire computational pattern — not just its output — to
-evade detection. The signal is a fundamental consequence of how transformers
-process information, not a surface-level artifact.
+ANCOVA confirms the deception signal survives at 27/28 layers after controlling
+for token count. Deceptive processing is fundamentally sparser per token —
+a model would need to change its entire computational pattern, not just its
+output, to evade detection. The signal is a consequence of how transformers
+allocate representational capacity.
 
 **"What about confabulation?"**
 Encoding regime is completely truth-blind (AUROC 0.653, d=0.071 — the model
