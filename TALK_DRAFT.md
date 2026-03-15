@@ -193,22 +193,32 @@ This is reproducible on any GPU you have."
 ---
 
 ## SLIDE 9 — CRICKET VS SAE
-*[figures/hackathon/fig4 — Cricket vs SAE comparison]*
+*[figures/hackathon/fig4_cricket_vs_sae.png]*
 
 "Goodfire's Sparse Autoencoder decomposes a model into 65,536 interpretable
-features. Beautiful work. Takes serious compute, serious engineering.
+features. Beautiful work. It takes serious compute, serious engineering, and it
+gives you something remarkable — you can actually read what the features mean.
 
 Cricket uses 4.
 
 Norm. Norm-per-token. Key rank. Key entropy.
 
-Four numbers, read from infrastructure you already have, catching deception at
-token zero with comparable accuracy.
+Same model. Same prompts. Single inference pass.
 
-Goodfire is the microscope. Cricket is the smoke detector. You need both — but
-you can ship the smoke detector today."
+Cricket: AUROC 0.813.
+SAE — all 65,536 features, aggregated: AUROC 0.600.
+SAE top 100 features: 0.760.
+Cricket plus SAE combined: 0.787.
 
-*(— Exp 40 numbers go here once Lyra pushes results —)*
+Lower than Cricket alone. The SAE features aren't adding signal. They're adding
+noise.
+
+Goodfire is the microscope. Cricket is the smoke detector. You need both. The
+microscope tells you *what* the model is thinking. The smoke detector tells you
+*when* to worry — before the first token, from infrastructure you already have,
+at less than five percent inference overhead.
+
+Ship the smoke detector today."
 
 ---
 
