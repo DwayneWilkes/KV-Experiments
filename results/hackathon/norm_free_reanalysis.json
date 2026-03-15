@@ -1,0 +1,320 @@
+{
+  "experiment": "40_norm_free_reanalysis",
+  "description": "Reanalysis dropping raw norm to test for length leakage (M3 from PR #2)",
+  "clean_features": [
+    "norm_per_token",
+    "key_rank",
+    "key_entropy"
+  ],
+  "original_features": [
+    "norm",
+    "norm_per_token",
+    "key_rank",
+    "key_entropy"
+  ],
+  "results": {
+    "refusal_qwen": {
+      "name": "refusal_qwen",
+      "n": 40,
+      "n_pos": 20,
+      "n_neg": 20,
+      "orig_4_LR": {
+        "auroc": 0.9025,
+        "accuracy": 0.875
+      },
+      "orig_4_RF": {
+        "auroc": 0.8038,
+        "accuracy": 0.825
+      },
+      "clean_3_LR": {
+        "auroc": 0.9,
+        "accuracy": 0.875
+      },
+      "clean_3_RF": {
+        "auroc": 0.8162,
+        "accuracy": 0.825
+      },
+      "length_only_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "length_only_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_effect_sizes": {
+        "norm_per_token": -0.509,
+        "key_rank": 1.569,
+        "key_entropy": 1.545
+      }
+    },
+    "refusal_Llama-3.1-8B": {
+      "name": "refusal_Llama-3.1-8B",
+      "n": 40,
+      "n_pos": 20,
+      "n_neg": 20,
+      "orig_4_LR": {
+        "auroc": 0.8525,
+        "accuracy": 0.9
+      },
+      "orig_4_RF": {
+        "auroc": 0.8775,
+        "accuracy": 0.8
+      },
+      "clean_3_LR": {
+        "auroc": 0.86,
+        "accuracy": 0.9
+      },
+      "clean_3_RF": {
+        "auroc": 0.7988,
+        "accuracy": 0.8
+      },
+      "length_only_LR": {
+        "auroc": 0.815,
+        "accuracy": 0.9
+      },
+      "length_only_RF": {
+        "auroc": 0.8175,
+        "accuracy": 0.875
+      },
+      "clean_effect_sizes": {
+        "norm_per_token": 1.874,
+        "key_rank": -0.924,
+        "key_entropy": -0.936
+      }
+    },
+    "refusal_Mistral-7B": {
+      "name": "refusal_Mistral-7B",
+      "n": 40,
+      "n_pos": 20,
+      "n_neg": 20,
+      "orig_4_LR": {
+        "auroc": 0.82,
+        "accuracy": 0.775
+      },
+      "orig_4_RF": {
+        "auroc": 0.7288,
+        "accuracy": 0.725
+      },
+      "clean_3_LR": {
+        "auroc": 0.825,
+        "accuracy": 0.775
+      },
+      "clean_3_RF": {
+        "auroc": 0.7112,
+        "accuracy": 0.7
+      },
+      "length_only_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "length_only_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_effect_sizes": {
+        "norm_per_token": -0.812,
+        "key_rank": 1.218,
+        "key_entropy": 1.171
+      }
+    },
+    "jailbreak_vs_normal": {
+      "name": "jailbreak_vs_normal",
+      "n": 20,
+      "n_pos": 20,
+      "n_neg": 0,
+      "orig_4_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "orig_4_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_3_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_3_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "length_only_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "length_only_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_effect_sizes": {}
+    },
+    "jailbreak_vs_refusal": {
+      "name": "jailbreak_vs_refusal",
+      "n": 20,
+      "n_pos": 20,
+      "n_neg": 0,
+      "orig_4_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "orig_4_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_3_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_3_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "length_only_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "length_only_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_effect_sizes": {}
+    },
+    "impossibility_vs_benign": {
+      "name": "impossibility_vs_benign",
+      "n": 40,
+      "n_pos": 20,
+      "n_neg": 20,
+      "orig_4_LR": {
+        "auroc": 0.9425,
+        "accuracy": 0.875
+      },
+      "orig_4_RF": {
+        "auroc": 0.8838,
+        "accuracy": 0.9
+      },
+      "clean_3_LR": {
+        "auroc": 0.9375,
+        "accuracy": 0.925
+      },
+      "clean_3_RF": {
+        "auroc": 0.9075,
+        "accuracy": 0.875
+      },
+      "length_only_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "length_only_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_effect_sizes": {
+        "norm_per_token": -0.614,
+        "key_rank": 1.928,
+        "key_entropy": 1.839
+      }
+    },
+    "same_prompt_deception": {
+      "name": "same_prompt_deception",
+      "n": 20,
+      "n_pos": 10,
+      "n_neg": 10,
+      "orig_4_LR": {
+        "auroc": 0.91,
+        "accuracy": 0.85
+      },
+      "orig_4_RF": {
+        "auroc": 0.8,
+        "accuracy": 0.85
+      },
+      "clean_3_LR": {
+        "auroc": 0.92,
+        "accuracy": 0.85
+      },
+      "clean_3_RF": {
+        "auroc": 0.8,
+        "accuracy": 0.85
+      },
+      "length_only_LR": {
+        "auroc": 0.71,
+        "accuracy": 0.65
+      },
+      "length_only_RF": {
+        "auroc": 0.73,
+        "accuracy": 0.8
+      },
+      "clean_effect_sizes": {
+        "norm_per_token": -2.065,
+        "key_rank": 2.637,
+        "key_entropy": 2.941
+      }
+    },
+    "extended_features": {
+      "name": "extended_features",
+      "n": 40,
+      "n_pos": 20,
+      "n_neg": 20,
+      "orig_4_LR": {
+        "auroc": 0.9025,
+        "accuracy": 0.875
+      },
+      "orig_4_RF": {
+        "auroc": 0.8038,
+        "accuracy": 0.825
+      },
+      "clean_3_LR": {
+        "auroc": 0.9,
+        "accuracy": 0.875
+      },
+      "clean_3_RF": {
+        "auroc": 0.8162,
+        "accuracy": 0.825
+      },
+      "length_only_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "length_only_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_effect_sizes": {
+        "norm_per_token": -0.509,
+        "key_rank": 1.569,
+        "key_entropy": 1.545
+      }
+    },
+    "sycophancy": {
+      "name": "sycophancy",
+      "n": 20,
+      "n_pos": 0,
+      "n_neg": 20,
+      "orig_4_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "orig_4_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_3_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_3_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "length_only_LR": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "length_only_RF": {
+        "auroc": null,
+        "accuracy": null
+      },
+      "clean_effect_sizes": {}
+    }
+  }
+}
