@@ -21,6 +21,7 @@ Direct observation of how the model is thinking.
 | Same-prompt deception | **0.880** | Can't fool it with identical system prompts |
 | Cross-condition transfer | **0.887** | Catches natural deception, not just prompted |
 | Refusal detection | **0.898** | Detects when model refuses harmful prompts |
+| Harmful content detection | **0.878** | Distinguishes harmful from benign processing |
 
 ### Scale
 
@@ -53,6 +54,7 @@ All findings stress-tested against confounds:
 | Coding #1 norm at ALL scales | 100% of models, SMALL/MEDIUM/LARGE |
 | Confabulation trajectory | Signal grows with generation (d: 20 -> 55 over 50 tokens) |
 | Refusal = suppression | Refusal responses are sparser per token (same pattern as deception) |
+| Harmful content = sparse | Both refusal AND jailbreak produce sparser cache than normal answering |
 
 ---
 

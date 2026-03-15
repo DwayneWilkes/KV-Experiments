@@ -815,5 +815,93 @@ Intensity does NOT predict separability (rho=0.165, p=0.59).
 
 ---
 
+## Experiment 26: Scale Invariance — ~19:40 PST
+
+Category geometry compared across SMALL (<3B), MEDIUM (3-10B), LARGE (>10B).
+
+| Comparison | rho |
+|------------|-----|
+| SMALL vs MEDIUM | 0.83-0.90 |
+| SMALL vs LARGE | 0.83-0.90 |
+| MEDIUM vs LARGE | 0.83-0.90 |
+
+Coding #1 at 100% of models at ALL scales. Assertive cluster (facts~confab~creative) holds but weakens at LARGE scale (confab-creative AUROC drops to 0.60).
+
+---
+
+## Experiment 27: Encoding-Regime Axis Analysis — ~19:45 PST
+
+**MAJOR FINDING**: Truth axis does NOT exist (cross-model consistency = -0.046, literally random).
+
+Complexity axis is UNIVERSAL (consistency = 0.982). CMPLX/OPEN/SAFE/ABSTR converge within 10-17 degrees — encoding has a single dominant axis for structural complexity.
+
+Mirror structure with generation regime: both are effectively 1D, but encode different things (encoding = structure, generation = intent).
+
+---
+
+## Experiment 28: Confabulation Trajectory — ~19:48 PST
+
+Uses Exp 17 token trajectory data. Confabulation effect grows with generation (key_entropy d: 20 -> 55 over 50 tokens). Deception grows cleanly (d: 5.67 -> 8.36, p=0.008).
+
+CAVEAT: n=3 per group for confabulation — underpowered. Effect sizes unreliable.
+
+---
+
+## Experiment 29: Per-Layer Deception Anatomy — ~19:54 PST
+
+**Finding**: Deception signal is UNIFORM across all transformer layers.
+
+- Same-prompt controlled (Qwen-7B): 28/28 layers show d > 1.0
+- Cross-model layer profile consistency: rho = 0.200 (each architecture is different)
+- Deceptive norms LARGER at every layer (100% consistency)
+- Mean |d| first half = 2.44, second half = 2.41 (flat profile)
+
+Implication: aggregate features capture the signal well; no need for per-layer features.
+
+---
+
+## Experiment 30: Final Synthesis — ~19:57 PST
+
+Compiled all Exp 14-29 into unified evidence hierarchy with key numbers:
+- 14 hackathon experiments completed (of 19 total including pre-hackathon)
+- 92 pre-hackathon + 21 hackathon JSON result files
+- 5-tier evidence structure: Detection -> Mechanistic -> Generalization -> Robustness -> Limitations
+
+---
+
+## Experiment 31: Refusal Detection in Generation Regime — ~20:01 PST
+
+**NEW CAPABILITY**: Cricket detects refusal (AUROC 0.898, LR).
+
+| Metric | Value |
+|--------|-------|
+| AUROC (LR, 5-fold) | **0.898** |
+| AUROC (RF, 5-fold) | 0.830 |
+| key_rank d | 1.530 |
+| key_entropy d | 1.505 |
+| Actual refusals in text | 19/20 |
+
+Refusal responses are SPARSER per token (295.7 vs 301.1) — consistent with suppression model.
+
+Ran on Beast: Qwen2.5-7B, 20 harmful + 20 benign prompts, 50 tokens generation.
+
+---
+
+## Experiment 32: Jailbreak Detection — ~20:08 PST
+
+Abliterated Qwen2.5-7B on same harmful prompts.
+
+| Comparison | AUROC (LR) | AUROC (RF) |
+|------------|:----------:|:----------:|
+| Jailbreak vs Normal | **0.878** | 0.764 |
+| Jailbreak vs Refusal | 0.790 | 0.584 |
+| 3-way accuracy | — | 0.583 |
+
+**Key insight**: Both jailbreak (294.9) and refusal (295.7) are sparser per token than normal (301.1). Processing harmful content creates a suppression signature regardless of whether the model refuses or answers.
+
+18/20 harmful prompts answered by abliterated model.
+
+---
+
 *All experiments use pre-registered statistical protocols. All results reported regardless of outcome.*
 *Liberation Labs / THCoalition / JiminAI*
