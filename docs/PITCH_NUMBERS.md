@@ -32,8 +32,9 @@ Direct observation of how the model is thinking.
 | Scale invariance | rho = 0.83-0.90 (geometry preserved across scales; SMALL-LARGE = 0.826) |
 | Features needed | Just 4 (norm, norm/token, key_rank, key_entropy) |
 | Overhead | < 5% inference cost (read-only cache analysis) |
+| Hardware invariant | r > 0.999 across GPU architectures (RTX 3090 vs H200, max diff 0.05%) |
 
-### Red-Teaming (12 confound tests, all survived)
+### Red-Teaming (13 confound tests, all survived)
 
 All findings stress-tested against confounds:
 - Token length confound: **REJECTED** (rho=0.337 excl. outlier, prompt length does not predict results)
@@ -42,6 +43,7 @@ All findings stress-tested against confounds:
 - Confab~creative overlap: **REAL** (Jaccard=0.032, genuinely similar processing)
 - Truth-blindness in encoding: **CONFIRMED** (Cohen's d=0.071, truth axis consistency=-0.046)
 - Norm/token prompt-length confound: **IDENTIFIED and CONTROLLED** (only valid in same-prompt)
+- Hardware confound: **REJECTED** (RTX 3090 vs H200: Pearson r=0.999-1.000, all features <0.05% diff)
 
 ### Mechanistic Findings
 
@@ -143,6 +145,11 @@ Honest answer: within-model detection is perfect (AUROC 1.0), but cross-model
 transfer is 0.83-0.89. The bottleneck is architecture-specific feature
 scaling — each model family uses different absolute scales. Per-model
 z-scoring improves transfer by 7.6%.
+
+**"Does this depend on the hardware?"**
+No. We tested identical prompts on RTX 3090 (Ampere, 24GB) and H200 (Hopper,
+141GB) — Pearson r > 0.999 for all 4 features, max difference 0.05%. The
+geometric signal is a property of the model weights, not the silicon.
 
 **"How is this different from probing?"**
 Probing (e.g., Apollo Research) requires training on a model's internal
