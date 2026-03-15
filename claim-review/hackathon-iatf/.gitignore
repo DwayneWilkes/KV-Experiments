@@ -1,0 +1,4 @@
+_manual-backup/
+__pycache__/
+blind_results.json
+verdicts.json

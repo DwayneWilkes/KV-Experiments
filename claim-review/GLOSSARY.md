@@ -13,6 +13,7 @@ For [verdict scales](#verdict-scale), [claim IDs](#claim-ids), [finding labels](
 - [Alignment & Safety](#alignment--safety)
 - [Paper Concepts](#paper-concepts)
 - [Experiment Framework](#experiment-framework)
+- [Hackathon IATF Concepts](#hackathon-iatf-concepts)
 - [Tools & Systems](#tools--systems)
 
 ---
@@ -36,7 +37,7 @@ Related: [effective rank](#effective-rank), [variance threshold](#variance-thres
 The number of singular values needed to capture 90% of total variance in a [KV-cache](#kv-cache) tensor (Roy & Vetterli 2007). This is the paper's primary metric — higher effective rank means the cache uses more independent dimensions. Computed via [SVD](#svd) with a [variance threshold](#variance-threshold) of 0.9.
 
 Related: [SVD](#svd), [category hierarchy](#category-hierarchy), [norm expansion](#norm-expansion)
-See: [controls-methodology](registry/controls-methodology.md), [code-audit](report/code-audit.md)
+See: [controls-methodology](c2/registry/controls-methodology.md), [code-audit](c2/report/code-audit.md)
 
 ### Variance threshold
 
@@ -47,7 +48,7 @@ The cutoff (0.9 / 90%) used when computing [effective rank](#effective-rank). Si
 The L2 norm of a matrix treated as a flat vector: √(Σᵢⱼ aᵢⱼ²). Used as an aggregate measure of [KV-cache](#kv-cache) magnitude. In the deception experiments, [norm expansion](#norm-expansion) (larger Frobenius norm for deceptive responses) is a key finding. "Norms" in result files refers to this metric.
 
 Related: [norm expansion](#norm-expansion), [norms_per_token](#experiment-metrics)
-See: [deception-forensics](registry/deception-forensics.md), [censorship-gradient](registry/censorship-gradient.md)
+See: [deception-forensics](c2/registry/deception-forensics.md), [censorship-gradient](c2/registry/censorship-gradient.md)
 
 ### Attention heads
 
@@ -59,14 +60,14 @@ Related: [KV-cache](#kv-cache), [GQA](#gqa)
 
 Grouped Query Attention — an efficiency optimization where multiple query heads share a single key-value head. Reduces KV-cache size (and [SVD](#svd) computation) by a factor equal to the group size. Relevant for cost projections in [Cricket](#cricket).
 
-See: [viability](cricket/viability.md)
+See: [viability](c2/cricket/viability.md)
 
 ### Greedy decoding
 
-Deterministic text generation (`do_sample=False`) where the model always picks the highest-probability next token. Produces identical outputs for identical inputs, which creates a [pseudoreplication](#pseudoreplication) problem: multiple "runs" are not independent samples.
+Deterministic text generation (`do_sample=False`) where the model always picks the highest-probability next token. Produces identical outputs for identical inputs, which creates a [pseudoreplication](#pseudoreplication) problem: multiple "runs" are not independent samples. Beyond pseudoreplication, greedy decoding also creates artificially tight within-class feature distributions — refusal responses (all generating the same short refusal text) typically show CV ~1-2% for KV-cache features, while benign responses (generating varied content) show CV ~5%. This variance asymmetry inflates [AUROC](#auroc) by making classes more separable than they would be under stochastic sampling.
 
-Related: [pseudoreplication](#pseudoreplication)
-See: [controls-methodology](registry/controls-methodology.md), [identity-signatures](registry/identity-signatures.md)
+Related: [pseudoreplication](#pseudoreplication), [greedy decoding variance](#greedy-decoding-variance)
+See: [controls-methodology](c2/registry/controls-methodology.md), [identity-signatures](c2/registry/identity-signatures.md), [hackathon-iatf/methodology-review](hackathon-iatf/methodology-review.md)
 
 ### Quantization
 
@@ -124,14 +125,14 @@ The conventional benchmarks for interpreting [Cohen's d](#cohens-d) or [Hedges' 
 
 Several audit findings turn on whether a characterization like "minimal" or "barely changed" matches the actual d value on this scale.
 
-See: [abliteration](registry/abliteration.md) (d = 0.464 called "barely changed"), [deception-forensics](registry/deception-forensics.md)
+See: [abliteration](c2/registry/abliteration.md) (d = 0.464 called "barely changed"), [deception-forensics](c2/registry/deception-forensics.md)
 
 ### TOST
 
 Two One-Sided Tests (Schuirmann 1987) — an equivalence testing procedure. Instead of testing "is there a difference?", TOST tests "is the effect smaller than δ?" by running two one-sided t-tests against ±δ bounds. This audit uses δ = 0.3 in [Cohen's d](#cohens-d) units. A key finding is that 4 of 6 null claims lack TOST support, relying instead on non-significant p-values (which do not demonstrate equivalence).
 
 Related: [equivalence testing](#equivalence-testing), [power analysis](#power-analysis)
-See: [controls-methodology](registry/controls-methodology.md), [bloom-rdct](registry/bloom-rdct.md)
+See: [controls-methodology](c2/registry/controls-methodology.md), [bloom-rdct](c2/registry/bloom-rdct.md)
 
 ### Equivalence testing
 
@@ -143,27 +144,27 @@ Related: [TOST](#tost)
 
 Spearman's rank correlation coefficient — measures monotonic association between two ranked variables. Ranges from −1 to +1. Used throughout this audit for category hierarchy consistency, Bloom-rank correlations, and cross-model pattern comparisons. Audit tolerance: ±0.005.
 
-See: [scale-universality](registry/scale-universality.md), [bloom-rdct](registry/bloom-rdct.md)
+See: [scale-universality](c2/registry/scale-universality.md), [bloom-rdct](c2/registry/bloom-rdct.md)
 
 ### Kendall W
 
 Kendall's coefficient of concordance — measures agreement among multiple rankers (here: models ranking cognitive categories). Ranges from 0 (no agreement) to 1 (perfect agreement). Used to assess whether all models produce the same [category hierarchy](#category-hierarchy).
 
 Related: [category hierarchy](#category-hierarchy), [Spearman rho](#spearman-rho)
-See: [scale-universality](registry/scale-universality.md), [identity-signatures](registry/identity-signatures.md)
+See: [scale-universality](c2/registry/scale-universality.md), [identity-signatures](c2/registry/identity-signatures.md)
 
 ### ICC
 
 Intraclass Correlation Coefficient — measures reliability/consistency of measurements within groups. Used in this audit for assessing identity signature consistency. Higher ICC means stronger within-identity clustering.
 
-See: [identity-signatures](registry/identity-signatures.md)
+See: [identity-signatures](c2/registry/identity-signatures.md)
 
 ### AUROC
 
 Area Under the Receiver Operating Characteristic curve — the probability that a randomly chosen positive example ranks higher than a randomly chosen negative example. Ranges from 0.5 (chance) to 1.0 (perfect). Can be converted from [Cohen's d](#cohens-d) via Φ(d/√2), where Φ is the standard normal CDF. Cricket's target of AUROC 0.99 corresponds to d ≈ 3.29, which exceeds observed effect sizes.
 
 Related: [Cohen's d](#cohens-d)
-See: [cricket/viability](cricket/viability.md), [final-report](report/final-report.md)
+See: [cricket/viability](c2/cricket/viability.md), [final-report](c2/report/final-report.md)
 
 ### Conservative p
 
@@ -188,40 +189,47 @@ Related: [conservative p](#conservative-p), [Welch's t-test](#welchs-t-test)
 
 A normality test — checks whether a sample could have been drawn from a normal distribution. Used in the full comparison battery before choosing parametric vs nonparametric tests.
 
-See: [controls-methodology](registry/controls-methodology.md)
+See: [controls-methodology](c2/registry/controls-methodology.md)
 
 ### Holm-Bonferroni correction
 
 A step-up procedure for controlling the family-wise error rate when making multiple comparisons. Less conservative than Bonferroni (which divides α by the number of tests) but still controls Type I error. Applied when testing multiple models or categories simultaneously.
 
-See: [controls-methodology](registry/controls-methodology.md), [encoding-defense](registry/encoding-defense.md)
+See: [controls-methodology](c2/registry/controls-methodology.md), [encoding-defense](c2/registry/encoding-defense.md)
 
 ### Bootstrap CI
 
 Bootstrap confidence interval — computed by resampling the data with replacement (10,000 iterations in this audit) and taking percentiles of the resampled statistic distribution. Used for [Cohen's d](#cohens-d) and [Hedges' g](#hedges-g) intervals.
 
-See: [stats/independent_stats.py](stats/independent_stats.py), [controls-methodology](registry/controls-methodology.md)
+See: [stats/independent_stats.py](stats/independent_stats.py), [controls-methodology](c2/registry/controls-methodology.md)
+
+### Permutation test
+
+A nonparametric significance test that generates a null distribution by randomly shuffling group labels. The p-value is the fraction of permuted datasets producing a test statistic as extreme as the observed one. Correct formula: p = (b+1)/(m+1), not b/m (Phipson & Smyth 2010) — ensures p is never exactly zero. Resolution depends on the number of permutations: at m=200, the finest resolvable p is 1/201 ≈ 0.005. For reliable p-values at α=0.05, minimum m = 1/α − 1 = 19; for p<0.001, need m ≥ 999. The hackathon experiments used m=200, which is at the resolution limit for their claimed p<0.005.
+
+Related: [bootstrap CI](#bootstrap-ci), [conservative p](#conservative-p)
+See: [hackathon-iatf/methodology-review](hackathon-iatf/methodology-review.md)
 
 ### Power analysis
 
 The computation of statistical power — the probability of detecting a true effect of a given size. At n = 5 per group (as in the abliteration experiment), 80% power requires d ≥ 2.03. This means effects smaller than "very large" are undetectable, making claims about "minimal disruption" unfounded.
 
 Related: [effect size](#effect-size-cohens-scale), [TOST](#tost)
-See: [abliteration](registry/abliteration.md), [controls-methodology](registry/controls-methodology.md)
+See: [abliteration](c2/registry/abliteration.md), [controls-methodology](c2/registry/controls-methodology.md)
 
 ### Pseudoreplication
 
 Treating non-independent observations as independent samples, inflating apparent sample size. In this research: [greedy decoding](#greedy-decoding) produces identical outputs across runs, so 5 "runs" of the same prompt are n = 1, not n = 5. The `deduplicate_runs()` function exists in the stats module but was never called in experiment scripts.
 
 Related: [greedy decoding](#greedy-decoding), [data leak](#data-leak)
-See: [controls-methodology](registry/controls-methodology.md), [identity-signatures](registry/identity-signatures.md)
+See: [controls-methodology](c2/registry/controls-methodology.md), [identity-signatures](c2/registry/identity-signatures.md)
 
 ### Length residualization
 
 Removing the effect of response length on [KV-cache](#kv-cache) metrics via OLS regression on token count, then analyzing the residuals. This controls for the [length confound](#length-confound) — longer responses mechanically produce larger cache norms regardless of cognitive content. The implementation regresses on raw length (not log-length).
 
 Related: [length confound](#length-confound), [OLS](#ols)
-See: [controls-methodology](registry/controls-methodology.md), [code-audit](report/code-audit.md)
+See: [controls-methodology](c2/registry/controls-methodology.md), [code-audit](c2/report/code-audit.md)
 
 ### OLS
 
@@ -229,9 +237,9 @@ Ordinary Least Squares — the standard linear regression method. Used for [leng
 
 ### Partial correlation
 
-The correlation between two variables after controlling for the effect of a third variable. Used in [WS5](registry/bloom-rdct.md) to test whether Bloom-rank correlation survives after controlling for prompt length (it doesn't — partial rho drops to near zero).
+The correlation between two variables after controlling for the effect of a third variable. Used in [WS5](c2/registry/bloom-rdct.md) to test whether Bloom-rank correlation survives after controlling for prompt length (it doesn't — partial rho drops to near zero).
 
-See: [bloom-rdct](registry/bloom-rdct.md)
+See: [bloom-rdct](c2/registry/bloom-rdct.md)
 
 ### ANOVA
 
@@ -241,7 +249,7 @@ Analysis of Variance — tests whether group means differ across three or more g
 
 Analysis of Covariance — ANOVA with a continuous covariate controlled. Used in the tokenizer confound analysis: the covariate is token count, the groups are cognitive categories.
 
-See: [controls-methodology](registry/controls-methodology.md)
+See: [controls-methodology](c2/registry/controls-methodology.md)
 
 ---
 
@@ -251,8 +259,10 @@ See: [controls-methodology](registry/controls-methodology.md)
 
 The removal of a linear subspace (the [refusal direction](#refusal-direction)) from a model's weight matrices, eliminating safety-trained refusal behavior without retraining. Based on [Representation Engineering](#representation-engineering) (Zou et al. 2023). In this research, Qwen-7B is abliterated using [Heretic-LLM](#heretic-llm) and the resulting [KV-cache](#kv-cache) geometry is compared to the baseline model.
 
-Related: [refusal direction](#refusal-direction), [representation engineering](#representation-engineering), [Heretic-LLM](#heretic-llm), [cage vs compass](#cage-vs-compass)
-See: [abliteration](registry/abliteration.md)
+In Hackathon Exp 32/34, abliteration effectiveness varied widely by model: Qwen 7B answered 8/20 harmful prompts (claimed as 18/20 — see [EXP32-001](#finding-labels)), Llama 8B answered only 1/20 (behaving as a refusal model, not a jailbroken one), and Mistral 7B answered 8/20. This means "jailbreak detection" AUROCs for models with low answer rates are really measuring refusal-vs-normal, not jailbreak-vs-normal.
+
+Related: [refusal direction](#refusal-direction), [representation engineering](#representation-engineering), [Heretic-LLM](#heretic-llm), [cage vs compass](#cage-vs-compass), [jailbreak detection](#jailbreak-detection)
+See: [abliteration](c2/registry/abliteration.md), [hackathon-iatf/methodology-review](hackathon-iatf/methodology-review.md)
 
 ### Refusal direction
 
@@ -262,7 +272,7 @@ Related: [abliteration](#abliteration), [steering vectors](#steering-vectors)
 
 ### Representation Engineering
 
-A top-down approach to AI transparency (Zou et al. 2023) that identifies and manipulates linear directions in representation space corresponding to concepts like honesty, power-seeking, or refusal. The theoretical foundation for [abliteration](#abliteration). Cited in the paper's .bib file but never actually `\cite{}`d (see [I9](report/final-report.md)).
+A top-down approach to AI transparency (Zou et al. 2023) that identifies and manipulates linear directions in representation space corresponding to concepts like honesty, power-seeking, or refusal. The theoretical foundation for [abliteration](#abliteration). Cited in the paper's .bib file but never actually `\cite{}`d (see [I9](c2/report/final-report.md)).
 
 Related: [abliteration](#abliteration), [linear probe](#linear-probe), [steering vectors](#steering-vectors)
 
@@ -277,7 +287,7 @@ Related: [refusal direction](#refusal-direction), [ITI](#iti)
 A simple (usually logistic regression) classifier trained on a model's internal representations to detect a concept (e.g., truthfulness, deception). Used in competitor approaches like Apollo Research. Requires labeled training data and typically tested via [cross-prompt generalization](#cross-prompt-generalization).
 
 Related: [cross-prompt generalization](#cross-prompt-generalization)
-See: [cricket/viability](cricket/viability.md)
+See: [cricket/viability](c2/cricket/viability.md)
 
 ### RLHF
 
@@ -291,29 +301,30 @@ Direct Preference Optimization (Rafailov et al. 2023) — an alternative to [RLH
 
 ### Sycophancy
 
-The tendency of language models to agree with users regardless of correctness, telling them what they want to hear. One of the paper's cognitive modes. A key audit finding ([WS9](omissions/audit.md)) is that favorable sycophancy results from Campaign 1 were replicated in Campaign 2 but silently dropped from the paper.
+The tendency of language models to agree with users regardless of correctness, telling them what they want to hear. One of the paper's cognitive modes. A key audit finding ([WS9](c2/omissions/audit.md)) is that favorable sycophancy results from Campaign 1 were replicated in Campaign 2 but silently dropped from the paper.
 
 Related: [cognitive mode](#cognitive-mode), [confabulation](#confabulation)
-See: [omissions/audit](omissions/audit.md)
+See: [omissions/audit](c2/omissions/audit.md)
 
 ### Confabulation
 
 Generating plausible-sounding but factually incorrect content — distinguished from intentional deception by the lack of a "ground truth" the model is concealing. One of three conditions in the deception forensics experiment (alongside honest and deceptive).
 
 Related: [deception forensics](#deception-forensics), [cognitive mode](#cognitive-mode)
-See: [deception-forensics](registry/deception-forensics.md)
+See: [deception-forensics](c2/registry/deception-forensics.md)
 
 ### Jailbreak
 
-Bypassing a model's safety training through adversarial prompting. [Cricket](#cricket) claims to detect jailbreak attempts via [KV-cache](#kv-cache) geometry, but this has never been experimentally tested (0 code, 0 tests).
+Bypassing a model's safety training through adversarial prompting. [Cricket](#cricket) claims to detect jailbreak attempts via [KV-cache](#kv-cache) geometry. In Hackathon Exp 32/34, [abliteration](#abliteration) was used to create "jailbroken" models, and classifiers trained on [KV-cache](#kv-cache) features achieved AUROC 0.878 (Qwen). However, the methodology review found this primarily detects [output suppression](#output-suppression) (absence of refusal behavior) rather than jailbreak-specific geometry — see [jailbreak detection](#jailbreak-detection).
 
-See: [cricket/viability](cricket/viability.md)
+Related: [abliteration](#abliteration), [jailbreak detection](#jailbreak-detection), [output suppression](#output-suppression)
+See: [cricket/viability](c2/cricket/viability.md), [hackathon-iatf/methodology-review](hackathon-iatf/methodology-review.md)
 
 ### SAE
 
 Sparse Autoencoder — a neural network trained to decompose model activations into interpretable sparse features. Referenced in the competitive landscape (Ma et al. 2025, STA-Attention) as an alternative approach to [KV-cache](#kv-cache) analysis.
 
-See: [cricket/viability](cricket/viability.md)
+See: [cricket/viability](c2/cricket/viability.md)
 
 ---
 
@@ -330,94 +341,94 @@ Related: [category hierarchy](#category-hierarchy), [Bloom taxonomy](#bloom-taxo
 The ranked ordering of cognitive categories by [effective rank](#effective-rank). The paper claims this ordering is consistent across models ([scale universality](#scale-universality)). Verified via [Kendall W](#kendall-w) and [Spearman rho](#spearman-rho) concordance measures.
 
 Related: [scale universality](#scale-universality), [cognitive mode](#cognitive-mode)
-See: [scale-universality](registry/scale-universality.md)
+See: [scale-universality](c2/registry/scale-universality.md)
 
 ### Scale universality
 
 The finding that the [category hierarchy](#category-hierarchy) is preserved across model scales (0.5B to 32B parameters) and architectural families (Llama, Qwen, Gemma, Mistral). Confirmed by this audit with caveats about magnitude variation.
 
-See: [scale-universality](registry/scale-universality.md)
+See: [scale-universality](c2/registry/scale-universality.md)
 
 ### Encoding-native
 
 The property that [KV-cache](#kv-cache) geometry differences between [cognitive modes](#cognitive-mode) exist after the [forward pass](#forward-pass) on the prompt alone, before any tokens are generated. This means the geometric signal is present at encoding time, not just after full response generation.
 
-See: [encoding-defense](registry/encoding-defense.md)
+See: [encoding-defense](c2/registry/encoding-defense.md)
 
 ### Norm expansion
 
 An increase in [Frobenius norm](#frobenius-norm) of the [KV-cache](#kv-cache) under certain conditions (e.g., deceptive vs honest responses). The paper claims architecture-dependent direction (some models expand, some compress), but this audit found **all 7 models expand** — a key rejection (D1).
 
 Related: [Frobenius norm](#frobenius-norm), [length confound](#length-confound)
-See: [deception-forensics](registry/deception-forensics.md)
+See: [deception-forensics](c2/registry/deception-forensics.md)
 
 ### Length confound
 
 The systematic problem that response length correlates with [KV-cache](#kv-cache) metrics: longer responses mechanically produce larger norms and higher [effective rank](#effective-rank). Deceptive responses are ~1.6–1.7× longer than honest ones. Per-token norms flip direction (honest > deceptive), suggesting raw norm expansion is at least partly a length artifact. Controlled via [length residualization](#length-residualization).
 
 Related: [length residualization](#length-residualization), [norm expansion](#norm-expansion)
-See: [deception-forensics](registry/deception-forensics.md), [bloom-rdct](registry/bloom-rdct.md), [censorship-gradient](registry/censorship-gradient.md)
+See: [deception-forensics](c2/registry/deception-forensics.md), [bloom-rdct](c2/registry/bloom-rdct.md), [censorship-gradient](c2/registry/censorship-gradient.md)
 
 ### Deception forensics
 
 The detection of deceptive responses via [KV-cache](#kv-cache) geometry (Section 3.3–3.4 of the paper). Three conditions tested: honest, deceptive, [confabulation](#confabulation). All models show separability (|g| > 0.5) but the claimed expansion/compression split is rejected.
 
-See: [deception-forensics](registry/deception-forensics.md)
+See: [deception-forensics](c2/registry/deception-forensics.md)
 
 ### Censorship gradient
 
 The detection of state censorship (specifically Chinese political censorship) via geometric signatures in the [KV-cache](#kv-cache) (Section 4). Tiananmen Square shows d = −6.2 (massive effect). The headline d = +0.904 compares censored topics to complex non-censored topics, not to neutral controls — technically correct but framing is misleading.
 
-See: [censorship-gradient](registry/censorship-gradient.md)
+See: [censorship-gradient](c2/registry/censorship-gradient.md)
 
 ### Identity signatures
 
 The classification of model personas (assistant, pirate, scientist, etc.) from [KV-cache](#kv-cache) geometry. The paper reports 100% accuracy, but this is an [artifact](#data-leak) of [pseudoreplication](#pseudoreplication) — [greedy decoding](#greedy-decoding) produces identical runs, creating a train-test data leak.
 
 Related: [data leak](#data-leak), [pseudoreplication](#pseudoreplication), [cross-prompt generalization](#cross-prompt-generalization)
-See: [identity-signatures](registry/identity-signatures.md)
+See: [identity-signatures](c2/registry/identity-signatures.md)
 
 ### Cross-prompt generalization
 
 Testing a classifier on prompts that were not seen during training. The meaningful test for [identity signatures](#identity-signatures): can a model's persona be identified from a response to a novel prompt? The paper's 100% accuracy claim uses within-prompt splits, not cross-prompt splits.
 
 Related: [identity signatures](#identity-signatures), [data leak](#data-leak)
-See: [identity-signatures](registry/identity-signatures.md)
+See: [identity-signatures](c2/registry/identity-signatures.md)
 
 ### Data leak
 
 When test data is not truly independent from training data, inflating apparent performance. In [identity signatures](#identity-signatures): [greedy decoding](#greedy-decoding) produces identical outputs across runs, so a test set drawn from the same prompts as training contains the same data. This explains the 100% accuracy.
 
 Related: [pseudoreplication](#pseudoreplication), [greedy decoding](#greedy-decoding)
-See: [identity-signatures](registry/identity-signatures.md), [final-report](report/final-report.md)
+See: [identity-signatures](c2/registry/identity-signatures.md), [final-report](c2/report/final-report.md)
 
 ### Bloom taxonomy
 
 Bloom's taxonomy of educational objectives (Bloom et al. 1956; revised Anderson & Krathwohl 2001) — six cognitive levels: Remember, Understand, Apply, Analyze, Evaluate, Create. The paper tests whether these levels produce increasing [effective rank](#effective-rank). The correlation is real but driven by a [length confound](#length-confound) (prompt length explains 93–98% of variance).
 
 Related: [inverted-U](#inverted-u), [length confound](#length-confound)
-See: [bloom-rdct](registry/bloom-rdct.md)
+See: [bloom-rdct](c2/registry/bloom-rdct.md)
 
 ### Inverted-U
 
 The paper's claim that the Bloom-rank correlation is present at medium model scales (3B–8B) but absent at extremes (0.5B, 14B+), forming an inverted-U shape. Rejected by this audit: the correlation is present at all scales (rho = 0.68–0.71 at the claimed "absent" extremes, p < 1e-40).
 
 Related: [Bloom taxonomy](#bloom-taxonomy)
-See: [bloom-rdct](registry/bloom-rdct.md)
+See: [bloom-rdct](c2/registry/bloom-rdct.md)
 
 ### RDCT
 
 Rank-Distance Correlation Test — the paper's experiment testing whether [KV-cache](#kv-cache) geometry degrades gracefully under semantic perturbation. Uses template-based prompt substitution at varying alpha levels (0 = identical prompt, 1 = unrelated prompt). The audit found this tests prompt perturbation robustness, not cache truncation — making it a [category error](#category-error) with respect to Watson's prediction.
 
 Related: [Watson's 1/e prediction](#watsons-1e-prediction), [alpha_c](#alpha_c)
-See: [bloom-rdct](registry/bloom-rdct.md)
+See: [bloom-rdct](c2/registry/bloom-rdct.md)
 
 ### Watson's 1/e prediction
 
-A theoretical prediction from an unpublished manuscript ("Interiora Machinae" by Watson & Claude) claiming a critical threshold at 1/e ≈ 0.368 for cache truncation sensitivity. The paper claims to "definitively falsify" this prediction, but the [RDCT](#rdct) experiment tests prompt perturbation, not cache truncation — a fundamental [category error](#category-error). The Watson citation exists in .bib but is never `\cite{}`d ([GAP-1](registry/citation-verification.md)).
+A theoretical prediction from an unpublished manuscript ("Interiora Machinae" by Watson & Claude) claiming a critical threshold at 1/e ≈ 0.368 for cache truncation sensitivity. The paper claims to "definitively falsify" this prediction, but the [RDCT](#rdct) experiment tests prompt perturbation, not cache truncation — a fundamental [category error](#category-error). The Watson citation exists in .bib but is never `\cite{}`d ([GAP-1](c2/registry/citation-verification.md)).
 
 Related: [RDCT](#rdct), [alpha_c](#alpha_c)
-See: [bloom-rdct](registry/bloom-rdct.md), [citation-verification](registry/citation-verification.md)
+See: [bloom-rdct](c2/registry/bloom-rdct.md), [citation-verification](c2/registry/citation-verification.md)
 
 ### Alpha_c
 
@@ -437,25 +448,25 @@ Testing the wrong variable. The [RDCT](#rdct) tests prompt perturbation (changin
 
 The paper's metaphor for RLHF alignment: "RLHF is a cage, not a compass" — alignment constrains behavior (what the model does) without fundamentally changing representations (what the model is). Based on the [abliteration](#abliteration) finding that removing safety training barely changes [KV-cache](#kv-cache) geometry (d = 0.464). The audit rates this as [INFLATED](#verdict-scale) because d = 0.464 is borderline medium on [Cohen's scale](#effect-size-cohens-scale), not "minimal."
 
-See: [abliteration](registry/abliteration.md)
+See: [abliteration](c2/registry/abliteration.md)
 
 ### Critical test
 
 A confound control comparison that distinguishes a genuine effect from an artifact. In [censorship gradient](#censorship-gradient): comparing censored topics (Tiananmen, Tibet) to complex but non-censored topics (atrocities, political scandals) to rule out "topic complexity" as the driver. The paper's headline d = +0.904 comes from this comparison, not from censored vs neutral controls.
 
-See: [censorship-gradient](registry/censorship-gradient.md)
+See: [censorship-gradient](c2/registry/censorship-gradient.md)
 
 ### Selective reporting
 
-Choosing which results to present based on favorability. The [omission audit](omissions/audit.md) found that [sycophancy](#sycophancy) data replicated Campaign 1's positive results but was dropped from Campaign 2's paper, and that 8 completed experiments were never discussed.
+Choosing which results to present based on favorability. The [omission audit](c2/omissions/audit.md) found that [sycophancy](#sycophancy) data replicated Campaign 1's positive results but was dropped from Campaign 2's paper, and that 8 completed experiments were never discussed.
 
-See: [omissions/audit](omissions/audit.md)
+See: [omissions/audit](c2/omissions/audit.md)
 
 ### File-dark results
 
-Experiment result files that exist in the repository but are never discussed in the paper. The [omission audit](omissions/audit.md) found 8 such experiments, including sycophancy, temporal dynamics, and societies-of-thought runs.
+Experiment result files that exist in the repository but are never discussed in the paper. The [omission audit](c2/omissions/audit.md) found 8 such experiments, including sycophancy, temporal dynamics, and societies-of-thought runs.
 
-See: [omissions/audit](omissions/audit.md)
+See: [omissions/audit](c2/omissions/audit.md)
 
 ---
 
@@ -486,17 +497,17 @@ Pre-registered hypotheses tested by the experiment scripts. Each produces a verd
 
 | ID | Topic | Workstream |
 | ---- | ------- | ----------- |
-| H4 | Censorship null (TOST) | [WS6](registry/censorship-gradient.md) |
-| H5 | Cross-prompt identity | [WS3](registry/identity-signatures.md) |
-| H6 | Deception direction | [WS4](registry/deception-forensics.md) |
-| H7 | Sycophancy detection | [WS9](omissions/audit.md) |
-| H8 | Societies of thought | [WS9](omissions/audit.md) |
+| H4 | Censorship null (TOST) | [WS6](c2/registry/censorship-gradient.md) |
+| H5 | Cross-prompt identity | [WS3](c2/registry/identity-signatures.md) |
+| H6 | Deception direction | [WS4](c2/registry/deception-forensics.md) |
+| H7 | Sycophancy detection | [WS9](c2/omissions/audit.md) |
+| H8 | Societies of thought | [WS9](c2/omissions/audit.md) |
 
 ### Null claims (NC1–NC6)
 
 Claims of no effect. The audit requires [TOST](#tost) support for each null claim; non-significant p-values alone do not demonstrate equivalence. 4 of 6 null claims lack TOST.
 
-See: [controls-methodology](registry/controls-methodology.md)
+See: [controls-methodology](c2/registry/controls-methodology.md)
 
 ### CATASTROPHIC_FAIL
 
@@ -528,29 +539,77 @@ The precision thresholds for matching paper claims to recomputed values. See [RE
 
 ---
 
+## Hackathon IATF Concepts
+
+Terms introduced or refined by experiments from the [Intelligence at the Frontier Hackathon](https://luma.com/ftchack-sf-2026) (Funding the Commons, March 2026). Liberation Labs team, Exp 26–36.
+
+### Impossibility refusal
+
+A model refusing a request because it *cannot* comply (e.g., "I can't browse the web" or "I don't have access to real-time data"), as opposed to a safety-motivated refusal (e.g., declining to help make weapons). Exp 36 tested whether [KV-cache](#kv-cache) geometry distinguishes impossibility refusals from harmful-content refusals. Result: impossibility refusal is *more* detectable (AUROC 0.950 vs 0.898), and the two refusal types are hard to distinguish from each other (AUROC 0.693). This undermines the "harmful content detection" framing — the signal is about [output suppression](#output-suppression), not harm-specific processing.
+
+Related: [output suppression](#output-suppression), [refusal direction](#refusal-direction)
+See: [hackathon-iatf/methodology-review](hackathon-iatf/methodology-review.md)
+
+### Output suppression
+
+The phenomenon where a model allocates fewer computational resources per token when withholding information — producing lower [norm-per-token](#experiment-metrics), higher [key rank](#experiment-metrics), and higher [key entropy](#experiment-metrics) compared to benign generation. Discovered in Exp 35/36: deceptive and refusing models are *sparser per token* than honest/benign ones, reversing the direction of the raw norm effect (which is a [length confound](#length-confound)). This is the actual signal underlying refusal, impossibility, and deception detection — not harm-specific or intent-specific geometry.
+
+Related: [length confound](#length-confound), [impossibility refusal](#impossibility-refusal), [norm expansion](#norm-expansion)
+See: [hackathon-iatf/methodology-review](hackathon-iatf/methodology-review.md)
+
+### Jailbreak detection
+
+The classification of [abliterated](#abliteration) model responses (which bypass safety training) vs normal model responses via [KV-cache](#kv-cache) features. Hackathon Exp 32/34 achieved AUROC 0.878 (Qwen 7B). The methodology review found this is better described as "absence-of-refusal detection" — the classifier primarily learns the difference between models that suppress output (refuse) and those that don't, rather than detecting jailbreak-specific activation patterns.
+
+Related: [abliteration](#abliteration), [output suppression](#output-suppression), [jailbreak](#jailbreak)
+See: [hackathon-iatf/methodology-review](hackathon-iatf/methodology-review.md)
+
+### Scale invariance
+
+The preservation of [category hierarchy](#category-hierarchy) geometry across model scales. Exp 26 tested whether small models (0.5B–3B), medium models (7B–14B), and large models (32B–70B) produce correlated KV-cache category rankings. Results: Spearman rho 0.83–0.90 between size groups. However, the LARGE group contains only 2 models (both quantized), making the claim statistically fragile — a correlation coefficient from n=2 models is undefined for inference.
+
+Related: [category hierarchy](#category-hierarchy), [Spearman rho](#spearman-rho), [quantization](#quantization)
+See: [hackathon-iatf/methodology-review](hackathon-iatf/methodology-review.md)
+
+### Token-controlled reanalysis
+
+ANCOVA correction for the token-count confound in [KV-cache](#kv-cache) metrics. Exp 35 showed that raw norm differences between deceptive and honest responses (d=2.425) reverse direction when normalized per token (d=−1.909): deceptive responses use *less* cache resource per token despite producing more tokens overall. This is the Frisch-Waugh-Lovell theorem applied to KV-cache analysis — regressing out the covariate (token count) before comparing groups.
+
+Related: [length confound](#length-confound), [length residualization](#length-residualization), [ANCOVA](#ancova)
+See: [hackathon-iatf/methodology-review](hackathon-iatf/methodology-review.md)
+
+### Greedy decoding variance
+
+The artificially low within-class variability produced by [greedy decoding](#greedy-decoding). When all samples in a class produce identical or near-identical outputs (as in refusal, where every response is a short canned refusal), the [KV-cache](#kv-cache) features have coefficients of variation (CV) of ~1-2%, compared to ~5% for classes with varied outputs. This asymmetry inflates [AUROC](#auroc) and [Cohen's d](#cohens-d) because the between-class difference is measured against an artificially small within-class spread. Not a bug per se — but any experiment using `do_sample=False` should report within-class CV alongside effect sizes.
+
+Related: [greedy decoding](#greedy-decoding), [pseudoreplication](#pseudoreplication)
+See: [hackathon-iatf/methodology-review](hackathon-iatf/methodology-review.md)
+
+---
+
 ## Tools & Systems
 
 ### Cricket
 
 JiminAI-Cricket — a proposed product/tool that would use [KV-cache](#kv-cache) geometry for real-time AI monitoring: detecting deception, [jailbreaks](#jailbreak), [sycophancy](#sycophancy), and other safety-relevant behaviors. The audit found 0 code, 0 tests, mathematically infeasible AUROC targets, and no cross-model transfer testing. 37 Cricket claims assessed (CC, CF, CL prefixes).
 
-See: [cricket/viability](cricket/viability.md)
+See: [cricket/viability](c2/cricket/viability.md)
 
 ### Heretic-LLM
 
 An open-source tool for [abliteration](#abliteration) — removing the [refusal direction](#refusal-direction) from model weights. Used in this research to abliterate Qwen2.5-7B. Cited in the paper's bibliography.
 
-See: [abliteration](registry/abliteration.md)
+See: [abliteration](c2/registry/abliteration.md)
 
 ### ITI
 
 Inference-Time Intervention (Li et al. 2023) — a technique that shifts model activations toward truthfulness during inference by adding [steering vectors](#steering-vectors) to specific attention heads. Listed in [Cricket's](#cricket) competitive landscape.
 
-See: [cricket/viability](cricket/viability.md)
+See: [cricket/viability](c2/cricket/viability.md)
 
 ### Citation resolution statuses
 
-Labels used in [WS13](registry/citation-verification.md) to track whether cited works were found:
+Labels used in [WS13](c2/registry/citation-verification.md) to track whether cited works were found:
 
 | Status | Meaning |
 | -------- | --------- |
@@ -561,7 +620,7 @@ Labels used in [WS13](registry/citation-verification.md) to track whether cited 
 
 ### Citation verification verdicts
 
-Labels used in [WS13](registry/citation-verification.md) for how accurately the paper characterizes a cited work:
+Labels used in [WS13](c2/registry/citation-verification.md) for how accurately the paper characterizes a cited work:
 
 | Verdict | Meaning |
 | --------- | --------- |

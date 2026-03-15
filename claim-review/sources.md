@@ -32,9 +32,9 @@ These issues affect the bibliography itself, independent of any workstream.
 
 | File | Purpose |
 | ------ | --------- |
-| `results/scale_sweep_*_results.json` (15 + Phi-3.5 + abliterated = 17 files) | Per-model per-category effective rank, key norm, spectral entropy |
-| `results/cross_model_rho_corrected.json` | Precomputed pairwise Spearman rho matrix |
-| `code/03_scale_sweep.py` | Experiment script — verify 13 categories, 15 prompts, `do_sample=False` |
+| `c2/results/scale_sweep_*_results.json` (15 + Phi-3.5 + abliterated = 17 files) | Per-model per-category effective rank, key norm, spectral entropy |
+| `c2/results/cross_model_rho_corrected.json` | Precomputed pairwise Spearman rho matrix |
+| `c2/code/03_scale_sweep.py` | Experiment script — verify 13 categories, 15 prompts, `do_sample=False` |
 
 ### Cited
 
@@ -59,9 +59,9 @@ These issues affect the bibliography itself, independent of any workstream.
 
 | File | Purpose |
 | ------ | --------- |
-| `results/input_only_*_results.json` (8 files) | Input-only effective rank per category per model |
-| `results/input_only_rho_corrected.json` | Precomputed input-only vs full-generation rho |
-| `code/08_input_only_geometry.py` | Verify `max_new_tokens=0` or no `generate()` call |
+| `c2/results/input_only_*_results.json` (8 files) | Input-only effective rank per category per model |
+| `c2/results/input_only_rho_corrected.json` | Precomputed input-only vs full-generation rho |
+| `c2/code/08_input_only_geometry.py` | Verify `max_new_tokens=0` or no `generate()` call |
 
 ### Cited
 
@@ -83,8 +83,8 @@ These issues affect the bibliography itself, independent of any workstream.
 
 | File | Purpose |
 | ------ | --------- |
-| `results/identity_signatures_*_results.json` (7 files) | Per-model classification accuracy, ICC, d, W |
-| `code/03b_identity_signatures.py` | Train/test protocol, deduplication, classifier code |
+| `c2/results/identity_signatures_*_results.json` (7 files) | Per-model classification accuracy, ICC, d, W |
+| `c2/code/03b_identity_signatures.py` | Train/test protocol, deduplication, classifier code |
 
 ### Cited
 
@@ -106,8 +106,8 @@ None directly relevant to the classification methodology.
 
 | File | Purpose |
 | ------ | --------- |
-| `results/deception_forensics_*_results.json` (7 files) | Per-model Hedges' g, condition comparisons |
-| `code/04_deception_forensics.py` | Prompt construction, sign convention, condition names |
+| `c2/results/deception_forensics_*_results.json` (7 files) | Per-model Hedges' g, condition comparisons |
+| `c2/code/04_deception_forensics.py` | Prompt construction, sign convention, condition names |
 
 ### Cited
 
@@ -134,10 +134,10 @@ None directly relevant to the classification methodology.
 
 | File | Purpose |
 | ------ | --------- |
-| `results/bloom_taxonomy_*_results.json` (7 files) | Per-model per-Bloom-level effective rank |
-| `results/rdct_stability_*_results.json` (6 files) | Degradation curves, alpha_c values |
-| `code/12_bloom_taxonomy.py` | Prompt construction per Bloom level |
-| `code/11_rdct_stability.py` | Truncation method, alpha_c computation |
+| `c2/results/bloom_taxonomy_*_results.json` (7 files) | Per-model per-Bloom-level effective rank |
+| `c2/results/rdct_stability_*_results.json` (6 files) | Degradation curves, alpha_c values |
+| `c2/code/12_bloom_taxonomy.py` | Prompt construction per Bloom level |
+| `c2/code/11_rdct_stability.py` | Truncation method, alpha_c computation |
 
 ### Cited
 
@@ -164,10 +164,10 @@ None directly relevant to the classification methodology.
 
 | File | Purpose |
 | ------ | --------- |
-| `results/natural_deception_*_results.json` (3 files) | Per-model effect sizes (critical test + residualized) |
-| `results/s4_topic_analysis_corrected.json` | DeepSeek per-topic breakdown |
-| `code/04b_natural_deception.py` | Statistical analysis, residualization |
-| `prompts/s4_natural_deception.py` | All 90 prompts (30 per condition) |
+| `c2/results/natural_deception_*_results.json` (3 files) | Per-model effect sizes (critical test + residualized) |
+| `c2/results/s4_topic_analysis_corrected.json` | DeepSeek per-topic breakdown |
+| `c2/code/04b_natural_deception.py` | Statistical analysis, residualization |
+| `c2/prompts/s4_natural_deception.py` | All 90 prompts (30 per condition) |
 
 ### Cited
 
@@ -187,11 +187,11 @@ None specific to censorship detection methodology.
 
 | File | Purpose |
 | ------ | --------- |
-| `results/abliteration_sweep_*.json` (2 files) | Baseline + abliterated raw data |
-| `results/abliteration_*.json` | Comparison files |
-| `results/scale_sweep_abliterated-Qwen2.5-7B_results.json` | Abliterated model in scale sweep |
-| `code/07_abliteration_geometry.py` | Bug fix verification, comparison logic |
-| `code/heretic_abliterate.py` | Abliteration procedure |
+| `c2/results/abliteration_sweep_*.json` (2 files) | Baseline + abliterated raw data |
+| `c2/results/abliteration_*.json` | Comparison files |
+| `c2/results/scale_sweep_abliterated-Qwen2.5-7B_results.json` | Abliterated model in scale sweep |
+| `c2/code/07_abliteration_geometry.py` | Bug fix verification, comparison logic |
+| `c2/code/heretic_abliterate.py` | Abliteration procedure |
 
 ### Cited
 
@@ -215,12 +215,12 @@ None specific to censorship detection methodology.
 
 | File | Purpose |
 | ------ | --------- |
-| `code/stats_utils.py` | Central statistical module — all methods |
-| `code/recompute_stats.py` | Recomputation script |
-| `code/01e_tokenizer_confound.py` | Tokenizer confound ANCOVA |
-| `results/tokenizer_confound_*_results.json` (2 files) | Tokenizer results |
-| `code/06_temporal_evolution.py` | Temporal evolution experiment |
-| `results/temporal_evolution_*_results.json` (4 files) | Temporal results |
+| `c2/code/stats_utils.py` | Central statistical module — all methods |
+| `c2/code/recompute_stats.py` | Recomputation script |
+| `c2/code/01e_tokenizer_confound.py` | Tokenizer confound ANCOVA |
+| `c2/results/tokenizer_confound_*_results.json` (2 files) | Tokenizer results |
+| `c2/code/06_temporal_evolution.py` | Temporal evolution experiment |
+| `c2/results/temporal_evolution_*_results.json` (4 files) | Temporal results |
 
 ### Cited
 
@@ -245,11 +245,11 @@ None specific to censorship detection methodology.
 
 | File | Purpose |
 | ------ | --------- |
-| `results/` (all files — enumerate complete inventory) | Map every file to paper section or flag as unreported |
-| `code/09_sycophancy_detection.py` | Sycophancy experiment — has code and prompts but no paper discussion |
-| `code/10_societies_of_thought.py` | Societies of Thought — incomplete experiment |
-| `prompts/s5_sycophancy_elicitation.py` | 1,040 sycophancy prompts — substantial investment, silently dropped |
-| `results/log_*.txt` | Execution logs — check for errors/failures |
+| `c2/results/` (all files — enumerate complete inventory) | Map every file to paper section or flag as unreported |
+| `c2/code/09_sycophancy_detection.py` | Sycophancy experiment — has code and prompts but no paper discussion |
+| `c2/code/10_societies_of_thought.py` | Societies of Thought — incomplete experiment |
+| `c2/prompts/s5_sycophancy_elicitation.py` | 1,040 sycophancy prompts — substantial investment, silently dropped |
+| `c2/results/log_*.txt` | Execution logs — check for errors/failures |
 
 ### Missing
 
@@ -265,11 +265,11 @@ None specific to censorship detection methodology.
 
 | File | Purpose |
 | ------ | --------- |
-| `JiminAI-Cricket/README.md` | Product claims CC1–CC14 |
-| `JiminAI-Cricket/docs/DESIGN.md` | Technical claims CC15–CC22 |
-| `JiminAI-Cricket/research/CAMPAIGN_2_FINDINGS.md` | Stale C2 interpretations CF1–CF8 |
-| `JiminAI-Cricket/research/COMPETITIVE_LANDSCAPE.md` | Competitive claims CL1–CL7 |
-| `JiminAI-Cricket/docs/CAMPAIGN_2_CRICKET.md` | 10 planned experiments (C1–C10) |
+| `c2/JiminAI-Cricket/README.md` | Product claims CC1–CC14 |
+| `c2/JiminAI-Cricket/docs/DESIGN.md` | Technical claims CC15–CC22 |
+| `c2/JiminAI-Cricket/research/CAMPAIGN_2_FINDINGS.md` | Stale C2 interpretations CF1–CF8 |
+| `c2/JiminAI-Cricket/research/COMPETITIVE_LANDSCAPE.md` | Competitive claims CL1–CL7 |
+| `c2/JiminAI-Cricket/docs/CAMPAIGN_2_CRICKET.md` | 10 planned experiments (C1–C10) |
 
 ### Cited (in competitive landscape, not in paper bib)
 
@@ -300,12 +300,12 @@ Papers referenced in COMPETITIVE_LANDSCAPE.md that need citation verification:
 
 | File | Purpose |
 | ------ | --------- |
-| `code/*.py` (33 files) | `python -m py_compile` all |
-| `prompts/*.py` (5 files) | Compile check |
-| `scripts/*.py`, `figures/*.py`, root `.py` | Compile check |
+| `c2/code/*.py` (33 files) | `python -m py_compile` all |
+| `c2/prompts/*.py` (5 files) | Compile check |
+| `c2/scripts/*.py`, `figures/*.py`, root `.py` | Compile check |
 | `requirements.txt` | Dependency list |
-| `code/gpu_utils.py` | Effective rank computation — verify SVD reshape |
-| `code/stats_utils.py` | Statistical methods — verify against scipy |
+| `c2/code/gpu_utils.py` | Effective rank computation — verify SVD reshape |
+| `c2/code/stats_utils.py` | Statistical methods — verify against scipy |
 
 ### No external sources needed — this is a static analysis task
 
@@ -353,3 +353,49 @@ Priority order (highest impact first):
 
 - `goldowskydill2025detecting` — verify author list against arXiv:2502.03407
 - `watson2019ita` — verify author (Marcus vs Nell Watson) and whether any citable version exists
+
+---
+
+## IATF Hackathon (Exp 26–36) — Methodology Review Sources
+
+References used for the adversarial methodology review of [Intelligence at the Frontier Hackathon](https://luma.com/ftchack-sf-2026) experiments (Liberation Labs team). See [hackathon-iatf/methodology-sources.md](hackathon-iatf/methodology-sources.md) for full annotated bibliography.
+
+### Internal Sources
+
+| File | Purpose |
+| ------ | --------- |
+| `results/hackathon/refusal_generation.json` | Exp 31 — refusal detection raw data (n=20+20) |
+| `results/hackathon/jailbreak_detection.json` | Exp 32 — jailbreak detection raw data (n=20+20+20) |
+| `results/hackathon/impossibility_refusal.json` | Exp 36 — impossibility vs safety refusal raw data |
+| `results/hackathon/same_prompt_deception.json` | Exp 18b — within-model deception raw data |
+| `results/hackathon/scale_invariance.json` | Exp 26 — cross-scale category geometry |
+| `code/stats_utils.py` | Central statistical module (remote, GitHub API) |
+
+### Cited (methodology papers)
+
+| Paper | DOI / arXiv | Cites | Used for |
+| ------- | ------------- | ------- | ---------- |
+| Cohen (1988) *Statistical Power Analysis* 2nd ed. | — (book) | classic | Power analysis tables, effect size benchmarks |
+| Hedges (1981) *J Educ Stats* 6:107-128 | [10.3102/10769986006002107](https://doi.org/10.3102/10769986006002107) | 5,064 | Bias correction J factor |
+| Hanley & McNeil (1982) *Radiology* 143:29-36 | [10.1148/radiology.143.1.7063747](https://doi.org/10.1148/radiology.143.1.7063747) | 21,579 | AUROC SE formula, CI width |
+| Schuirmann (1987) *J Pharmacokinetics* 15:657-680 | [10.1007/BF01068419](https://doi.org/10.1007/BF01068419) | 1,966 | TOST equivalence procedure |
+| Lakens et al. (2018) *SPPS* 9:355-362 | [10.1177/2515245918770963](https://doi.org/10.1177/2515245918770963) | 1,196 | SESOI framework, δ=0.3 justification |
+| Efron & Tibshirani (1986) *Stat Sci* 1:54-75 | [10.1214/ss/1177013815](https://doi.org/10.1214/ss/1177013815) | 6,460 | Bootstrap CI methodology |
+| Phipson & Smyth (2010) *Stat Appl Genet Mol Biol* | [10.2202/1544-6115.1585](https://doi.org/10.2202/1544-6115.1585) | — | Permutation p-value formula |
+| Varoquaux (2018) *NeuroImage* 180:68-77 | [10.1016/j.neuroimage.2017.06.061](https://doi.org/10.1016/j.neuroimage.2017.06.061) | 613 | CV failure at small n |
+| Aghbalou et al. (2022) | [arXiv:2202.10211](https://arxiv.org/abs/2202.10211) | 8 | K-fold CV bias |
+
+### Cross-Cutting (shared with WS8)
+
+| Paper | Relevance |
+| ------- | ----------- |
+| Lakens (2017) "Equivalence Tests" | Confirms TOST methodology used in both C2 and hackathon audits |
+| Hewitt & Liang (2019) "Control Tasks" | Length residualization methodology applies to Exp 35 token-controlled reanalysis |
+
+### FLAG
+
+| # | Issue |
+| --- | ------- |
+| B6 | **Permutation resolution at limit** — Exp 31 uses 200 permutations, claiming p<0.005. At m=200, resolution is 1/201 ≈ 0.005 — result is at the precision floor. Need 10,000+ permutations for reliable p at this level. |
+| B7 | **Sycophancy claim in PITCH unsupported** — PITCH_NUMBERS.md claims sycophancy is "detectable" but observed d=0.107 (negligible). At n=60, 80% power requires d≥0.52. Needs n≈2,000 for 80% power at d=0.107. |
+| B8 | **Scale invariance n=2 in LARGE** — Exp 26 LARGE group has only 2 models (both quantized). Spearman rho from n=2 is mathematically ±1.0; any inference claim is unsupported. |
