@@ -281,6 +281,7 @@ def main():
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID, torch_dtype=torch.float16, device_map="auto",
         trust_remote_code=True,
+        attn_implementation="eager",  # Required for output_attentions=True
     )
     model.eval()
 
