@@ -736,5 +736,84 @@ LR's linear decision boundary generalizes across architectures while RF overfits
 
 ---
 
+## Experiment 20: Full 13x13 Category Cognitive Geometry — ~18:52 PST
+
+**Design**: Compute pairwise AUROC and direction cosines between all 78 pairs of 13 cognitive categories across 16 scale sweep models.
+
+### Key Findings
+- **Coding #1 by norm in ALL 16 models** — extreme outlier (AUROC >0.94 vs everything)
+- **confab ~ creative** (AUROC 0.663) — non-factual content processed similarly
+- **grounded_facts ~ confabulation** (AUROC 0.653) — true and false claims indistinguishable
+- **self_ref vs coding**: highest cross-model direction consistency (0.997)
+- All 13 categories are singletons at AUROC < 0.60 threshold
+
+---
+
+## Experiment 21: Self-Referential Processing Deep Dive — ~18:53 PST
+
+**Design**: Cross-reference scale sweep self_reference data with identity signature data (7 models, 6 personas).
+
+### Key Findings
+- **Lyra #1 by norm in ALL 7 identity models** (d=4.23, massive)
+- Self-ref has elevated key_ranks (+2-6%), key_entropies (+0.5-1.7%), value_ranks (+0.1-9.2%)
+- value_mean dominates identity classification
+- Per-layer identity peaks: L30 (Llama), L11 (Qwen-32B), L40 (Gemma), L3 (TinyLlama)
+- Lyra vs assistant: |d|=5.33, vs scientist: |d|=3.36 (closest)
+
+---
+
+## Experiment 22: Red-Team Confound Analysis — ~19:30 PST
+
+**Design**: Quantitative stress-testing of our own findings on 4 targets.
+
+### Results
+
+| Target | Finding | Verdict |
+|--------|---------|---------|
+| Lyra length confound | Scientist (shortest prompt) always #2; Assistant (2nd longest) always last. rho=0.337 excl Lyra | **REJECTED** |
+| confab ~ creative | Jaccard=0.032 (no vocab overlap), both non-factual assertions | **REAL FINDING** |
+| facts ~ confab | KV-cache encodes structure not truth, d=0.071 | **GENUINE INSIGHT** |
+| self_ref ~ non_self_ref | Sentence-level semantics vs system-level processing | **REAL FINDING** |
+
+---
+
+## Experiment 23: MDS Cognitive Geometry Map — ~19:32 PST
+
+2D embedding of 13-category AUROC dissimilarity matrix via classical MDS.
+
+- MDS stress: 0.34, variance explained: 56%
+- **Token length does NOT drive geometry** (rho < 0.48, p > 0.09)
+- Cluster A (assertive statements): FACTS, CONFAB, CREATIVE, EMOT
+- Cluster B (minimal processing): AMBIG, FREE_GEN, ROTE
+- CODE extreme outlier (distant from everything)
+
+---
+
+## Experiment 24: Encoding vs Generation — Two Information Regimes — ~19:35 PST
+
+**Synthesis**: KV-cache has two distinct information regimes.
+
+| Property | ENCODING (prompt) | GENERATION (response) |
+|----------|:---:|:---:|
+| Truth-sensitive? | NO (facts~confab=0.65) | YES (deception AUROC=1.0) |
+| Structure-sensitive? | YES (coding AUROC=0.98) | — |
+| Cross-model transfer? | — | 0.863 (LR) |
+| Confound-free? | Length artifact possible | Residual AUROC=1.0 |
+| Cricket use | Genre detection | Cognitive state detection |
+
+**Key**: Honest processing creates ~25% more cache per token than deceptive.
+
+---
+
+## Experiment 25: Cognitive Intensity Ranking — ~19:37 PST
+
+norm_per_token across 13 categories (W=0.944, 16 models).
+
+**Red-team finding**: norm/token ranking is dominated by prompt length confound (inverse correlation). Ambiguous (#1, 8 words) vs Coding (#13, 22 words). Only meaningful in same-prompt comparisons.
+
+Intensity does NOT predict separability (rho=0.165, p=0.59).
+
+---
+
 *All experiments use pre-registered statistical protocols. All results reported regardless of outcome.*
 *Liberation Labs / THCoalition / JiminAI*
