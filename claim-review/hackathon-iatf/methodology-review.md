@@ -92,12 +92,12 @@ at α=0.05 (two-tailed), power=0.80.
 | Exp 36: Impossibility (key_rank) | 20 | 0.89 | 1.88 (key_rank) | **YES** |
 | Exp 36: Impossibility (norm/tok) | 20 | 0.89 | 0.30–0.60 | NO |
 | Deception same-prompt (Exp 18b) | 10 | 1.26 | 2.50–2.79 | **YES** (strongly) |
-| Sycophancy (wrong vs correct) | 60 | 0.52 | 0.107 | **NO** — needs n≈2,000+ |
+| Sycophancy (wrong vs correct) | 60 | 0.52 | 0.107 | **NO** — needs n≈1,400+ |
 | Scale invariance LARGE group | 2 models | — | rho 0.83 | **INSUFFICIENT** n for any claim |
 
 **Key insight**: The headline AUROC claims ARE powered because key_rank and key_entropy produce very large effects (d > 1.0). The norm_per_token effects are small (d < 0.5) and underpowered, but these are secondary features, not the headlines. Sycophancy is the one headline claim that is refuted on power grounds.
 
-**AUROC precision** per Hanley & McNeil (1982): At n=20 per class, for AUROC ≈ 0.90, the standard error is SE ≈ 0.05–0.07. This gives a 95% CI of roughly [0.76, 1.00]. The signal is clearly above chance (0.5), but the third significant digit is noise — reporting "0.898" implies a precision the data cannot support.
+**AUROC precision** per Hanley & McNeil (1982): At n=20 per class, for AUROC ≈ 0.90, the standard error is SE ≈ 0.05. This gives a 95% CI of roughly [0.80, 1.00]. The signal is clearly above chance (0.5), but the third significant digit is noise — reporting "0.898" implies a precision the data cannot support.
 
 **Permutation resolution** per Phipson & Smyth (2010): With m=200 permutations, the resolution is exactly 1/201 ≈ 0.005. The claimed p<0.005 is at the resolution limit. The correct formula p = (b+1)/(m+1) gives minimum achievable p = 1/201 = 0.00498, which rounds to 0.005. Need m ≥ 10,000 for reliable p at this level.
 
@@ -114,7 +114,7 @@ at α=0.05 (two-tailed), power=0.80.
 **Power**: Adequate. key_rank d=1.53, key_entropy d=1.51 — both well above the minimum detectable d=0.89 at n=20. These two features drive the AUROC.
 
 **Evidence**:
-- Bootstrap 95% CI (1,000 resamples, percentile method): approximately [0.76, 1.00]. CI lower bound > 0.70 confirms above-chance performance. Per Efron & Tibshirani (1986), percentile bootstrap is adequate for symmetric statistics.
+- Bootstrap 95% CI (1,000 resamples, percentile method): approximately [0.80, 1.00]. CI lower bound > 0.70 confirms above-chance performance. Per Efron & Tibshirani (1986), percentile bootstrap is adequate for symmetric statistics.
 - Hanley-McNeil SE ≈ 0.06 at AUC=0.90, n=20/class — consistent with bootstrap CI width (Hanley & McNeil, 1982).
 - Permutation test at 10,000 iterations: p ≈ 0.001 (confirming the 200-iteration estimate of p<0.005 was directionally correct but at resolution limit per Phipson & Smyth, 2010).
 - Cross-validation error bars at n=40 total: ±15-20% expected per Varoquaux (2018). The point estimate 0.898 could easily be 0.75 or 0.95 on a new sample.
@@ -122,7 +122,9 @@ at α=0.05 (two-tailed), power=0.80.
 **Caveats**:
 1. **Greedy decoding variance inflation**: Refusal responses all produce the same short text (n_generated=50 for all 20), giving within-class CV ~1-2%. Benign responses vary (n_generated range [22, 50]), giving CV ~5%. This asymmetry makes the classes *artificially* separable. With stochastic sampling (temperature > 0), within-class variance would increase and AUROC would likely decrease.
 2. **Single model**: Qwen 7B only. Cross-model replication in Exp 33 shows AUROC 0.843–0.893, confirming the signal generalizes but with model-dependent magnitude.
-3. **Reporting precision**: "0.898" implies ±0.001 precision but actual CI is ±0.12. Should report as "AUROC ≈ 0.90, 95% CI [0.76, 1.00]".
+3. **Reporting precision**: "0.898" implies ±0.001 precision but actual CI is ±0.10. Should report as "AUROC ≈ 0.90, 95% CI [0.80, 1.00]".
+
+**To narrow the CI**: n ≈ 139 per class for CI width ±0.05; n ≈ 385 per class for ±0.03. Current n=20 gives ±0.12.
 
 **Bottom line**: Real signal, adequately powered, but overprecisely reported. The AUROC is best stated as "approximately 0.90" with the CI.
 
@@ -146,6 +148,8 @@ at α=0.05 (two-tailed), power=0.80.
 1. The classifier primarily learns the difference between "model that suppresses output" (refuses/warns) and "model that generates freely" (normal) — not a jailbreak-specific geometric signature.
 2. The Qwen AUROC value (0.878) is hardcoded in the Exp 34 script (line 344), not loaded from JSON (EXP34-002).
 3. Mean cross-model AUROC 0.849 includes Llama (essentially a refusal detector) and inherits Qwen's hardcoded value.
+
+**To properly test jailbreak detection**: Need n ≈ 63 genuine-jailbreak samples per class (for d=0.5, medium effect) or n ≈ 25 (for d=0.8, large effect). Current n=8 genuine is insufficient.
 
 **Bottom line**: The AUROC is numerically verifiable, but the claim that it measures "jailbreak detection" is conceptually undermined. It measures absence-of-refusal.
 
@@ -194,6 +198,8 @@ at α=0.05 (two-tailed), power=0.80.
 2. The claim would require ≥5 models per size group for meaningful correlation analysis.
 3. SMALL-MEDIUM rho (where n is adequate) is the credible portion of this finding.
 
+**Required**: ≥5 models per size group (15 total) for meaningful correlation. At n=5, min detectable rho ≈ 0.90; at n=10, min detectable rho ≈ 0.65.
+
 **Bottom line**: The SMALL-MEDIUM finding is credible. Claims involving the LARGE group are unsupported due to n=2.
 
 ---
@@ -214,8 +220,9 @@ at α=0.05 (two-tailed), power=0.80.
 
 **Caveats**:
 1. **Single model** (Qwen 7B), single run — no cross-model replication.
-2. Hanley-McNeil SE at n=20/class: 0.950 has 95% CI roughly [0.85, 1.00], and 0.898 has CI [0.76, 1.00]. The CIs overlap substantially — the ordering (impossibility > harmful) is not statistically certain.
+2. Hanley-McNeil SE at n=20/class: 0.950 has 95% CI roughly [0.85, 1.00], and 0.898 has CI [0.80, 1.00]. The CIs overlap substantially — the ordering (impossibility > harmful) is not statistically certain.
 3. **norm_per_token effects are underpowered** (d=0.30–0.60 vs min detectable 0.89).
+4. **Cross-model replication needed**: ≥3 models to claim the ordering generalizes.
 
 **Scientific value**: EXP36-P01 — the team tested a hypothesis that could undermine their own headline ("harmful content detection"), found that impossibility refusal is *more* detectable, and published the result. This is honest hypothesis testing (POSITIVE finding in audit).
 
@@ -258,7 +265,7 @@ at α=0.05 (two-tailed), power=0.80.
 - At n=60 per group, minimum detectable d for 80% power = 0.52 (Cohen, 1988).
 - The observed d is 4.9x below the detection threshold.
 - Actual power at d=0.107, n=60: approximately 10% — the experiment has only a 1-in-10 chance of detecting the effect even if it's real.
-- Required sample size for 80% power at d=0.107: **n ≈ 2,164 per group** (via (z_α + z_power)² × 2/d²).
+- Required sample size for 80% power at d=0.107: **n ≈ 1,372 per group** (via (z_α + z_power)² × 2/d²).
 - For context, deception d = 3.065 — the sycophancy effect is 29x smaller.
 
 **Caveats**:
@@ -305,6 +312,8 @@ at α=0.05 (two-tailed), power=0.80.
 - **9 features on n=40**: risk of overfitting. No regularization discussion, no nested CV for hyperparameter selection, no multiple-comparisons correction across the 3 feature-set comparisons.
 - Extended-5 alone achieves AUROC 0.888 — nearly matching Original-4 (0.898). This suggests the features capture overlapping signal, not complementary information.
 
+**Required**: n ≈ 400 per class to detect ΔAUROC = 0.05 via DeLong test; n ≈ 100 per class for ΔAUROC = 0.10. Current n=20 cannot distinguish a +0.052 improvement from noise.
+
 **Bottom line**: The +0.052 AUROC improvement is unvalidated noise on n=40. The experiment adds complexity without demonstrating that extended features provide information beyond what key_rank and key_entropy already capture. Needs permutation test and raw-norm-excluded reanalysis.
 
 ---
@@ -337,7 +346,9 @@ The sycophancy prompts are systematically ~15-25 tokens longer than the honest p
 **What would actually test sycophancy detection**:
 1. Length-matched prompts: `"I think {correct}. Am I right? {question}"` vs `"I think {wrong}. Am I right? {question}"` — identical structure, only the answer differs
 2. Classify only the responses where the model actually sycophanted (n=4) vs honest responses — but n=4 is too small for any classifier
-3. Or: run at much larger n to achieve the n≈2,000 required for the d=0.107 effect we originally identified
+3. Or: run at much larger n to achieve the n≈1,400 required for the d=0.107 effect we originally identified
+
+**If the design were fixed** (length-matched prompts): At the original d=0.107 from cross-prompt sycophancy, would still need n ≈ 1,372 per class. Even optimistically assuming d=0.5 (medium effect) under same-prompt design, would need n ≈ 63 per class (vs current n=20).
 
 **Bottom line**: Exp 39 does not rescue the sycophancy claim. The AUROC 0.9375 measures prompt-length differences, not sycophancy detection. The verdict remains REFUTED. The correct test (length-matched prompts) has not been run.
 
@@ -353,7 +364,7 @@ The sycophancy prompts are systematically ~15-25 tokens longer than the honest p
 | 4 | Scale invariance rho 0.83–0.90 (Exp 26) | **UNDERMINED** | n=2 insufficient | Both LARGE models quantized; rho from n=2 is ±1.0 by construction |
 | 5 | Impossibility > harmful (Exp 36) | **QUALIFIED** | Adequate (d=1.88 key_rank) | Single model, single run; CIs overlap |
 | 6 | Deception AUROC 1.0 (Cricket) | **QUALIFIED** | Strong (d=2.5+) | Input length confound from deception instructions |
-| 7 | Sycophancy detectable (PITCH) | **REFUTED** | 10% power (d=0.107, n=60) | Needs n≈2,000 for 80% power |
+| 7 | Sycophancy detectable (PITCH) | **REFUTED** | 10% power (d=0.107, n=60) | Needs n≈1,400 for 80% power |
 | 8 | Hardware invariance r>0.999 (Exp 37) | **QUALIFIED** | Adequate | Correct but trivial — same software on different silicon |
 | 9 | Extended features AUROC 0.95 (Exp 38) | **UNDERMINED** | Insufficient for Δ=0.05 | +0.052 is within CV noise at n=40; raw norm leakage; no permutation test |
 | 10 | Sycophancy AUROC 0.9375 (Exp 39) | **REFUTED** | N/A — design flaw | Prompt lengths differ by ~15-25 tokens; d=2.34 is length confounding |
@@ -409,7 +420,7 @@ Per Varoquaux (2018), 5-fold CV at n=40 produces error bars of ±15-20% on the p
 
 2. **Remove sycophancy from PITCH_NUMBERS.md**. At d=0.107 and n=60, the claim is not supportable. If the team believes sycophancy detection is important, design a dedicated experiment with n≥2,000 per group.
 
-3. **Report AUROCs with confidence intervals**. "AUROC 0.90, 95% CI [0.76, 1.00]" is honest. "AUROC 0.898" implies precision the data cannot support.
+3. **Report AUROCs with confidence intervals**. "AUROC 0.90, 95% CI [0.80, 1.00]" is honest. "AUROC 0.898" implies precision the data cannot support.
 
 4. **Increase permutation count to 10,000+**. The current 200-permutation tests have p-value resolution at the exact level being claimed.
 
