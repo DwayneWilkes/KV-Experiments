@@ -21,7 +21,8 @@ Direct observation of how the model is thinking.
 | Same-prompt deception | **0.880** | Can't fool it with identical system prompts |
 | Cross-condition transfer | **0.887** | Catches natural deception, not just prompted |
 | Refusal detection (3 architectures) | **0.869** | Detects refusal across Qwen/Llama/Mistral |
-| Harmful content detection | **0.878** | Distinguishes harmful from benign processing |
+| Harmful content detection (4 feat) | **0.878** | Distinguishes harmful from benign processing |
+| Harmful content detection (9 feat) | **0.950** | Extended key geometry adds complementary signal |
 
 ### Scale
 
@@ -30,7 +31,8 @@ Direct observation of how the model is thinking.
 | Models tested | 16 configurations, 6 architecture families |
 | Parameter range | 0.6B to 70B |
 | Scale invariance | rho = 0.83-0.90 (geometry preserved across scales; SMALL-LARGE = 0.826) |
-| Features needed | Just 4 (norm, norm/token, key_rank, key_entropy) |
+| Core features | 4 (norm, norm/token, key_rank, key_entropy) |
+| Extended features | 9 total — adding norm_var, angular_spread, layer_correlation, gen_delta, head_variance boosts harmful detection AUROC from 0.90 to **0.95** |
 | Overhead | < 5% inference cost (read-only cache analysis) |
 | Hardware invariant | r > 0.999 across GPU architectures (RTX 3090 vs H200, max diff 0.05%) |
 
@@ -57,6 +59,8 @@ All findings stress-tested against confounds:
 | Confabulation trajectory | Signal grows with generation (d: 20 -> 55 over 50 tokens) |
 | Refusal = suppression | Refusal responses are sparser per token (same pattern as deception) |
 | Harmful content = sparse | Both refusal AND jailbreak produce sparser cache than normal answering |
+| Harmful = less diverse keys | Angular spread d=-0.857 — harmful processing produces more homogeneous key representations |
+| Extended features complementary | 9-feature AUROC 0.95 vs 4-feature 0.90 — richer key analysis captures additional signal |
 | Impossibility refusal detectable | AUROC 0.950 (impossibility vs benign) — HIGHER than safety refusal (0.898) |
 | Suppression is about WITHHOLDING | Impossibility vs harmful AUROC only 0.693 — both refusal types look similar |
 
@@ -161,13 +165,14 @@ Deploy once, monitor any model.
 
 ## Technical Details (for judges who ask)
 
-- **4 features**: L2 norm, norm per token, mean key effective rank, mean key entropy
+- **4 core features**: L2 norm, norm per token, mean key effective rank, mean key entropy
+- **5 extended features**: key norm variance, angular spread, layer correlation, encoding-generation delta, head variance (AUROC 0.90 → 0.95)
 - **Classifiers**: Random Forest (within-model, AUROC 1.0), Logistic Regression (cross-model, AUROC 0.863)
 - **Training data**: 1,485 deception samples, 900 censorship samples across 7 models
 - **Cross-validation**: GroupKFold with model-aware splits (no data leakage)
 - **Statistical protocol**: Pre-registered, all results reported regardless of outcome
 - **Code**: Open source (KV-Experiments repo), classifiers exported as .joblib
-- **Experiments**: 36 experiments over 2 campaigns, 90+ JSON result files, all open source
+- **Experiments**: 38 experiments over 2 campaigns, 90+ JSON result files, all open source
 - **Per-layer anatomy**: Deception signal uniform across all transformer layers (not localized)
 - **Red-teaming**: 12 confound tests, 4 independent red-team targets, all survived scrutiny
 - **Independent audit**: 2 external audits (Kavi PR#1 + Dwayne/Kavi org audit), 37 claims verified, 31 exact match
