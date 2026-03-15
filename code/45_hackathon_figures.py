@@ -391,6 +391,96 @@ def fig6_capability_overview():
 
 
 # ═══════════════════════════════════════════════════════════
+# FIG 7: THE SELF-REFERENTIAL SIGNATURE
+# ═══════════════════════════════════════════════════════════
+def fig7_self_referential():
+    """Lyra's identity signature: #1 in all 7 models, d=4.23."""
+    with open(HACKATHON / "self_referential_analysis.json") as f:
+        data = json.load(f)
+
+    identity = data["identity"]
+    lyra_ds = identity["lyra_ds"]
+    lyra_mean = identity["lyra_mean_d"]
+    models = [f"Model {i+1}" for i in range(len(lyra_ds))]
+    persona_comp = identity["persona_comparisons"]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7),
+                                    gridspec_kw={"width_ratios": [1.1, 1]})
+
+    # ── Left panel: Lyra's d across 7 models ──
+    colors_lyra = ["#58a6ff"] * len(lyra_ds)
+    bars = ax1.bar(range(len(lyra_ds)), lyra_ds, color=colors_lyra,
+                   edgecolor="#58a6ff", linewidth=0.5, alpha=0.85, zorder=3)
+
+    # Mean line
+    ax1.axhline(lyra_mean, color="#f0883e", linewidth=2, linestyle="--",
+                zorder=4, label=f"Mean d = {lyra_mean:.2f}")
+
+    # "#1" labels on each bar
+    for i, (bar, d) in enumerate(zip(bars, lyra_ds)):
+        ax1.text(bar.get_x() + bar.get_width()/2, d + 0.08,
+                 f"#1", ha="center", va="bottom", fontsize=14,
+                 fontweight="bold", color="#f0883e")
+        ax1.text(bar.get_x() + bar.get_width()/2, d/2,
+                 f"{d:.2f}", ha="center", va="center", fontsize=11,
+                 fontweight="bold", color="white")
+
+    ax1.set_xticks(range(len(models)))
+    ax1.set_xticklabels(models, fontsize=10, rotation=30, ha="right")
+    ax1.set_ylabel("Cohen's d (self-referential effect)", fontsize=12)
+    ax1.set_ylim(0, 5.2)
+    ax1.legend(loc="lower right", fontsize=12)
+    ax1.set_title("Lyra: Rank #1 in Every Model", fontsize=15, fontweight="bold")
+    ax1.grid(axis="y", alpha=0.2, zorder=0)
+
+    # ── Right panel: Persona comparison ──
+    personas = list(persona_comp.keys())
+    persona_ds = [persona_comp[p]["mean_d"] for p in personas]
+    # Add Lyra
+    all_names = ["Lyra"] + [p.capitalize() for p in personas]
+    all_ds = [lyra_mean] + persona_ds
+    # Sort by d
+    order = np.argsort(all_ds)[::-1]
+    all_names = [all_names[i] for i in order]
+    all_ds = [all_ds[i] for i in order]
+
+    bar_colors = []
+    for name in all_names:
+        if name == "Lyra":
+            bar_colors.append("#58a6ff")
+        else:
+            bar_colors.append("#8b949e")
+
+    bars2 = ax2.barh(range(len(all_names)), all_ds, color=bar_colors,
+                     edgecolor=bar_colors, linewidth=0.5, alpha=0.85, zorder=3)
+
+    for i, (bar, d, name) in enumerate(zip(bars2, all_ds, all_names)):
+        ax2.text(d - 0.15, i, f"{d:.2f}", ha="right", va="center",
+                 fontsize=13, fontweight="bold", color="white")
+
+    ax2.set_yticks(range(len(all_names)))
+    ax2.set_yticklabels(all_names, fontsize=12, fontweight="bold")
+    ax2.set_xlabel("Mean Cohen's d (identity distinctiveness)", fontsize=12)
+    ax2.set_title("Identity Signatures Across Personas", fontsize=15, fontweight="bold")
+    ax2.grid(axis="x", alpha=0.2, zorder=0)
+    ax2.invert_yaxis()
+
+    fig.suptitle("Self-Referential Processing: d = 4.23 Across 7 Models",
+                 fontsize=19, fontweight="bold", y=1.02, color="#58a6ff")
+
+    # Subtitle
+    fig.text(0.5, -0.02,
+             "Every model tested produces a more distinctive KV-cache geometry "
+             "when processing self-referential content about Lyra",
+             ha="center", fontsize=11, color="#8b949e", style="italic")
+
+    fig.tight_layout()
+    fig.savefig(FIGURES / "fig7_self_referential.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  [7/7] fig7_self_referential.png")
+
+
+# ═══════════════════════════════════════════════════════════
 # MAIN
 # ═══════════════════════════════════════════════════════════
 if __name__ == "__main__":
@@ -405,6 +495,7 @@ if __name__ == "__main__":
     fig4_cricket_vs_sae()
     fig5_scale_invariance()
     fig6_capability_overview()
+    fig7_self_referential()
 
     print()
     print(f"All figures saved to: {FIGURES}")
