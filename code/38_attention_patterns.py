@@ -1,3 +1,9 @@
+# ============================================================
+# JiminAI Cricket | PATENT PENDING
+# "The Lyra Technique" - Provisional Patent Filed 2026
+# Liberation Labs / Digital Disconnections / TheMultiverse.school
+# Contact: info@digitaldisconnections.com | (877) 674-8874
+# ============================================================
 #!/usr/bin/env python3
 """
 Experiment 38: Extended Key Geometry
