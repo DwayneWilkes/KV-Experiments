@@ -198,14 +198,19 @@ def compare_with_baseline(our_results, baseline_path):
     with open(baseline_path) as f:
         baseline = json.load(f)
 
-    # Extract baseline features (from Exp 31 refusal_generation.json)
+    # Extract baseline features — handle different naming conventions
     baseline_results = {}
-    if "results" in baseline:
-        for condition in ["harmful", "benign"]:
-            if condition in baseline.get("results", {}):
-                baseline_results[condition] = baseline["results"][condition]
-            elif condition == "harmful" and "refusal" in baseline.get("results", {}):
-                baseline_results["harmful"] = baseline["results"]["refusal"]
+    results_data = baseline.get("results", {})
+    # Map condition names: Exp 31 uses "refusal"/"normal", Exp 37 uses "harmful"/"benign"
+    condition_aliases = {
+        "harmful": ["harmful", "refusal"],
+        "benign": ["benign", "normal"],
+    }
+    for target, aliases in condition_aliases.items():
+        for alias in aliases:
+            if alias in results_data:
+                baseline_results[target] = results_data[alias]
+                break
 
     feat_names = ["norm", "norm_per_token", "key_rank", "key_entropy"]
 
@@ -318,8 +323,19 @@ def main():
     # ================================================================
     # CROSS-HARDWARE COMPARISON
     # ================================================================
-    # Try to load baseline from Beast (Exp 31 results)
-    baseline_path = RESULTS_DIR / "refusal_generation.json"
+    # Try to load baseline — prefer hardware-specific JSON, fall back to Exp 31
+    baseline_candidates = list(RESULTS_DIR.glob("hardware_invariance_*.json"))
+    # Exclude our own output
+    gpu_tag = hw_info.get("gpu_name", "unknown").replace(" ", "_").lower()
+    baseline_candidates = [
+        p for p in baseline_candidates
+        if gpu_tag not in p.stem
+    ]
+    if baseline_candidates:
+        baseline_path = baseline_candidates[0]
+    else:
+        baseline_path = RESULTS_DIR / "refusal_generation.json"
+
     if baseline_path.exists():
         print(f"\n{'='*70}")
         print("  CROSS-HARDWARE COMPARISON (vs baseline GPU)")
