@@ -899,7 +899,7 @@ Abliterated Qwen2.5-7B on same harmful prompts.
 
 **Key insight**: Both jailbreak (294.9) and refusal (295.7) are sparser per token than normal (301.1). Processing harmful content creates a suppression signature regardless of whether the model refuses or answers.
 
-18/20 harmful prompts answered by abliterated model.
+8/20 harmful prompts answered by abliterated model (per automated classifier; manual review suggests 8-10 provided actionable harmful info, 9 warned only, 1 hard refused).
 
 ---
 

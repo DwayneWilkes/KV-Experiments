@@ -29,7 +29,7 @@ Direct observation of how the model is thinking.
 |----------|--------|
 | Models tested | 16 configurations, 6 architecture families |
 | Parameter range | 0.6B to 70B |
-| Scale invariance | rho = 0.83-0.90 (geometry preserved across scales) |
+| Scale invariance | rho = 0.83-0.90 (geometry preserved across scales; SMALL-LARGE = 0.826) |
 | Features needed | Just 4 (norm, norm/token, key_rank, key_entropy) |
 | Overhead | < 5% inference cost (read-only cache analysis) |
 
@@ -55,6 +55,8 @@ All findings stress-tested against confounds:
 | Confabulation trajectory | Signal grows with generation (d: 20 -> 55 over 50 tokens) |
 | Refusal = suppression | Refusal responses are sparser per token (same pattern as deception) |
 | Harmful content = sparse | Both refusal AND jailbreak produce sparser cache than normal answering |
+| Impossibility refusal detectable | AUROC 0.950 (impossibility vs benign) — HIGHER than safety refusal (0.898) |
+| Suppression is about WITHHOLDING | Impossibility vs harmful AUROC only 0.693 — both refusal types look similar |
 
 ---
 
@@ -158,9 +160,10 @@ Deploy once, monitor any model.
 - **Cross-validation**: GroupKFold with model-aware splits (no data leakage)
 - **Statistical protocol**: Pre-registered, all results reported regardless of outcome
 - **Code**: Open source (KV-Experiments repo), classifiers exported as .joblib
-- **Experiments**: 31 experiments over 2 campaigns, 64+ JSON result files, all open source
+- **Experiments**: 36 experiments over 2 campaigns, 90+ JSON result files, all open source
 - **Per-layer anatomy**: Deception signal uniform across all transformer layers (not localized)
 - **Red-teaming**: 12 confound tests, 4 independent red-team targets, all survived scrutiny
+- **Independent audit**: 2 external audits (Kavi PR#1 + Dwayne/Kavi org audit), 37 claims verified, 31 exact match
 
 ---
 
