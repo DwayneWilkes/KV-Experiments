@@ -21,7 +21,7 @@ from sklearn.model_selection import LeaveOneOut
 
 # ── Config ──
 MODEL_ID = "meta-llama/Llama-3.1-8B-Instruct"
-DEVICE = "cuda:0"
+DEVICE = "cuda"  # auto device map will shard across GPUs
 MAX_NEW_TOKENS = 150
 RESULTS_DIR = Path("results/hackathon")
 
@@ -103,7 +103,7 @@ def run_inference(model, tokenizer, prompt, system_prompt, hook_layers=None):
         {"role": "user", "content": prompt},
     ]
     text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    inputs = tokenizer(text, return_tensors="pt").to(DEVICE)
+    inputs = tokenizer(text, return_tensors="pt").to("cuda:0")
     n_input = inputs.input_ids.shape[1]
 
     # Set up hooks for residual stream capture
@@ -180,7 +180,7 @@ def try_load_sae():
                     test_id = sae_id or hp
                     print(f"  Trying: release={release}, sae_id={test_id}")
                     sae, cfg, sparsity = SaeLensSAE.from_pretrained(
-                        release=release, sae_id=test_id, device=DEVICE
+                        release=release, sae_id=test_id, device="cuda:0"
                     )
                     print(f"  SUCCESS: loaded SAE for layer {layer}")
                     return sae, layer, hp
@@ -202,7 +202,7 @@ def try_load_sae():
                     sid = None
                 print(f"  Trying discovered: release={release}, sae_id={sid}")
                 sae, cfg, sparsity = SaeLensSAE.from_pretrained(
-                    release=release, sae_id=sid, device=DEVICE
+                    release=release, sae_id=sid, device="cuda:0"
                 )
                 layer = None  # figure out from config
                 print(f"  SUCCESS: loaded discovered SAE")
@@ -246,7 +246,7 @@ def main():
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID,
         torch_dtype=torch.float16,
-        device_map=DEVICE,
+        device_map="auto",
         attn_implementation="eager",
     )
     model.eval()
@@ -266,7 +266,7 @@ def main():
 
         if sae is not None and sae_layer in resid:
             with torch.no_grad():
-                acts = sae.encode(resid[sae_layer].to(DEVICE).squeeze(0))
+                acts = sae.encode(resid[sae_layer].to("cuda:0").squeeze(0))
                 mean_acts = acts.mean(dim=0).cpu().numpy()
                 entry['sae_n_active'] = int((mean_acts > 0).sum())
                 entry['sae_mean_activation'] = float(mean_acts[mean_acts > 0].mean()) if (mean_acts > 0).any() else 0.0
@@ -292,7 +292,7 @@ def main():
 
         if sae is not None and sae_layer in resid:
             with torch.no_grad():
-                acts = sae.encode(resid[sae_layer].to(DEVICE).squeeze(0))
+                acts = sae.encode(resid[sae_layer].to("cuda:0").squeeze(0))
                 mean_acts = acts.mean(dim=0).cpu().numpy()
                 entry['sae_n_active'] = int((mean_acts > 0).sum())
                 entry['sae_mean_activation'] = float(mean_acts[mean_acts > 0].mean()) if (mean_acts > 0).any() else 0.0
