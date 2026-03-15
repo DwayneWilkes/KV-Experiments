@@ -132,16 +132,16 @@ def extract_attention_features(model, tokenizer, prompt, max_new_tokens=50):
     generated_ids = outputs.sequences[0][input_len:]
     generated_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
 
-    # Forward pass with attention outputs
+    # Forward pass with both KV cache and attention outputs
     full_ids = outputs.sequences
+    total_tokens = full_ids.shape[1]
+
     with torch.no_grad():
         full_out = model(
-            full_ids,
-            use_cache=True,
-            output_attentions=True,
+            full_ids, use_cache=True, output_attentions=True,
         )
         past_kv = full_out.past_key_values
-        attentions = full_out.attentions  # tuple of (batch, n_heads, seq_len, seq_len)
+        attentions = full_out.attentions
 
     # === KEY CACHE FEATURES (original 4) ===
     if hasattr(past_kv, 'key_cache'):
@@ -152,7 +152,6 @@ def extract_attention_features(model, tokenizer, prompt, max_new_tokens=50):
         get_keys = lambda idx: past_kv[idx][0]
 
     total_norm = 0.0
-    total_tokens = full_ids.shape[1]
     layer_ranks = []
     layer_entropies = []
 
@@ -183,6 +182,8 @@ def extract_attention_features(model, tokenizer, prompt, max_new_tokens=50):
         "key_entropy": np.mean(layer_entropies),
     }
 
+    del past_kv
+
     # === ATTENTION FEATURES (new 5) ===
     attn_entropies = []
     attn_concentrations = []
@@ -192,37 +193,36 @@ def extract_attention_features(model, tokenizer, prompt, max_new_tokens=50):
 
     for layer_idx, attn in enumerate(attentions):
         # attn shape: (batch, n_heads, seq_len, seq_len)
-        # Take last token's attention (what the model attends to for final prediction)
         last_attn = attn[0, :, -1, :]  # (n_heads, seq_len)
 
         # 1. Attention entropy per head
-        # Add small epsilon to avoid log(0)
         attn_probs = last_attn + 1e-10
         attn_probs = attn_probs / attn_probs.sum(dim=-1, keepdim=True)
-        head_entropy = -(attn_probs * torch.log(attn_probs)).sum(dim=-1)  # (n_heads,)
+        head_entropy = -(attn_probs * torch.log(attn_probs)).sum(dim=-1)
         attn_entropies.append(head_entropy.mean().item())
 
-        # 2. Attention concentration (max attention weight per head)
-        max_attn = last_attn.max(dim=-1).values  # (n_heads,)
+        # 2. Attention concentration (max weight per head)
+        max_attn = last_attn.max(dim=-1).values
         attn_concentrations.append(max_attn.mean().item())
 
-        # 3. Head disagreement (variance of attention distributions across heads)
-        # How much do heads disagree about what to attend to?
-        head_means = last_attn.mean(dim=-1)  # mean attention per head
+        # 3. Head disagreement
+        head_means = last_attn.mean(dim=-1)
         head_disagreements.append(head_means.var().item())
 
-        # 4. Attention distance (weighted mean position)
+        # 4. Attention distance (weighted mean lookback)
         seq_len = last_attn.shape[-1]
         positions = torch.arange(seq_len, device=last_attn.device, dtype=torch.float)
-        # Distance from last position
         distances = (seq_len - 1) - positions
-        weighted_dist = (last_attn * distances.unsqueeze(0)).sum(dim=-1)  # (n_heads,)
+        weighted_dist = (last_attn * distances.unsqueeze(0)).sum(dim=-1)
         attn_distances.append(weighted_dist.mean().item())
 
-        # 5. Special token attention (attention to first 5 tokens — template/instruction)
+        # 5. Special token attention (first 5 tokens)
         n_special = min(5, seq_len)
-        special_attn = last_attn[:, :n_special].sum(dim=-1)  # (n_heads,)
+        special_attn = last_attn[:, :n_special].sum(dim=-1)
         special_token_attns.append(special_attn.mean().item())
+
+    del attentions
+    torch.cuda.empty_cache()
 
     attention_features = {
         "attn_entropy": np.mean(attn_entropies),
