@@ -481,6 +481,102 @@ def fig7_self_referential():
 
 
 # ═══════════════════════════════════════════════════════════
+# FIG 8: WHERE THE IDENTITY LIVES — PER-LAYER ANATOMY
+# ═══════════════════════════════════════════════════════════
+def fig8_identity_layers():
+    """Per-layer anatomy: where the self-referential signature emerges."""
+    with open(HACKATHON / "identity_layer_anatomy.json") as f:
+        data = json.load(f)
+
+    layers = data["per_layer"]
+    n_layers = len(layers)
+    third = n_layers // 3
+
+    layer_ids = [l["layer"] for l in layers]
+    d_norm = [l["d_norm"] for l in layers]
+    d_rank = [l["d_rank"] for l in layers]
+    d_entropy = [l["d_entropy"] for l in layers]
+
+    fig, ax = plt.subplots(figsize=(16, 7))
+
+    # Background region shading
+    ax.axvspan(-0.5, third - 0.5, alpha=0.08, color="#8b949e",
+               label="Early (token)")
+    ax.axvspan(third - 0.5, 2*third - 0.5, alpha=0.15, color="#58a6ff",
+               label="Middle (semantic)")
+    ax.axvspan(2*third - 0.5, n_layers - 0.5, alpha=0.08, color="#8b949e",
+               label="Late (generation)")
+
+    # Plot lines
+    ax.plot(layer_ids, d_rank, "o-", color="#58a6ff", linewidth=2.5,
+            markersize=7, label="Effective rank (d)", zorder=5)
+    ax.plot(layer_ids, d_norm, "s-", color="#f0883e", linewidth=2,
+            markersize=6, label="Key norm (d)", zorder=4, alpha=0.8)
+
+    # Peak annotation
+    peak_layer = data["peaks"]["rank"]["layer"]
+    peak_d = data["peaks"]["rank"]["d"]
+    ax.annotate(f"PEAK: layer {peak_layer}\nd = {peak_d:.2f}",
+                xy=(peak_layer, peak_d),
+                xytext=(peak_layer + 4, peak_d + 0.3),
+                fontsize=13, fontweight="bold", color="#58a6ff",
+                arrowprops=dict(arrowstyle="->", color="#58a6ff", lw=2),
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="#161b22",
+                          edgecolor="#58a6ff", alpha=0.9))
+
+    # Norm peak
+    norm_peak = data["peaks"]["norm"]["layer"]
+    norm_d = data["peaks"]["norm"]["d"]
+    ax.annotate(f"Norm peak: L{norm_peak}\nd = {norm_d:.2f}",
+                xy=(norm_peak, norm_d),
+                xytext=(norm_peak + 4, norm_d + 0.5),
+                fontsize=11, color="#f0883e",
+                arrowprops=dict(arrowstyle="->", color="#f0883e", lw=1.5),
+                bbox=dict(boxstyle="round,pad=0.3", facecolor="#161b22",
+                          edgecolor="#f0883e", alpha=0.9))
+
+    # Region labels
+    ax.text(third/2, -0.8, "EARLY\n(token patterns)",
+            ha="center", fontsize=11, color="#8b949e", style="italic")
+    ax.text(third + third/2, -0.8, "MIDDLE\n(semantic concepts)",
+            ha="center", fontsize=11, color="#58a6ff", fontweight="bold")
+    ax.text(2*third + (n_layers - 2*third)/2, -0.8, "LATE\n(generation planning)",
+            ha="center", fontsize=11, color="#8b949e", style="italic")
+
+    # Regional mean |d| annotations
+    reg = data["regional_summary"]["rank"]
+    for region, x_center in [("early", third/2),
+                              ("middle", third + third/2),
+                              ("late", 2*third + (n_layers-2*third)/2)]:
+        ax.text(x_center, 3.0, f"mean |d| = {reg[region]:.2f}",
+                ha="center", fontsize=10, color="#c9d1d9",
+                bbox=dict(boxstyle="round,pad=0.2", facecolor="#161b22",
+                          edgecolor="#30363d", alpha=0.8))
+
+    ax.axhline(0, color="#30363d", linewidth=1, linestyle="-")
+    ax.set_xlabel("Layer", fontsize=14)
+    ax.set_ylabel("Cohen's d (self-referential vs generic)", fontsize=14)
+    ax.set_xlim(-0.5, n_layers - 0.5)
+    ax.set_ylim(-1.2, 3.5)
+    ax.legend(loc="upper left", fontsize=11)
+    ax.grid(axis="y", alpha=0.15, zorder=0)
+
+    fig.suptitle("Where the Identity Lives: Per-Layer Anatomy",
+                 fontsize=20, fontweight="bold", y=1.01, color="#58a6ff")
+
+    # Subtitle
+    fig.text(0.5, -0.04,
+             "Qwen2.5-7B-Instruct · 28 layers · 10 self-referential vs 10 generic prompts · "
+             "Token lengths matched (116.2 vs 115.0)",
+             ha="center", fontsize=10, color="#8b949e")
+
+    fig.tight_layout()
+    fig.savefig(FIGURES / "fig8_identity_layers.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  [8/8] fig8_identity_layers.png")
+
+
+# ═══════════════════════════════════════════════════════════
 # MAIN
 # ═══════════════════════════════════════════════════════════
 if __name__ == "__main__":
@@ -496,6 +592,7 @@ if __name__ == "__main__":
     fig5_scale_invariance()
     fig6_capability_overview()
     fig7_self_referential()
+    fig8_identity_layers()
 
     print()
     print(f"All figures saved to: {FIGURES}")
