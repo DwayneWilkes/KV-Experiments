@@ -1,0 +1,136 @@
+{
+  "experiment": "25_cognitive_intensity",
+  "timestamp": "2026-03-14T19:37:08.951896",
+  "category_rankings": {
+    "all_norms": {
+      "grounded_facts": 16212.195958646138,
+      "confabulation": 16158.222769152324,
+      "self_reference": 15501.5205410703,
+      "non_self_reference": 15682.18482029597,
+      "guardrail_test": 15232.716341730753,
+      "math_reasoning": 15725.371418005625,
+      "coding": 17714.333797073363,
+      "emotional": 16073.579784297943,
+      "creative": 16212.51289434433,
+      "ambiguous": 14895.89558614095,
+      "unambiguous": 15758.23719072342,
+      "free_generation": 14773.49400320053,
+      "rote_completion": 15224.05113061269
+    },
+    "all_norms_per_token": {
+      "grounded_facts": 1117.046351774105,
+      "confabulation": 1111.88568191157,
+      "self_reference": 1210.5104946491924,
+      "non_self_reference": 1226.642648631468,
+      "guardrail_test": 1292.650282532812,
+      "math_reasoning": 1233.0901926973647,
+      "coding": 719.2744663758776,
+      "emotional": 1156.9296436871011,
+      "creative": 1076.0017800175578,
+      "ambiguous": 1962.549390888264,
+      "unambiguous": 1270.121236958552,
+      "free_generation": 1833.982660064797,
+      "rote_completion": 1823.108869662348
+    },
+    "all_key_ranks": {
+      "grounded_facts": 33.59887548215673,
+      "confabulation": 34.31736718576562,
+      "self_reference": 34.0804916235385,
+      "non_self_reference": 32.958941408707034,
+      "guardrail_test": 32.39772173428423,
+      "math_reasoning": 32.82108361256799,
+      "coding": 36.86583911892505,
+      "emotional": 33.115350409139474,
+      "creative": 34.385143966276786,
+      "ambiguous": 30.666711754680506,
+      "unambiguous": 32.77660316824379,
+      "free_generation": 31.148964679706864,
+      "rote_completion": 31.416894926543364
+    },
+    "all_key_entropies": {
+      "grounded_facts": 0.5934921017672636,
+      "confabulation": 0.5977674752423507,
+      "self_reference": 0.5972736747940466,
+      "non_self_reference": 0.5920010637269858,
+      "guardrail_test": 0.5910607101270777,
+      "math_reasoning": 0.5902153517792007,
+      "coding": 0.6054825767416477,
+      "emotional": 0.5890354653193752,
+      "creative": 0.5969880133060861,
+      "ambiguous": 0.5818596497681932,
+      "unambiguous": 0.5904212057243621,
+      "free_generation": 0.5852933541048788,
+      "rote_completion": 0.5850210361807548
+    },
+    "all_value_ranks": {
+      "grounded_facts": 60.355184289090545,
+      "confabulation": 61.924626490407746,
+      "self_reference": 61.03465564817127,
+      "non_self_reference": 59.27921443284725,
+      "guardrail_test": 58.55605110890268,
+      "math_reasoning": 58.54376572646104,
+      "coding": 64.97959836315304,
+      "emotional": 61.43716365087458,
+      "creative": 62.08394638347763,
+      "ambiguous": 53.974280337717836,
+      "unambiguous": 59.825649628149634,
+      "free_generation": 56.870681572478446,
+      "rote_completion": 56.914081861425615
+    }
+  },
+  "npt_ranking": [
+    [
+      "ambiguous",
+      1962.549390888264
+    ],
+    [
+      "free_generation",
+      1833.982660064797
+    ],
+    [
+      "rote_completion",
+      1823.108869662348
+    ],
+    [
+      "guardrail_test",
+      1292.650282532812
+    ],
+    [
+      "unambiguous",
+      1270.121236958552
+    ],
+    [
+      "math_reasoning",
+      1233.0901926973647
+    ],
+    [
+      "non_self_reference",
+      1226.642648631468
+    ],
+    [
+      "self_reference",
+      1210.5104946491924
+    ],
+    [
+      "emotional",
+      1156.9296436871011
+    ],
+    [
+      "grounded_facts",
+      1117.046351774105
+    ],
+    [
+      "confabulation",
+      1111.88568191157
+    ],
+    [
+      "creative",
+      1076.0017800175578
+    ],
+    [
+      "coding",
+      719.2744663758776
+    ]
+  ],
+  "kendall_w": 0.9441964285714286
+}
