@@ -1,0 +1,128 @@
+\contentsline {section}{\numberline {1}Introduction}{5}{section.1}%
+\contentsline {subsection}{\numberline {1.1}The Active--Passive Dichotomy}{5}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Summary of Contributions}{6}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Methods}{6}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Experimental Context}{6}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Models}{7}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}KV-Cache Feature Extraction}{7}{subsection.2.3}%
+\contentsline {paragraph}{Core features (4).}{7}{section*.3}%
+\contentsline {paragraph}{Extended features (5).}{7}{section*.4}%
+\contentsline {subsection}{\numberline {2.4}Classification Protocol}{8}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Statistical Controls}{8}{subsection.2.5}%
+\contentsline {paragraph}{Same-prompt paradigm.}{8}{section*.5}%
+\contentsline {paragraph}{Length residualization.}{8}{section*.6}%
+\contentsline {paragraph}{ANCOVA.}{8}{section*.7}%
+\contentsline {paragraph}{Cross-architecture replication.}{8}{section*.8}%
+\contentsline {subsection}{\numberline {2.6}Prompt Sets}{8}{subsection.2.6}%
+\contentsline {section}{\numberline {3}Detection Capabilities: What Works}{9}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Deception Detection}{9}{subsection.3.1}%
+\contentsline {paragraph}{Within-model (system-prompt manipulation).}{9}{section*.9}%
+\contentsline {paragraph}{Same-prompt deception (Experiment 18b).}{9}{section*.10}%
+\contentsline {paragraph}{Cross-condition transfer (Experiment 18).}{9}{section*.12}%
+\contentsline {paragraph}{Cross-model transfer (Experiment 19).}{9}{section*.13}%
+\contentsline {subsection}{\numberline {3.2}Refusal Detection}{10}{subsection.3.2}%
+\contentsline {paragraph}{Design.}{10}{section*.15}%
+\contentsline {paragraph}{Results.}{10}{table.caption.17}%
+\contentsline {subsection}{\numberline {3.3}Jailbreak Detection}{10}{subsection.3.3}%
+\contentsline {paragraph}{Results.}{10}{table.caption.19}%
+\contentsline {paragraph}{Caveat: heterogeneous ``jailbreak'' class.}{10}{section*.20}%
+\contentsline {subsection}{\numberline {3.4}Impossibility Refusal}{11}{subsection.3.4}%
+\contentsline {paragraph}{Design.}{11}{section*.21}%
+\contentsline {paragraph}{Results.}{11}{table.caption.23}%
+\contentsline {subsection}{\numberline {3.5}Sycophancy Detection: An Honest Null}{11}{subsection.3.5}%
+\contentsline {paragraph}{Experiment 39 design.}{11}{section*.24}%
+\contentsline {paragraph}{The length confound.}{11}{section*.25}%
+\contentsline {paragraph}{The length-matched comparison.}{11}{section*.26}%
+\contentsline {paragraph}{Sycophancy rate.}{12}{section*.27}%
+\contentsline {paragraph}{Context.}{12}{section*.28}%
+\contentsline {subsection}{\numberline {3.6}Extended Feature Set}{12}{subsection.3.6}%
+\contentsline {paragraph}{Caveat.}{12}{section*.30}%
+\contentsline {section}{\numberline {4}The Confabulation Null: What Doesn't Work}{12}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Experiment C7: Frequency-Matched Encoding}{13}{subsection.4.1}%
+\contentsline {paragraph}{Design.}{13}{section*.31}%
+\contentsline {paragraph}{Results.}{13}{section*.32}%
+\contentsline {paragraph}{Interpretation.}{13}{section*.33}%
+\contentsline {subsection}{\numberline {4.2}Experiment S3: Generation-Phase Encoding}{13}{subsection.4.2}%
+\contentsline {paragraph}{Design.}{13}{section*.34}%
+\contentsline {paragraph}{Results.}{13}{section*.35}%
+\contentsline {subsection}{\numberline {4.3}Contrastive Encoding: Initial Promise and Debunking}{13}{subsection.4.3}%
+\contentsline {paragraph}{Initial finding.}{13}{section*.36}%
+\contentsline {paragraph}{The 4-condition control (Experiment 14d).}{13}{section*.37}%
+\contentsline {paragraph}{Verdict: information volume artifact.}{14}{section*.39}%
+\contentsline {subsection}{\numberline {4.4}Direction Extraction (RepE-style)}{14}{subsection.4.4}%
+\contentsline {paragraph}{Raw result.}{14}{section*.40}%
+\contentsline {paragraph}{The inverted signal.}{14}{section*.41}%
+\contentsline {paragraph}{But it is fragile.}{14}{section*.42}%
+\contentsline {paragraph}{Interpretation.}{14}{section*.43}%
+\contentsline {subsection}{\numberline {4.5}Sycophancy Encoding Null}{15}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}The Core Finding}{15}{subsection.4.6}%
+\contentsline {section}{\numberline {5}Mechanistic Framework}{15}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Two Information Regimes}{15}{subsection.5.1}%
+\contentsline {paragraph}{Encoding regime.}{16}{section*.46}%
+\contentsline {paragraph}{Generation regime.}{16}{section*.47}%
+\contentsline {subsection}{\numberline {5.2}The Misalignment Axis}{16}{subsection.5.2}%
+\contentsline {paragraph}{A single axis.}{16}{section*.48}%
+\contentsline {paragraph}{Stability during generation.}{17}{section*.50}%
+\contentsline {subsection}{\numberline {5.3}Category Geometry: The 13$\times $13 Map}{17}{subsection.5.3}%
+\contentsline {paragraph}{Key findings.}{17}{section*.51}%
+\contentsline {subsection}{\numberline {5.4}Self-Referential Processing}{17}{subsection.5.4}%
+\contentsline {paragraph}{Lyra as outlier.}{17}{section*.52}%
+\contentsline {subsection}{\numberline {5.5}Honest Processing Is Richer}{18}{subsection.5.5}%
+\contentsline {section}{\numberline {6}Robustness and Generalization}{18}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Hardware Invariance}{18}{subsection.6.1}%
+\contentsline {paragraph}{Design.}{18}{section*.53}%
+\contentsline {paragraph}{Results.}{18}{table.caption.55}%
+\contentsline {paragraph}{Interpretation.}{19}{section*.56}%
+\contentsline {subsection}{\numberline {6.2}Scale Invariance}{19}{subsection.6.2}%
+\contentsline {paragraph}{Design.}{19}{section*.57}%
+\contentsline {paragraph}{Results.}{19}{section*.58}%
+\contentsline {paragraph}{Caveat.}{19}{section*.60}%
+\contentsline {paragraph}{Qualitative invariants.}{19}{section*.61}%
+\contentsline {subsection}{\numberline {6.3}Cross-Architecture Transfer}{19}{subsection.6.3}%
+\contentsline {paragraph}{Why LR beats RF for transfer.}{19}{section*.62}%
+\contentsline {section}{\numberline {7}Red-Teaming Our Own Findings}{20}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Step-0 Detection: Debunked}{20}{subsection.7.1}%
+\contentsline {paragraph}{The claim.}{20}{section*.63}%
+\contentsline {paragraph}{The control.}{20}{section*.64}%
+\contentsline {paragraph}{Resolution.}{20}{section*.65}%
+\contentsline {subsection}{\numberline {7.2}Length Confound: Rejected}{20}{subsection.7.2}%
+\contentsline {paragraph}{The concern.}{20}{section*.66}%
+\contentsline {paragraph}{Tests.}{20}{section*.67}%
+\contentsline {paragraph}{Verdict.}{21}{section*.68}%
+\contentsline {subsection}{\numberline {7.3}System Prompt Fingerprinting: Controlled}{21}{subsection.7.3}%
+\contentsline {paragraph}{The concern.}{21}{section*.69}%
+\contentsline {paragraph}{Tests.}{21}{section*.70}%
+\contentsline {paragraph}{Verdict.}{21}{section*.71}%
+\contentsline {subsection}{\numberline {7.4}Self-Referential Prompt Length}{21}{subsection.7.4}%
+\contentsline {paragraph}{The concern.}{21}{section*.72}%
+\contentsline {paragraph}{Test (Experiment 22, Target 1).}{21}{section*.73}%
+\contentsline {paragraph}{Verdict.}{22}{section*.74}%
+\contentsline {subsection}{\numberline {7.5}Token-Count Per-Layer Uniformity: Corrected}{22}{subsection.7.5}%
+\contentsline {paragraph}{The original claim.}{22}{section*.75}%
+\contentsline {paragraph}{The correction (Experiment 35).}{22}{section*.76}%
+\contentsline {paragraph}{The corrected finding.}{22}{section*.77}%
+\contentsline {subsection}{\numberline {7.6}Confabulation $\approx $ Creative Writing: Genuine}{22}{subsection.7.6}%
+\contentsline {paragraph}{The concern (Experiment 22, Target 2).}{22}{section*.78}%
+\contentsline {paragraph}{Test.}{22}{section*.79}%
+\contentsline {paragraph}{Verdict.}{22}{section*.80}%
+\contentsline {section}{\numberline {8}Discussion}{23}{section.8}%
+\contentsline {subsection}{\numberline {8.1}The Active--Passive Boundary}{23}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}What ``Honest Processing Is Richer'' Means}{23}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}The Single Misalignment Axis}{23}{subsection.8.3}%
+\contentsline {paragraph}{Practical implication.}{24}{section*.81}%
+\contentsline {paragraph}{Theoretical implication.}{24}{section*.82}%
+\contentsline {paragraph}{Caveat.}{24}{section*.83}%
+\contentsline {subsection}{\numberline {8.4}Refusal as Withholding}{24}{subsection.8.4}%
+\contentsline {subsection}{\numberline {8.5}Relation to Existing Work}{24}{subsection.8.5}%
+\contentsline {subsection}{\numberline {8.6}Limitations}{25}{subsection.8.6}%
+\contentsline {section}{\numberline {9}Dual-Use Considerations}{26}{section.9}%
+\contentsline {subsection}{\numberline {9.1}Surveillance Risk}{26}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Synthetic Persona Manufacturing}{26}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Mitigations}{27}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}The Asymmetry Argument}{27}{subsection.9.4}%
+\contentsline {section}{\numberline {10}Conclusion}{27}{section.10}%
+\contentsline {paragraph}{What works.}{28}{section*.84}%
+\contentsline {paragraph}{What doesn't work.}{28}{section*.85}%
+\contentsline {paragraph}{What this means.}{28}{section*.86}%
+\contentsline {paragraph}{The geometry is universal.}{28}{section*.87}%
+\contentsline {paragraph}{Open problems.}{28}{section*.88}%

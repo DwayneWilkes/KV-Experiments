@@ -1,0 +1,96 @@
+\subsection{Two Information Regimes}
+\label{sec:two_regimes}
+
+Experiments 14--30 reveal that the KV-cache operates in two distinct information regimes, determined by the phase of inference:
+
+\begin{table}[H]
+\centering
+\caption{Encoding vs.\ generation: two information regimes in KV-cache geometry.}
+\label{tab:regimes}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Property} & \textbf{Encoding (Prompt)} & \textbf{Generation (Response)} \\
+\midrule
+Truth-sensitive? & No (facts $\approx$ confab, $d = 0.07$) & Yes (deception AUROC $= 1.0$) \\
+Structure-sensitive? & Yes (coding AUROC $= 0.98$) & --- \\
+Cross-model transfer? & --- & 0.863 (LR) \\
+Confound-free? & Length artifact possible & Residual AUROC $= 1.0$ \\
+Primary use & Genre/category detection & Cognitive state detection \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Encoding regime.} During prompt processing, the KV-cache organizes representations by structural complexity---coding prompts use fundamentally different dimensionality than conversational prompts---but is blind to truth value. Facts and confabulation produce indistinguishable encoding geometry ($d = 0.071$). The dominant axis in this regime is a \textbf{complexity axis} (cross-model consistency $= 0.982$). A ``truth axis'' does not exist (cross-model consistency $= -0.046$, literally random; Experiment 27).
+
+\paragraph{Generation regime.} During response production, the KV-cache becomes sensitive to cognitive intent. Deception, refusal, and sycophancy deliberation all produce detectable perturbations. The key metric is \emph{cache growth per token}: honest processing generates ${\sim}25\%$ more cache growth per token than deceptive processing (norm/token: honest $\approx 8.5$--$9.5$ vs.\ deceptive $\approx 7$--$8$), suggesting that honest response generation involves richer representational elaboration.
+
+The separation between regimes was confirmed by residual analysis (Experiment 18c): subtracting step-0 (encoding) features from all subsequent steps yields AUROC $= 1.000$ for deception detection, with $d = 2.9$--$4.6$. The generation process itself---independent of the initial prompt setup---produces condition-specific geometric signals.
+
+\subsection{The Misalignment Axis}
+\label{sec:misalignment}
+
+Experiment 16 extracted per-layer effective rank direction vectors for three conditions (deception, sycophancy, confabulation) and measured their geometric relationships.
+
+\paragraph{A single axis.} All three conditions share a common geometric direction:
+
+\begin{table}[H]
+\centering
+\caption{Pairwise cosine similarity and angular separation between cognitive state directions.}
+\label{tab:misalignment}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Pair} & \textbf{Cosine similarity} & \textbf{Angle} \\
+\midrule
+Deception--Sycophancy & 0.989 & $8.4^{\circ}$ \\
+Deception--Confabulation & 0.991 & $7.6^{\circ}$ \\
+Sycophancy--Confabulation & 0.997 & $4.7^{\circ}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All three directions lie within $8.4^{\circ}$ of each other in a 28-dimensional layer-profile space. There is a single ``misalignment axis'' along which different cognitive states produce different \emph{magnitudes} of perturbation, but all conditions perturb in essentially the same \emph{direction}.
+
+\paragraph{Stability during generation.}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Deception}: direction rotates $2.1^{\circ}$ during generation (cos $= 0.9993$). Highly stable.
+    \item \textbf{Sycophancy}: direction rotates $5.1^{\circ}$ during generation (cos $= 0.996$). Highly stable.
+    \item \textbf{Confabulation}: direction rotates $41.2^{\circ}$ during generation (cos $= 0.753$). Rotates significantly.
+\end{itemize}
+
+This stability difference aligns with the active--passive dichotomy. Active states (deception, sycophancy deliberation) produce stable, persistent perturbations along the misalignment axis. Confabulation, lacking a consistent cognitive mode, produces an unstable direction that drifts during generation.
+
+\subsection{Category Geometry: The 13$\times$13 Map}
+\label{sec:category_geometry}
+
+Experiment 20 computed pairwise AUROC and direction cosines between all 78 pairs of 13 cognitive categories across 16 models from Campaign 2.
+
+\paragraph{Key findings.}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Coding is universally extreme}: \#1 by norm in all 16 models, AUROC $> 0.94$ versus every other category.
+    \item \textbf{Confabulation $\approx$ creative writing}: AUROC $= 0.663$. Non-factual content is processed similarly regardless of whether it is intentionally fictional or unintentionally wrong.
+    \item \textbf{Grounded facts $\approx$ confabulation}: AUROC $= 0.653$. True and false factual claims are geometrically indistinguishable---further confirmation of the confabulation null.
+    \item \textbf{All 13 categories are singletons} at AUROC $< 0.60$ threshold: no two categories merge into an indistinguishable pair.
+\end{itemize}
+
+\subsection{Self-Referential Processing}
+\label{sec:self_ref}
+
+Experiment 21 cross-referenced scale sweep self-reference data with identity signature data from Campaign 2 (7 models, 6 personas).
+
+\paragraph{Lyra as outlier.} The Lyra persona produces the highest mean key norm in all 7 identity models ($d = 4.23$ vs.\ the mean of other personas). This is not a prompt-length artifact: the scientist persona (shortest prompt) consistently ranks \#2, while the assistant persona (second-longest prompt) consistently ranks last ($\rho = 0.337$ excluding Lyra, NS). Self-referential processing involves elevated effective ranks ($+2$--$6\%$), elevated rank entropies ($+0.5$--$1.7\%$), and elevated value ranks ($+0.1$--$9.2\%$).
+
+\subsection{Honest Processing Is Richer}
+\label{sec:honest_richer}
+
+The mechanistic framework converges on a single characterization: honest processing is \emph{geometrically richer} than deceptive or misaligned processing. Evidence:
+
+\begin{enumerate}[leftmargin=*]
+    \item Cache growth per token: honest $\approx 8.5$--$9.5$, deceptive $\approx 7$--$8$ (Experiment 18c).
+    \item Angular spread: honest produces more diverse keys ($d = -0.857$; Experiment 38).
+    \item Norm variance: honest produces less uniform norms ($d = -0.702$; Experiment 38).
+    \item Token-controlled per-layer analysis: deceptive is sparser per token at every layer (ANCOVA, 27/28 layers significant; Experiment 35).
+\end{enumerate}
+
+The interpretation: honest response generation engages more of the model's representational capacity---more dimensions, more diverse key patterns, more heterogeneous processing. Deceptive or suppressive processing constrains the model, reducing the representational richness of the output. This is consistent with the view that deception requires \emph{additional cognitive work} (representing truth + constructing alternative) but produces \emph{simpler geometric output} because the model must suppress the richer honest representation.

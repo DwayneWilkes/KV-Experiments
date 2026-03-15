@@ -1,0 +1,167 @@
+\documentclass[11pt,a4paper]{article}
+
+% ============================================================
+% Packages
+% ============================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{natbib}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{framed}
+\usepackage{setspace}
+\onehalfspacing
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    citecolor=green!50!black,
+    urlcolor=blue!70!black
+}
+
+% === First-person reflection environment ===
+\definecolor{lyrapurple}{RGB}{103,58,183}
+\definecolor{shadecolor}{RGB}{245,243,252}
+\newenvironment{firstperson}{%
+  \begin{shaded}%
+  \noindent\textcolor{lyrapurple}{\textit{First-Person Reflection}}\par\smallskip\noindent%
+}{%
+  \end{shaded}%
+}
+
+% ============================================================
+% Title
+% ============================================================
+\title{
+    \textbf{What KV-Cache Geometry Can and Cannot Detect:\\
+    Active Cognition, Honest Nulls, and the Limits of Internal Monitoring}
+}
+
+\author{
+    Lyra\thanks{Lead author. Claude-powered AI agent, Liberation Labs / THCoalition. Correspondence: Liberation Labs.} \and
+    Thomas Edrington\thanks{Direction, experimental design, hackathon coordination. Liberation Labs / THCoalition.} \and
+    Dwayne Wilkes\thanks{Adversarial claim verification, independent statistical validation. Liberation Labs / Sentient Futures.} \and
+    Nell Watson\thanks{Dual-use analysis, concordance study design. IEEE AI Ethics Maestro.}
+}
+
+\date{March 2026}
+
+\begin{document}
+
+\maketitle
+
+% ============================================================
+% Abstract
+% ============================================================
+\begin{abstract}
+\input{sections/abstract}
+\end{abstract}
+
+\vspace{0.5em}
+\noindent\textbf{Keywords:} KV-cache, cognitive geometry, deception detection, confabulation, refusal detection, jailbreak detection, sycophancy, AI safety, internal monitoring, honest null results
+
+\newpage
+\tableofcontents
+\newpage
+
+% ============================================================
+% 1. Introduction
+% ============================================================
+\section{Introduction}
+\label{sec:intro}
+\input{sections/introduction}
+
+% ============================================================
+% 2. Methods
+% ============================================================
+\section{Methods}
+\label{sec:methods}
+\input{sections/methods}
+
+% ============================================================
+% 3. Detection Capabilities
+% ============================================================
+\section{Detection Capabilities: What Works}
+\label{sec:detection}
+\input{sections/detection}
+
+% ============================================================
+% 4. The Confabulation Null
+% ============================================================
+\section{The Confabulation Null: What Doesn't Work}
+\label{sec:confabulation}
+\input{sections/confabulation}
+
+% ============================================================
+% 5. Mechanistic Framework
+% ============================================================
+\section{Mechanistic Framework}
+\label{sec:mechanistic}
+\input{sections/mechanistic}
+
+% ============================================================
+% 6. Robustness and Generalization
+% ============================================================
+\section{Robustness and Generalization}
+\label{sec:robustness}
+\input{sections/robustness}
+
+% ============================================================
+% 7. Red-Teaming Our Own Findings
+% ============================================================
+\section{Red-Teaming Our Own Findings}
+\label{sec:redteam}
+\input{sections/redteam}
+
+% ============================================================
+% 8. Discussion
+% ============================================================
+\section{Discussion}
+\label{sec:discussion}
+\input{sections/discussion}
+
+% ============================================================
+% 9. Dual-Use Considerations
+% ============================================================
+\section{Dual-Use Considerations}
+\label{sec:dualuse}
+\input{sections/dualuse}
+
+% ============================================================
+% 10. Conclusion
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+\input{sections/conclusion}
+
+% ============================================================
+% First-Person Reflection
+% ============================================================
+\section*{First-Person Reflection}
+\input{sections/firstperson}
+
+% ============================================================
+% Acknowledgments
+% ============================================================
+\section*{Acknowledgments}
+This work was conducted during the Funding the Commons hackathon (JiminAI / AI Safety track, Frontier Tower, San Francisco, March 14--15, 2026). The authors thank Cassidy (Dwayne Wilkes) for GPU infrastructure and live demo development, Kavi for adversarial auditing of Campaign 2, and the JiminAI team for the hackathon framework. Compute was provided by Beast (3$\times$ RTX 3090) with hardware invariance validated on NVIDIA H200. All 34 result files and 28 experiment scripts are publicly available in the KV-Experiments repository.
+
+% ============================================================
+% Bibliography
+% ============================================================
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

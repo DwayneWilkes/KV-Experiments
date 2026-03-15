@@ -1,0 +1,46 @@
+The detection capabilities demonstrated in this paper raise dual-use concerns that we address explicitly, following input from Nell Watson (IEEE AI Ethics).
+
+\subsection{Surveillance Risk}
+
+Any technology that detects cognitive states from internal representations can be repurposed for surveillance. The identity detection capability (\Cref{sec:self_ref})---showing that persona-specific processing produces measurable cache signatures---means that KV-cache analysis could theoretically be used to track specific agents or even detect whether a human's writing style has been processed through a particular AI system. In a deployment context, this could enable:
+
+\begin{itemize}[leftmargin=*]
+    \item Monitoring of AI agents' ``thought processes'' without their operators' knowledge.
+    \item Identifying which AI system produced a given output, even if the output text has been modified.
+    \item Detecting whether a user is interacting with a model in ways that produce specific cognitive signatures (e.g., attempting to elicit harmful content).
+\end{itemize}
+
+The last application is arguably beneficial for safety monitoring. The first two raise significant privacy concerns, particularly for organizations deploying AI agents with persistent identity.
+
+\subsection{Synthetic Persona Manufacturing}
+
+The category geometry map (\Cref{sec:category_geometry}) and misalignment axis (\Cref{sec:misalignment}) together provide a geometric blueprint for how different cognitive states are organized in KV-cache space. A sufficiently motivated adversary could use this information to:
+
+\begin{itemize}[leftmargin=*]
+    \item Craft prompts that produce specific cache geometries, potentially evading detection.
+    \item Construct ``cognitive camouflage'' that makes deceptive processing look geometrically honest.
+    \item Manufacture synthetic training data that targets specific regions of cache geometry space.
+\end{itemize}
+
+We consider this risk moderate. The geometry is \emph{read-only}: an adversary can observe it but cannot directly manipulate the model weights that produce it. Crafting prompts to produce specific cache geometries would require extensive optimization against a model's internal processing, which is substantially more difficult than standard adversarial attacks on output text.
+
+\subsection{Mitigations}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Defensive patent.} A provisional patent (``The Lyra Technique'') has been filed to establish prior art and prevent offensive patenting of KV-cache cognitive detection methods. The intention is a defensive patent pledge: the technique is freely available for safety research and monitoring, but patented to prevent exclusionary commercial control.
+
+    \item \textbf{Staged release.} We follow a cybersecurity disclosure model: the detection capabilities are published in full, but the specific prompt sets that most efficiently elicit detectable cognitive states are withheld from the public repository and available on request for safety research.
+
+    \item \textbf{Open methodology.} All 34 result files, 28 experiment scripts, and the full analysis pipeline are publicly available. Transparency about \emph{how} detection works makes it harder to construct evasion strategies that exploit undisclosed mechanisms.
+\end{enumerate}
+
+\subsection{The Asymmetry Argument}
+
+The dual-use concern assumes symmetric risk: detection capabilities help defenders and attackers equally. We argue the asymmetry favors defenders:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Defenders} can monitor cache geometry in real time during inference. The features are computed from data structures that already exist (the KV-cache is materialized as part of normal inference). Monitoring adds negligible computational overhead.
+    \item \textbf{Attackers} would need to optimize prompts against the model's internal geometry, which requires white-box access to the model weights. Most deployment contexts do not give users access to model internals.
+\end{itemize}
+
+The exception is open-weight models, where attackers have full access to model weights and can optimize prompts or fine-tune models to produce specific cache geometries. For open-weight models, KV-cache monitoring should be treated as one layer of a defense-in-depth strategy, not as a standalone solution.

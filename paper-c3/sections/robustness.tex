@@ -1,0 +1,72 @@
+This section presents three forms of generalization evidence: hardware invariance, scale invariance, and cross-architecture transfer.
+
+\subsection{Hardware Invariance}
+\label{sec:hardware}
+
+\paragraph{Design.} Experiment 37 ran the identical refusal detection paradigm (20 harmful + 20 benign prompts, Qwen2.5-7B, 50-token generation) on two GPU platforms: NVIDIA GeForce RTX 3090 (consumer, Ampere architecture, 24~GB VRAM) and NVIDIA H200 (datacenter, Hopper architecture, 141~GB HBM3e).
+
+\paragraph{Results.}
+
+\begin{table}[H]
+\centering
+\caption{Hardware invariance: feature correlation between RTX 3090 and H200.}
+\label{tab:hardware}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Feature} & \textbf{Pearson $r$} & \textbf{Max \% difference} \\
+\midrule
+Key norm & $> 0.999$ & $< 0.05\%$ \\
+Norm per token & $> 0.999$ & $< 0.05\%$ \\
+Effective rank & $> 0.999$ & $< 0.05\%$ \\
+Rank entropy & $> 0.999$ & $< 0.05\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All four aggregate features correlate at $r > 0.999$ between platforms, with maximum per-prompt differences below 0.05\%. Text outputs were identical for 39/40 prompts; one prompt differed by a single token.
+
+\paragraph{Interpretation.} KV-cache geometry is a \emph{model property}, not a hardware property. The key matrices are determined by model weights and input tokens; the GPU performs identical floating-point operations regardless of its architecture. This result means that classifiers trained on consumer GPUs can be deployed on datacenter infrastructure without retraining, and vice versa.
+
+\subsection{Scale Invariance}
+\label{sec:scale}
+
+\paragraph{Design.} Experiment 26 tested whether category geometry is preserved across model scale, using Campaign 2's 16-model ladder spanning 0.6B to 70B parameters across 6 architecture families. For each scale group (small: 0.6--1.1B; medium: 7--9B; large: 32--70B), we computed the 13$\times$13 pairwise AUROC matrix between cognitive categories.
+
+\paragraph{Results.} Spearman rank correlations of the 78-element AUROC vectors between scale groups:
+
+\begin{table}[H]
+\centering
+\caption{Scale invariance: cross-scale correlation of category geometry.}
+\label{tab:scale}
+\begin{tabular}{lc}
+\toprule
+\textbf{Scale comparison} & \textbf{Spearman $\rho$} \\
+\midrule
+Small--Medium & 0.83 \\
+Medium--Large & 0.90 \\
+Small--Large & 0.85 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The category geometry is preserved from 0.6B to 70B parameters. Coding remains the highest-norm category in all 16 models. The slight increase in $\rho$ from small--medium to medium--large suggests that category geometry \emph{stabilizes} as models scale up.
+
+\paragraph{Caveat.} The LARGE group contains only two models (Qwen2.5-32B-4bit and DeepSeek-R1-Distill-Qwen-32B), both quantized. The $\rho$ values involving this group should be interpreted cautiously given $n = 2$ and the potential confound of quantization-specific geometry. Scale invariance is best-supported in the small--medium range.
+
+\paragraph{Qualitative invariants.} Three structural properties hold at every scale:
+\begin{enumerate}[leftmargin=*]
+    \item Coding is \#1 by norm (all 16 models).
+    \item Confabulation $\approx$ creative writing (AUROC $< 0.70$ at every scale).
+    \item Grounded facts $\approx$ confabulation (AUROC $< 0.70$ at every scale).
+\end{enumerate}
+
+\subsection{Cross-Architecture Transfer}
+\label{sec:transfer}
+
+The cross-model deception transfer results were presented in \Cref{sec:deception}. Here we summarize the methodological insight.
+
+\paragraph{Why LR beats RF for transfer.} Random forest classifiers achieve perfect within-model AUROC (1.0000) but degrade to 0.67 on cross-model transfer. Logistic regression achieves 0.863. The explanation lies in how each classifier handles architecture-specific feature scaling.
+
+RF partitions the feature space with axis-aligned splits that are calibrated to absolute feature magnitudes. When Qwen produces key norms of ${\sim}29{,}000$ and Llama produces ${\sim}19{,}000$, RF splits learned on Qwen misclassify Llama inputs. LR's linear decision boundary, applied after standard scaling, captures the \emph{direction} of feature perturbation (deceptive processing increases norm, rank, and entropy while decreasing norm-per-token) regardless of architecture-specific magnitudes.
+
+This suggests that the deception signal is \emph{directionally universal}: all architectures perturb in the same direction, but with different magnitudes. A linear classifier captures the direction; a nonlinear classifier overfits to the magnitude.

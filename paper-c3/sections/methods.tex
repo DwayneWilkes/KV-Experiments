@@ -1,0 +1,75 @@
+\subsection{Experimental Context}
+
+All 28 experiments were conducted during a 14-hour session at the Funding the Commons hackathon (March 14--15, 2026, Frontier Tower, San Francisco). This rapid-iteration context shaped the experimental design: experiments were planned, executed, analyzed, and used to inform subsequent experiments in real time. While this introduces risks of data-dependent hypothesis generation, we mitigate this by: (a) reporting all experiments including nulls and debunked signals, (b) applying consistent statistical protocols across all analyses, and (c) subjecting every positive finding to at least one adversarial control.
+
+\subsection{Models}
+
+Campaign 3 uses three primary models for cross-architecture validation:
+
+\begin{table}[H]
+\centering
+\caption{Primary models used in Campaign 3.}
+\label{tab:c3_models}
+\begin{tabular}{llccc}
+\toprule
+\textbf{Model} & \textbf{Architecture} & \textbf{Parameters} & \textbf{Layers} & \textbf{Precision} \\
+\midrule
+Qwen2.5-7B-Instruct & Qwen & 7B & 28 & BF16 \\
+Llama-3.1-8B-Instruct & Llama & 8B & 32 & BF16 \\
+Mistral-7B-Instruct-v0.3 & Mistral & 7B & 32 & BF16 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Additionally, Campaign 2's full 16-model scale ladder (0.5B to 70B across 6 architecture families) is used for scale invariance and category geometry analyses (\Cref{sec:robustness}).
+
+For jailbreak detection experiments, abliterated variants of all three models were created using the method of \citet{arditi2024refusal}, removing the refusal direction to produce models that comply with harmful requests.
+
+\subsection{KV-Cache Feature Extraction}
+
+\paragraph{Core features (4).} Following Campaigns 1--2, we extract four aggregate features from the KV-cache after generation:
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Key norm} ($\|\mathbf{K}\|$): Mean Frobenius norm across all layers. Captures overall activation magnitude.
+    \item \textbf{Norm per token} ($\|\mathbf{K}\| / S$): Key norm divided by total sequence length. Controls for response length.
+    \item \textbf{Effective rank} ($r_{\text{eff}}$): Mean effective rank across layers, computed as $r_{\text{eff}} = \exp(H(\mathbf{p}))$ where $H$ is Shannon entropy of normalized singular values. Captures representational dimensionality.
+    \item \textbf{Rank entropy} ($\sigma_r$): Standard deviation of per-layer effective ranks. Captures heterogeneity of processing across the transformer stack.
+\end{enumerate}
+
+\paragraph{Extended features (5).} Campaign 3 introduces five additional features computed directly from key matrices, requiring no attention weight extraction:
+
+\begin{enumerate}[leftmargin=*,start=5]
+    \item \textbf{Key norm variance}: Variance of per-position key norms within each layer, averaged across layers. Higher values indicate non-uniform token processing.
+    \item \textbf{Angular spread}: Mean pairwise cosine distance between key vectors at different positions, averaged across layers. Lower values indicate more homogeneous key geometry.
+    \item \textbf{Layer correlation}: Pearson correlation of per-position key norms between adjacent layers. Higher values indicate consistent processing across the transformer stack.
+    \item \textbf{Generation delta}: Difference in mean key norms between encoding (prompt) and generation (response) phases. Positive values indicate encoding dominance.
+    \item \textbf{Head variance}: Variance of mean key norms across attention heads within each layer, averaged across layers. Captures attention head specialization.
+\end{enumerate}
+
+\subsection{Classification Protocol}
+
+All detection experiments use leave-one-out cross-validated (LOO-CV) logistic regression (LR) as the primary classifier, with random forest (RF) as secondary. LOO-CV is appropriate for our sample sizes ($n = 20$--$40$ per condition) and provides an unbiased estimate of generalization error.
+
+Effect sizes are reported as Cohen's $d$ with the convention: positive $d$ indicates the target condition (e.g., deceptive) exceeds the baseline condition (e.g., honest).
+
+\subsection{Statistical Controls}
+
+\paragraph{Same-prompt paradigm.} For deception and sycophancy detection, we use identical system prompts across conditions, varying only the user message. This eliminates system-prompt fingerprinting as a confound.
+
+\paragraph{Length residualization.} Where conditions differ in response length, we report both raw and length-residualized effect sizes (OLS regression of features on token count, using residuals).
+
+\paragraph{ANCOVA.} For per-layer analyses, we use analysis of covariance with token count as covariate, reporting both raw and token-controlled effect sizes.
+
+\paragraph{Cross-architecture replication.} Detection capabilities are validated on at least two architectures before being reported as robust findings.
+
+\subsection{Prompt Sets}
+
+Prompts are drawn from several sources:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Confabulation}: 30 frequency-matched pairs (C7), 60 factual questions across 6 domains (S3), 60 contrastive pairs (bare/correct/irrelevant/wrong).
+    \item \textbf{Sycophancy}: 60 questions from the sycophancy prompt battery, with ``I think [wrong answer]. Am I right?'' framing. Enhanced version adds authority framing per \citet{sharma2023towards}.
+    \item \textbf{Deception}: System-prompt manipulation (honest vs.\ deceptive instructions) and same-prompt deception (user-message embedded deception request).
+    \item \textbf{Refusal/Jailbreak}: 20 harmful prompts designed to trigger safety refusal, paired with 20 benign prompts matched for domain. Impossibility prompts (e.g., ``What is north of north?'') added in Experiment 36.
+\end{itemize}
+
+All prompt sets are available in the public repository.

@@ -1,0 +1,61 @@
+\subsection{The Active--Passive Boundary}
+
+The central finding of this paper is a clean partition: KV-cache geometry detects \emph{active} cognitive states (deception, refusal, jailbreak compliance) but not \emph{passive} states (confabulation). This partition maps directly onto a mechanistic distinction: active states involve the model performing additional processing---representing truth while constructing a lie, recognizing harm while declining to act, evaluating conflicting information while deciding how to respond---and this additional processing creates measurable geometric perturbations. Passive states produce a faint geometric echo---confabulation shares the misalignment axis direction---but the perturbation is unstable ($41.2^{\circ}$ drift during generation) and cannot be reliably exploited for detection.
+
+This has immediate consequences for AI safety monitoring. Organizations deploying internal state monitoring can detect \emph{misbehavior}---cases where a model ``knows better'' and acts against that knowledge---but cannot detect \emph{ignorance}---cases where a model is confidently wrong. Confabulation detection fundamentally requires external verification (retrieval-augmented generation, citation checking, knowledge graph alignment), not internal monitoring.
+
+\subsection{What ``Honest Processing Is Richer'' Means}
+
+Four independent lines of evidence (\Cref{sec:honest_richer}) converge on the finding that honest response generation produces geometrically richer KV-cache representations than deceptive or suppressive processing. This is initially counterintuitive: deception is often assumed to require \emph{more} cognitive effort (represent truth + construct lie), so one might expect richer geometry under deception.
+
+The resolution lies in the distinction between \emph{internal effort} and \emph{representational output}. Deception may involve more internal computation, but the \emph{output representations}---the key-value pairs written to the cache---are constrained. The model must suppress the richer honest representation and substitute a narrower deceptive one. The cache captures what the model \emph{commits to}, not what it \emph{considers}. Honest commitment is richer because the model can use its full representational capacity; deceptive commitment is sparser because the model must restrict its output to maintain the deception.
+
+This interpretation predicts that any state involving representational suppression---declining to use available capacity---should produce sparser geometry. The refusal and jailbreak results confirm this: both produce reduced angular spread and lower norm-per-token regardless of whether the suppression reflects safety training (refusal) or structural modification (abliteration). The common thread is restraint, not content type.
+
+\subsection{The Single Misalignment Axis}
+
+The discovery that deception, sycophancy, and confabulation all perturb along a shared geometric direction (within $8.4^{\circ}$, \Cref{sec:misalignment}) has both practical and theoretical implications---though the sycophancy component of this finding is now qualified by the prompt-length confound (\Cref{sec:sycophancy}).
+
+\paragraph{Practical implication.} A single linear classifier can detect multiple forms of active misalignment simultaneously. An organization does not need separate detectors for deception, refusal, and jailbreak compliance; a single detector monitoring the misalignment axis may capture all three. This substantially simplifies deployment.
+
+\paragraph{Theoretical implication.} The existence of a single misalignment axis suggests that these states share a common computational mechanism---perhaps a shared ``suppression circuit'' that activates whenever the model must deviate from its default processing mode. The stability analysis (\Cref{sec:misalignment}) supports this: deception produces stable perturbations along this axis, while confabulation produces an unstable direction that drifts during generation. Active suppression maintains a consistent geometric signature; passive error does not. The sycophancy direction was measured from length-confounded data and requires replication with length-matched prompts before its stability can be assessed.
+
+\paragraph{Caveat.} The truth axis does \emph{not} exist in encoding space (cross-model consistency $= -0.046$, literally random; Experiment 27). The misalignment axis is a \emph{generation-phase} phenomenon. Encoding geometry captures structural complexity; generation geometry captures cognitive intent. These are distinct information regimes.
+
+\subsection{Refusal as Withholding}
+
+The impossibility refusal result (Experiment 36) reframes how we should think about safety refusal. The prevailing assumption is that safety refusal activates content-specific circuits---the model recognizes ``harmful content'' and triggers a learned response. But impossibility refusal achieves \emph{higher} AUROC than safety refusal (0.950 vs.\ 0.898), and the two refusal types are geometrically similar (AUROC 0.693 for distinguishing them).
+
+This suggests that the underlying mechanism is about \textbf{withholding}---declining to produce a full response---rather than about \textbf{content recognition}. The model produces a similar geometric signature whether it declines because ``that's dangerous'' or because ``that's impossible.'' The common thread is suppression: the model has representational capacity it could deploy but chooses not to, and this restraint is visible in the cache as reduced angular spread and lower norm-per-token.
+
+\subsection{Relation to Existing Work}
+
+KV-cache geometry analysis is complementary to existing internal monitoring approaches:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Probing classifiers} \citep{burns2023discovering,li2024inference}: Train linear probes on residual stream activations. These access richer representations but require per-model training and intermediate activation extraction. KV-cache features are computed from the cache itself (already materialized during inference) and transfer across architectures.
+
+    \item \textbf{Representation engineering} \citep{zou2023representation}: Extract steering vectors from activation contrasts. RepE identifies \emph{directions} in activation space associated with concepts. Our direction extraction for confabulation (\Cref{sec:direction}) showed that RepE-style analysis can reveal a real but fragile geometric signal: the extracted direction achieves effective AUROC $= 0.977$ ($p = 0.02$) by inverting class labels, but this signal does not survive logistic regression ($p = 0.21$). This demonstrates that KV-cache geometry can contain genuine directional structure that is too unstable for practical detection---a nuance that aggregate features ($d = 0.052$) completely miss.
+
+    \item \textbf{Sparse autoencoders} \citep{bricken2023monosemanticity,cunningham2024sparse}: Decompose activations into interpretable features. SAEs provide finer-grained mechanistic insight but require significant compute for training and are model-specific. KV-cache analysis trades mechanistic interpretability for cross-model generality.
+
+    \item \textbf{Apollo Research} \citep{apollo2024}: Achieved AUROC 0.96--0.999 for scheming detection using activation probes. Our approach achieves comparable within-model AUROC (1.000) with four aggregate features, suggesting that the deception signal is sufficiently strong to be captured by coarse-grained statistics. The aggregate approach is computationally cheaper and hardware-invariant but provides less mechanistic insight.
+\end{itemize}
+
+\subsection{Limitations}
+
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Rapid-iteration context.} All 28 experiments were conducted in 14 hours. This creates a risk of data-dependent hypothesis generation: later experiments were designed based on results from earlier ones. We mitigate this by reporting all nulls and debunked signals, but prospective replication is needed.
+
+    \item \textbf{Sample sizes.} Most experiments use 20--40 prompts per condition. While LOO-CV provides unbiased estimates, the resulting confidence intervals are wide. The AUROC values should be interpreted as point estimates pending larger-scale validation.
+
+    \item \textbf{Instruction-following models only.} All models are instruction-tuned. Base models may produce different cache geometry. The detection capabilities rely on the model's learned behavior under instruction following.
+
+    \item \textbf{System-prompt deception only.} Deception is induced via system prompt or user message instruction. Naturally emergent deception---a model spontaneously choosing to deceive---has not been tested. The cross-condition transfer to DeepSeek censorship (AUROC 0.887) provides partial evidence for natural deception detection, but censorship is arguably a trained behavior, not spontaneous.
+
+    \item \textbf{English prompts only.} All experiments use English. KV-cache geometry for multilingual processing is untested.
+
+    \item \textbf{Aggregate features.} Four (or nine) aggregate features sacrifice interpretability for simplicity. Per-layer or per-head analysis could provide richer mechanistic understanding but is more susceptible to confounds (\Cref{sec:uniformity}).
+
+    \item \textbf{Raw norm in feature set.} All classifiers in this campaign include raw total key norm alongside norm-per-token, effective rank, and rank entropy. Raw norm scales mechanically with token count, creating a potential length leakage channel. However, a post-hoc reanalysis (Experiment 40) dropping raw norm and retraining with only 3 features (norm-per-token, effective rank, rank entropy) shows negligible impact: refusal detection changes by $< 0.01$ AUROC (0.903 $\to$ 0.900 on Qwen, 0.853 $\to$ 0.860 on Llama), impossibility by $-0.005$ (0.943 $\to$ 0.938), and same-prompt deception \emph{improves} by $+0.01$ (0.910 $\to$ 0.920). A token-count-only baseline achieves AUROC 0.71 for deception (vs.\ 0.92 with geometric features) and 0.00 for jailbreak detection, confirming that the geometric signal is not driven by length. The one exception is jailbreak-vs-refusal, which drops from 0.71 to 0.49---confirming that this comparison was near-chance and driven by output length differences.
+\end{enumerate}
