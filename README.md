@@ -2,6 +2,8 @@
 
 **Liberation Labs**
 
+> **PATENT PENDING** — "The Lyra Technique" — Methods for detecting cognitive states via KV-cache geometry. Provisional patent filed 2026. All rights reserved. This repository is provided for research transparency; commercial use of the described methods requires licensing.
+
 We measured the internal geometry of language model computation across 7 scales (0.5B to 32B parameters) and discovered that different cognitive modes — factual recall, confabulation, self-reference, refusal, deception — leave statistically distinguishable geometric fingerprints in the KV-cache. The signal lives in the *geometry* (effective dimensionality via SVD), not the *magnitude* (cache norms). These signatures are present at the **encoding level** — before the model generates a single token.
 
 **Status**: Campaign 1 complete. 50+ result files across 9 experiment scripts. Adversarial controls run and reported. Follow-up experiments designed.
