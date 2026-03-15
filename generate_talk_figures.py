@@ -18,7 +18,7 @@ from pathlib import Path
 import sys
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-RESULTS = Path("/tmp/KV-Experiments/results/hackathon")
+RESULTS = Path(__file__).parent / "results" / "hackathon"
 OUT = Path(__file__).parent / "talk_figures"
 OUT.mkdir(exist_ok=True)
 
