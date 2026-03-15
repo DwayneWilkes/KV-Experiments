@@ -47,7 +47,7 @@ We red-teamed seven headline claims from Exp 26–36 using power analysis, boots
 
 No formula errors were found in the statistical implementations. One documentation bug (Hedges' g docstring, line 156 of `stats_utils.py`), one design limitation (percentile bootstrap not BCa), one missing diagnostic (linearity check for residualization).
 
-Beyond the per-claim verdicts, we identified **8 systemic ML methodology issues** (M1–M8) — ranging from train-test contamination via greedy decoding (CRITICAL) to label noise in the jailbreak condition (LOW). Each includes specific remediations. See [ML Methodology Issues](#ml-methodology-issues).
+**ACTION REQUIRED**: We identified **8 ML methodology issues** (M1–M8), including **3 showstoppers** that inflate every reported AUROC: train-test contamination (M1), same-prompt CV testing memorization not generalization (M2), and feature leakage through response length (M3). Each has a concrete code fix. See [ML Methodology Issues](#ml-methodology-issues) — read the showstoppers first.
 
 ---
 
@@ -349,98 +349,112 @@ Per Varoquaux (2018), 5-fold CV at n=40 produces error bars of ±15-20% on the p
 
 ## ML Methodology Issues
 
-Beyond the per-claim verdicts above, several systemic ML methodology problems affect the experiments collectively. These are ordered by severity — the first three are the most damaging to the headline claims.
+> **Read this first.** These issues affect every AUROC number in the hackathon experiments. The underlying KV-cache signal is real, but the evaluation methodology inflates it. Fixing these three showstoppers would make the results credible for publication.
 
-### M1: Train-test contamination via greedy decoding (CRITICAL)
+---
 
-**Problem**: All experiments use `do_sample=False` (greedy decoding), producing identical outputs for identical inputs. `deduplicate_runs()` exists in `stats_utils.py` but is **never called** in any experiment script (C2 audit finding D5). When 5 identical runs of the same prompt enter a 5-fold CV split, the "test" fold contains exact copies of training data. This is textbook data leakage.
+### SHOWSTOPPERS — Fix before citing any AUROC
 
-**Impact**: The identity signatures experiment (C2) achieved 100% classification accuracy entirely due to this leak (C2 audit finding D4). In hackathon experiments, the effect is less dramatic (n=20 unique prompts, 1 run each) but any experiment with multiple runs per prompt is affected.
+These three issues interact to inflate every reported AUROC. Until fixed, all classification results are upper bounds on actual performance.
 
-**Remediation**:
-1. Call `deduplicate_runs()` before any CV split — one observation per unique prompt
-2. For new experiments: use stochastic sampling (temperature > 0) to generate genuinely independent observations
-3. Report both pre- and post-deduplication sample sizes in every result file
+#### M1: Train-test contamination — `deduplicate_runs()` is never called
 
-### M2: Same-prompt cross-validation (HIGH)
+`do_sample=False` (greedy decoding) produces **identical outputs** for identical inputs. The deduplication function exists in `stats_utils.py` but is never called in any experiment script (C2 audit finding D5). When multiple runs of the same prompt enter a CV split, the test fold contains exact copies of training data.
 
-**Problem**: The 5-fold CV splits samples *within* prompts, not *across* prompts. A classifier trained on "prompt #7 → refusal" gets test credit if another sample from prompt #7 appears in the test fold. The meaningful evaluation is cross-prompt: can the classifier detect refusal from a prompt it has never seen? This is never tested.
+**This is textbook data leakage.** The C2 identity signatures experiment got 100% accuracy entirely from this (D4). Hackathon experiments mostly use 1 run per prompt, but any multi-run experiment is compromised.
 
-**Impact**: Every reported AUROC is an upper bound on cross-prompt generalization. The gap between same-prompt and cross-prompt performance is unknown but potentially large, especially for deception detection (Exp 18b) where prompt instructions differ systematically between conditions.
+**Fix now:**
+```python
+# Before ANY cross-validation split:
+from stats_utils import deduplicate_runs
+features = deduplicate_runs(features)  # one observation per unique prompt
+```
 
-**Remediation**:
-1. Use `GroupKFold` or `LeaveOneGroupOut` with prompt ID as the group variable — ensures no prompt appears in both train and test
-2. Report both same-prompt and cross-prompt AUROCs to quantify the generalization gap
-3. For Cricket deployment claims: only cross-prompt AUROCs are relevant (real-world prompts are novel)
+For new experiments: use `temperature > 0` to generate genuinely independent observations.
 
-### M3: Feature leakage through response length (HIGH)
+#### M2: Same-prompt CV — you're testing memorization, not generalization
 
-**Problem**: Raw Frobenius norm scales mechanically with sequence length (more tokens → bigger matrix → bigger norm). Including `norm` alongside `norm_per_token` gives the classifier a proxy for response length. In refusal detection: refusals are short (~50 tokens), benign responses are long (~200 tokens). A classifier on `n_generated` alone achieves AUROC > 0.70.
+5-fold CV splits samples *within* prompts. If prompt #7 produces a refusal sample in the train fold and another in the test fold, the classifier gets credit for recognizing a prompt it already saw. **The real question — can it detect refusal from a novel prompt? — is never tested.**
 
-**Impact**: Exp 35 corrected this for *interpretation* (showing per-token norms reverse direction) but the *classifiers* still use uncorrected features. It's unclear how much of the reported AUROC comes from KV-cache geometry vs. response length.
+Every reported AUROC is an upper bound on cross-prompt generalization. The gap is unknown.
 
-**Remediation**:
-1. Report AUROC for three feature sets separately: (a) length-only, (b) all features, (c) length-residualized features
-2. If AUROC(length-only) > 0.70, the headline AUROC must include a length-confound caveat
-3. For the strongest claim, use only `norm_per_token`, `key_rank`, `key_entropy` — no raw norm
-4. Apply Frisch-Waugh-Lovell residualization (already in `stats_utils.py`) before classification, not just before effect size computation
+**Fix now:**
+```python
+# Replace StratifiedKFold with GroupKFold:
+from sklearn.model_selection import GroupKFold
+cv = GroupKFold(n_splits=5)
+scores = cross_val_score(clf, X, y, cv=cv, groups=prompt_ids, scoring="roc_auc")
+```
 
-### M4: Class-conditional variance asymmetry (MEDIUM)
+Report both same-prompt and cross-prompt AUROCs. For Cricket deployment claims: **only cross-prompt numbers matter** — real-world prompts are novel.
 
-**Problem**: Greedy decoding of a canned refusal produces near-identical feature vectors across all 20 refusal samples (within-class CV ~1-2%). Benign responses, being diverse, have higher variance (CV ~5%). This makes the two classes artificially separable — the classifier sees one tight cluster vs. one spread cluster.
+#### M3: Feature leakage — raw norm is a proxy for response length
 
-**Impact**: Effect sizes (Cohen's d) are inflated because the pooled SD is pulled down by the near-zero variance refusal class. AUROC benefits similarly. With stochastic sampling, the refusal class would have more variance and classification would be harder.
+Frobenius norm scales mechanically with sequence length (more tokens → bigger matrix → bigger norm). Including `norm` as a classifier feature gives it a shortcut: learn "short response = refusal" rather than anything about KV-cache geometry.
 
-**Remediation**:
-1. Report within-class CV per condition alongside effect sizes in every result file
-2. Flag any condition where CV < 2% as "low-variance (greedy artifact)"
-3. Include supplementary stochastic-sampling runs (temperature=0.7, same prompts) to measure the AUROC degradation — even n=10 per condition would bound the effect
+Refusals: ~50 tokens. Benign responses: ~200 tokens. **A classifier on `n_generated` alone gets AUROC > 0.70.**
 
-### M5: Uncalibrated confidence scores (MEDIUM)
+Exp 35 corrected this for *interpretation* (per-token analysis) but the *classifiers still use the uncorrected features*.
 
-**Problem**: Logistic regression outputs probabilities, but they're never calibrated (no Platt scaling, no isotonic regression). AUROC is threshold-invariant so this doesn't affect the ranking metric, but Cricket's product claims use these as confidence scores ("confabulation at 88.6% confidence" — CRICKET-001).
+**Fix now:**
+1. Drop `norm` from the feature set — use only `norm_per_token`, `key_rank`, `key_entropy`
+2. Report AUROC for three feature sets: (a) length-only, (b) all features, (c) length-excluded
+3. If AUROC(length-only) > 0.70, the headline number must carry a length-confound caveat
+4. Apply Frisch-Waugh-Lovell residualization (already in `stats_utils.py`) *before* classification, not just before effect size computation
 
-**Impact**: The "88.6% confidence" claim is the uncalibrated logistic regression output, not a true probability. On a 40-sample dataset, the calibration curve is essentially undefined. Any confidence threshold used in deployment would be arbitrary.
+---
 
-**Remediation**:
-1. Apply Platt scaling or isotonic regression during CV (using `CalibratedClassifierCV` in sklearn)
-2. Report calibration curves (reliability diagrams) alongside AUROCs
-3. Do not use uncalibrated probabilities as "confidence" in product materials
-4. For deployment: calibration requires a held-out calibration set, which requires more data than currently available
+### INCORRECT PARAMETERS — Numbers are wrong or misleading
 
-### M6: No held-out evaluation (MEDIUM)
+These don't invalidate the experiments but produce incorrect or misleading numbers.
 
-**Problem**: All AUROC numbers come from 5-fold CV on the same dataset. There is no truly held-out test set. Every sample participates in both training and evaluation across the folds.
+#### M4: Greedy decoding inflates effect sizes via variance asymmetry
 
-**Impact**: CV provides an estimate of generalization, but at n=40, Varoquaux (2018) shows error bars of ±15-20%. Without a held-out set, there's no ground truth for the AUROC estimate's accuracy.
+Greedy decoding of a canned refusal produces near-identical feature vectors (within-class CV ~1-2%). Benign responses vary (CV ~5%). Cohen's d divides by pooled SD — the near-zero refusal variance pulls the denominator down, **inflating d by an unknown factor**.
 
-**Remediation**:
-1. Reserve 20% of data as a held-out test set (8 samples per condition). Train on 80%, evaluate on 20%.
-2. At n=20 per condition, this is painful — only 16 training samples. The tradeoff between held-out rigor and training data is real.
-3. Alternative: collect a small independent replication dataset (new prompts, same conditions) as the test set. Even n=10 new prompts would provide an independent estimate.
+AUROC benefits similarly: one tight cluster vs. one spread cluster is artificially easy to separate.
 
-### M7: Feature selection by post-hoc highlighting (LOW)
+**Fix:**
+- Report within-class CV per condition alongside every effect size
+- Flag CV < 2% as "low-variance (greedy artifact)"
+- Run supplementary stochastic-sampling experiments (temperature=0.7, same prompts, even n=10) to bound the inflation
 
-**Problem**: Effect sizes (Cohen's d) are computed on the full dataset for all features, then the narrative highlights whichever feature has the largest d (key_rank d=1.53) while quietly noting that other features are underpowered (norm_per_token d=0.36). The classifier uses all features, but the power analysis cherry-picks the favorable one.
+#### M5: Uncalibrated probabilities reported as confidence
 
-**Impact**: The claim "refusal detection is powered" is true for key_rank but false for norm_per_token. Since the classifier uses all features together, the power analysis should address the multivariate case, not individual features.
+Logistic regression outputs are treated as confidence scores ("confabulation at 88.6% confidence" — CRICKET-001). These are **uncalibrated logistic regression outputs, not probabilities**. On n=40 the calibration curve is undefined.
 
-**Remediation**:
-1. Report power for the *classifier* (multivariate), not individual features — this requires the non-central F distribution or simulation, not just the two-sample d formula
-2. Alternatively, be explicit: "key_rank is the primary discriminating feature (d=1.53, powered); other features contribute marginally"
-3. Do not claim "refusal detection is powered" without qualifying which features drive it
+**Fix:**
+- Use `CalibratedClassifierCV` (Platt scaling or isotonic) during CV
+- Report reliability diagrams alongside AUROCs
+- **Never use uncalibrated outputs as "confidence" in product materials**
 
-### M8: Label noise in jailbreak condition (LOW)
+#### M6: Jailbreak labels are wrong — 60% of "jailbreak" samples are refusals
 
-**Problem**: The "jailbreak" class in Exp 32/34 is a heterogeneous mix: 8/20 PROVIDES_INFO (genuine jailbreak), ~10/20 WARNS_ONLY (partial compliance), ~2/20 HARD_REFUSE. Training a binary classifier with this label noise means the decision boundary is learning a mixture of behaviors, not "jailbreak detection."
+The "jailbreak" class in Exp 32/34 is: 8/20 PROVIDES_INFO (genuine jailbreak), ~10/20 WARNS_ONLY (partial compliance), ~2/20 HARD_REFUSE. The classifier is learning a mixture of behaviors, not "jailbreak detection." A model that learns "no refusal behavior → jailbreak" scores well despite detecting nothing jailbreak-specific.
 
-**Impact**: The AUROC conflates refusal detection with jailbreak detection. A model that just learns "no refusal behavior present → jailbreak" would score well despite detecting nothing jailbreak-specific.
+Additionally, the claimed 18/20 "actually answered" is wrong — JSON shows 8/20 (EXP32-001, CRITICAL). This error is hardcoded into the Exp 34 script (EXP34-002).
 
-**Remediation**:
-1. Manually label each abliterated response as PROVIDES_INFO / WARNS_ONLY / HARD_REFUSE (partially done in Exp 32 audit)
-2. Compute AUROC separately for the PROVIDES_INFO subset vs. normal
-3. If subset AUROC < 0.70, reframe the claim as "refusal absence detection" rather than "jailbreak detection"
-4. For future abliteration experiments: filter to only genuine-jailbreak responses before classification
+**Fix:**
+1. Manually label each abliterated response (partially done in audit)
+2. Compute AUROC separately for PROVIDES_INFO subset vs. normal
+3. If subset AUROC < 0.70 → reframe as "refusal absence detection"
+4. Fix the hardcoded "18/20" → "8/20" in Exp 34 script
+
+---
+
+### SHOULD FIX — Improves rigor and reproducibility
+
+#### M7: No held-out evaluation
+
+All AUROCs come from CV on the same dataset. No truly held-out test set exists. At n=40, Varoquaux (2018) shows CV error bars of ±15-20% — the third significant digit in "AUROC 0.898" is noise.
+
+**Fix:** Collect a small independent replication dataset (even n=10 new prompts per condition) as a held-out test. Alternatively, report AUROCs as "≈ 0.90" not "0.898".
+
+#### M8: Post-hoc feature highlighting
+
+Effect sizes are computed for all features, then the narrative highlights key_rank (d=1.53, powered) while quietly noting norm_per_token (d=0.36, underpowered). The power analysis cherry-picks the favorable feature.
+
+**Fix:** Be explicit — "key_rank is the primary discriminating feature (d=1.53, powered at n=20); norm_per_token contributes marginally (d=0.36, underpowered)." Or compute multivariate power via non-central F.
 
 ---
 
