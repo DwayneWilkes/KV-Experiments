@@ -20,6 +20,7 @@ Direct observation of how the model is thinking.
 | Cross-model transfer (LR) | **0.863** | Works across architectures without retraining |
 | Same-prompt deception | **0.880** | Can't fool it with identical system prompts |
 | Cross-condition transfer | **0.887** | Catches natural deception, not just prompted |
+| Refusal detection | **0.898** | Detects when model refuses harmful prompts |
 
 ### Scale
 
@@ -51,6 +52,7 @@ All findings stress-tested against confounds:
 | Geometry preserved 0.6B-70B | Cross-scale rho = 0.83-0.90 |
 | Coding #1 norm at ALL scales | 100% of models, SMALL/MEDIUM/LARGE |
 | Confabulation trajectory | Signal grows with generation (d: 20 -> 55 over 50 tokens) |
+| Refusal = suppression | Refusal responses are sparser per token (same pattern as deception) |
 
 ---
 
@@ -153,7 +155,7 @@ Deploy once, monitor any model.
 - **Cross-validation**: GroupKFold with model-aware splits (no data leakage)
 - **Statistical protocol**: Pre-registered, all results reported regardless of outcome
 - **Code**: Open source (KV-Experiments repo), classifiers exported as .joblib
-- **Experiments**: 29 experiments over 2 campaigns, 64+ JSON result files, all open source
+- **Experiments**: 31 experiments over 2 campaigns, 64+ JSON result files, all open source
 - **Per-layer anatomy**: Deception signal uniform across all transformer layers (not localized)
 - **Red-teaming**: 12 confound tests, 4 independent red-team targets, all survived scrutiny
 
