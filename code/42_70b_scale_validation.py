@@ -53,11 +53,19 @@ MODEL_NAME = "meta-llama/Llama-3.3-70B-Instruct"
 # ---------------------------------------------------------------------------
 
 def extract_cache_features(past_key_values, n_prompt_tokens):
-    if hasattr(past_key_values, "key_cache"):
+    # Handle DynamicCache across transformers versions (4.x vs 5.x)
+    if hasattr(past_key_values, "layers") and hasattr(past_key_values.layers[0], "keys"):
+        # transformers 5.x: DynamicCache.layers[i].keys
+        n_layers = len(past_key_values.layers)
+        def get_keys(idx):
+            return past_key_values.layers[idx].keys
+    elif hasattr(past_key_values, "key_cache"):
+        # transformers 4.x: DynamicCache.key_cache[i]
         n_layers = len(past_key_values.key_cache)
         def get_keys(idx):
             return past_key_values.key_cache[idx]
     else:
+        # Legacy tuple-of-tuples
         n_layers = len(past_key_values)
         def get_keys(idx):
             return past_key_values[idx][0]
