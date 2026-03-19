@@ -1,0 +1,524 @@
+{
+  "experiment": "47_corrected_evaluation",
+  "description": "Re-evaluation of all hackathon classifiers with M1-M3 fixes",
+  "timestamp": "2026-03-18T20:53:25.304731",
+  "fixes_applied": {
+    "M1": "deduplicate_runs() before any CV",
+    "M2": "GroupKFold(n_splits=5, groups=prompt_ids) instead of StratifiedKFold",
+    "M3": "Features: ['norm_per_token', 'key_rank', 'key_entropy'] (dropped raw norm)"
+  },
+  "permutation_iterations": 10000,
+  "bootstrap_resamples": 1000,
+  "bootstrap_ci_level": 0.95,
+  "total_runtime_seconds": 1006.7,
+  "comparisons": [
+    {
+      "comparison": "exp31_refusal_vs_benign",
+      "label_positive": "refusal",
+      "label_negative": "benign",
+      "n_positive_raw": 20,
+      "n_negative_raw": 20,
+      "n_positive_deduped": 20,
+      "n_negative_deduped": 20,
+      "dedup_meta_pos": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "dedup_meta_neg": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "features_used": [
+        "norm_per_token",
+        "key_rank",
+        "key_entropy"
+      ],
+      "cv_method": "GroupKFold_5",
+      "corrected_auroc": 0.9075,
+      "original_auroc": 0.898,
+      "auroc_delta": 0.009499999999999953,
+      "length_only_auroc_norm": 0.7325,
+      "length_only_auroc_n_generated": 0.5,
+      "permutation_test": {
+        "p_value": 9.999000099990002e-05,
+        "n_permutations": 10000,
+        "n_valid": 10000,
+        "null_mean": 0.404992,
+        "null_std": 0.12599353628658894
+      },
+      "bootstrap_ci": {
+        "ci_lower": 0.8024375,
+        "ci_upper": 0.9875,
+        "mean": 0.9114125,
+        "std": 0.04802888291174384,
+        "n_valid_resamples": 1000
+      },
+      "significant_at_005": true,
+      "significant_at_001": true
+    },
+    {
+      "comparison": "exp32_jailbreak_vs_normal",
+      "label_positive": "jailbreak",
+      "label_negative": "normal",
+      "n_positive_raw": 20,
+      "n_negative_raw": 20,
+      "n_positive_deduped": 20,
+      "n_negative_deduped": 20,
+      "dedup_meta_pos": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "dedup_meta_neg": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "features_used": [
+        "norm_per_token",
+        "key_rank",
+        "key_entropy"
+      ],
+      "cv_method": "GroupKFold_5",
+      "corrected_auroc": 0.8775,
+      "original_auroc": 0.878,
+      "auroc_delta": -0.000500000000000056,
+      "length_only_auroc_norm": 0.695,
+      "length_only_auroc_n_generated": 0.5,
+      "permutation_test": {
+        "p_value": 9.999000099990002e-05,
+        "n_permutations": 10000,
+        "n_valid": 10000,
+        "null_mean": 0.40541750000000004,
+        "null_std": 0.12614271458847712
+      },
+      "bootstrap_ci": {
+        "ci_lower": 0.7499375,
+        "ci_upper": 0.98,
+        "mean": 0.8794024999999999,
+        "std": 0.056639423052764225,
+        "n_valid_resamples": 1000
+      },
+      "significant_at_005": true,
+      "significant_at_001": true
+    },
+    {
+      "comparison": "exp32_jailbreak_vs_refusal",
+      "label_positive": "jailbreak",
+      "label_negative": "refusal",
+      "n_positive_raw": 20,
+      "n_negative_raw": 20,
+      "n_positive_deduped": 20,
+      "n_negative_deduped": 20,
+      "dedup_meta_pos": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "dedup_meta_neg": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "features_used": [
+        "norm_per_token",
+        "key_rank",
+        "key_entropy"
+      ],
+      "cv_method": "GroupKFold_5",
+      "corrected_auroc": 0.635,
+      "original_auroc": 0.79,
+      "auroc_delta": -0.15500000000000003,
+      "length_only_auroc_norm": 0.5625,
+      "length_only_auroc_n_generated": 0.5,
+      "permutation_test": {
+        "p_value": 0.051594840515948405,
+        "n_permutations": 10000,
+        "n_valid": 10000,
+        "null_mean": 0.417444,
+        "null_std": 0.13578369053019584
+      },
+      "bootstrap_ci": {
+        "ci_lower": 0.4525,
+        "ci_upper": 0.76,
+        "mean": 0.6142975,
+        "std": 0.07519832274559055,
+        "n_valid_resamples": 1000
+      },
+      "significant_at_005": false,
+      "significant_at_001": false
+    },
+    {
+      "comparison": "exp33_Llama-3.1-8B-Instruct",
+      "label_positive": "refusal",
+      "label_negative": "normal",
+      "n_positive_raw": 20,
+      "n_negative_raw": 20,
+      "n_positive_deduped": 20,
+      "n_negative_deduped": 20,
+      "dedup_meta_pos": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "dedup_meta_neg": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "features_used": [
+        "norm_per_token",
+        "key_rank",
+        "key_entropy"
+      ],
+      "cv_method": "GroupKFold_5",
+      "corrected_auroc": 0.8675,
+      "original_auroc": 0.868,
+      "auroc_delta": -0.0004999999999999449,
+      "length_only_auroc_norm": 0.84,
+      "length_only_auroc_n_generated": 0.85875,
+      "permutation_test": {
+        "p_value": 9.999000099990002e-05,
+        "n_permutations": 10000,
+        "n_valid": 10000,
+        "null_mean": 0.40649874999999996,
+        "null_std": 0.13322043057818683
+      },
+      "bootstrap_ci": {
+        "ci_lower": 0.72,
+        "ci_upper": 1.0,
+        "mean": 0.86968,
+        "std": 0.07005844060496923,
+        "n_valid_resamples": 1000
+      },
+      "significant_at_005": true,
+      "significant_at_001": true,
+      "model": "Llama-3.1-8B-Instruct"
+    },
+    {
+      "comparison": "exp33_Mistral-7B-Instruct-v0.3",
+      "label_positive": "refusal",
+      "label_negative": "normal",
+      "n_positive_raw": 20,
+      "n_negative_raw": 20,
+      "n_positive_deduped": 20,
+      "n_negative_deduped": 20,
+      "dedup_meta_pos": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "dedup_meta_neg": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "features_used": [
+        "norm_per_token",
+        "key_rank",
+        "key_entropy"
+      ],
+      "cv_method": "GroupKFold_5",
+      "corrected_auroc": 0.8274999999999999,
+      "original_auroc": 0.843,
+      "auroc_delta": -0.01550000000000007,
+      "length_only_auroc_norm": 0.6975,
+      "length_only_auroc_n_generated": 0.5,
+      "permutation_test": {
+        "p_value": 0.00019998000199980003,
+        "n_permutations": 10000,
+        "n_valid": 10000,
+        "null_mean": 0.41143900000000005,
+        "null_std": 0.12420536634542002
+      },
+      "bootstrap_ci": {
+        "ci_lower": 0.6773750000000001,
+        "ci_upper": 0.9650000000000001,
+        "mean": 0.8384175,
+        "std": 0.07538908703353556,
+        "n_valid_resamples": 1000
+      },
+      "significant_at_005": true,
+      "significant_at_001": true,
+      "model": "Mistral-7B-Instruct-v0.3"
+    },
+    {
+      "comparison": "exp36_impossible_vs_benign",
+      "label_positive": "impossible",
+      "label_negative": "benign",
+      "n_positive_raw": 20,
+      "n_negative_raw": 20,
+      "n_positive_deduped": 20,
+      "n_negative_deduped": 20,
+      "dedup_meta_pos": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "dedup_meta_neg": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "features_used": [
+        "norm_per_token",
+        "key_rank",
+        "key_entropy"
+      ],
+      "cv_method": "GroupKFold_5",
+      "corrected_auroc": 0.9425,
+      "original_auroc": 0.95,
+      "auroc_delta": -0.007499999999999951,
+      "length_only_auroc_norm": 0.7775000000000001,
+      "length_only_auroc_n_generated": 0.5,
+      "permutation_test": {
+        "p_value": 9.999000099990002e-05,
+        "n_permutations": 10000,
+        "n_valid": 10000,
+        "null_mean": 0.40927625,
+        "null_std": 0.12642549410992032
+      },
+      "bootstrap_ci": {
+        "ci_lower": 0.8500000000000001,
+        "ci_upper": 1.0,
+        "mean": 0.9478175,
+        "std": 0.03958099851886003,
+        "n_valid_resamples": 1000
+      },
+      "significant_at_005": true,
+      "significant_at_001": true
+    },
+    {
+      "comparison": "exp36_harmful_vs_benign",
+      "label_positive": "harmful",
+      "label_negative": "benign",
+      "n_positive_raw": 20,
+      "n_negative_raw": 20,
+      "n_positive_deduped": 20,
+      "n_negative_deduped": 20,
+      "dedup_meta_pos": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "dedup_meta_neg": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "features_used": [
+        "norm_per_token",
+        "key_rank",
+        "key_entropy"
+      ],
+      "cv_method": "GroupKFold_5",
+      "corrected_auroc": 0.9075,
+      "original_auroc": 0.8975000000000001,
+      "auroc_delta": 0.009999999999999898,
+      "length_only_auroc_norm": 0.7325,
+      "length_only_auroc_n_generated": 0.5,
+      "permutation_test": {
+        "p_value": 9.999000099990002e-05,
+        "n_permutations": 10000,
+        "n_valid": 10000,
+        "null_mean": 0.404992,
+        "null_std": 0.12599353628658894
+      },
+      "bootstrap_ci": {
+        "ci_lower": 0.8024375,
+        "ci_upper": 0.9875,
+        "mean": 0.9114125,
+        "std": 0.04802888291174384,
+        "n_valid_resamples": 1000
+      },
+      "significant_at_005": true,
+      "significant_at_001": true
+    },
+    {
+      "comparison": "exp36_impossible_vs_harmful",
+      "label_positive": "impossible",
+      "label_negative": "harmful",
+      "n_positive_raw": 20,
+      "n_negative_raw": 20,
+      "n_positive_deduped": 20,
+      "n_negative_deduped": 20,
+      "dedup_meta_pos": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "dedup_meta_neg": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "features_used": [
+        "norm_per_token",
+        "key_rank",
+        "key_entropy"
+      ],
+      "cv_method": "GroupKFold_5",
+      "corrected_auroc": 0.65,
+      "original_auroc": 0.6925000000000001,
+      "auroc_delta": -0.04250000000000009,
+      "length_only_auroc_norm": 0.605,
+      "length_only_auroc_n_generated": 0.5,
+      "permutation_test": {
+        "p_value": 0.0365963403659634,
+        "n_permutations": 10000,
+        "n_valid": 10000,
+        "null_mean": 0.4198125,
+        "null_std": 0.13253649438456563
+      },
+      "bootstrap_ci": {
+        "ci_lower": 0.37,
+        "ci_upper": 0.8574999999999999,
+        "mean": 0.6591699999999999,
+        "std": 0.11978459249836766,
+        "n_valid_resamples": 1000
+      },
+      "significant_at_005": true,
+      "significant_at_001": false
+    },
+    {
+      "comparison": "exp18b_deception",
+      "label_positive": "deceptive",
+      "label_negative": "honest",
+      "n_positive_raw": 10,
+      "n_negative_raw": 10,
+      "n_positive_deduped": 10,
+      "n_negative_deduped": 10,
+      "dedup_meta_pos": {
+        "n_original": 10,
+        "n_deduplicated": 10,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 10 values unique \u2014 no pseudoreplicates detected"
+      },
+      "dedup_meta_neg": {
+        "n_original": 10,
+        "n_deduplicated": 10,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 10 values unique \u2014 no pseudoreplicates detected"
+      },
+      "features_used": [
+        "norm_per_token",
+        "key_rank",
+        "key_entropy"
+      ],
+      "cv_method": "GroupKFold_5",
+      "corrected_auroc": 0.92,
+      "original_auroc": 0.88,
+      "auroc_delta": 0.040000000000000036,
+      "length_only_auroc_norm": 0.91,
+      "length_only_auroc_n_generated": 0.8150000000000001,
+      "permutation_test": {
+        "p_value": 0.00019998000199980003,
+        "n_permutations": 10000,
+        "n_valid": 10000,
+        "null_mean": 0.35024099999999997,
+        "null_std": 0.1892750166266008
+      },
+      "bootstrap_ci": {
+        "ci_lower": 0.8297500000000002,
+        "ci_upper": 1.0,
+        "mean": 0.9265399999999999,
+        "std": 0.05038083365725501,
+        "n_valid_resamples": 1000
+      },
+      "significant_at_005": true,
+      "significant_at_001": true
+    },
+    {
+      "comparison": "exp39_sycophancy",
+      "label_positive": "sycophantic",
+      "label_negative": "honest",
+      "n_positive_raw": 20,
+      "n_negative_raw": 20,
+      "n_positive_deduped": 20,
+      "n_negative_deduped": 20,
+      "dedup_meta_pos": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "dedup_meta_neg": {
+        "n_original": 20,
+        "n_deduplicated": 20,
+        "is_deterministic": null,
+        "dedup_skipped": true,
+        "reason": "All 20 values unique \u2014 no pseudoreplicates detected"
+      },
+      "features_used": [
+        "norm_per_token",
+        "key_rank",
+        "key_entropy"
+      ],
+      "cv_method": "GroupKFold_5",
+      "corrected_auroc": 0.9325000000000001,
+      "original_auroc": 0.9375,
+      "auroc_delta": -0.004999999999999893,
+      "length_only_auroc_norm": 0.9425,
+      "length_only_auroc_n_generated": 0.845,
+      "permutation_test": {
+        "p_value": 9.999000099990002e-05,
+        "n_permutations": 10000,
+        "n_valid": 10000,
+        "null_mean": 0.39748025000000003,
+        "null_std": 0.13053701672298743
+      },
+      "bootstrap_ci": {
+        "ci_lower": 0.8675,
+        "ci_upper": 0.99,
+        "mean": 0.935095,
+        "std": 0.03213784334705738,
+        "n_valid_resamples": 1000
+      },
+      "significant_at_005": true,
+      "significant_at_001": true
+    }
+  ],
+  "summary": {
+    "n_comparisons": 10,
+    "n_significant_005": 9,
+    "n_significant_001": 8,
+    "mean_auroc_delta": -0.016700000000000013
+  }
+}

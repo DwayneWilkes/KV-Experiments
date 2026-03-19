@@ -65,8 +65,8 @@ docs/CASSIDY_EXECUTION_PLAN.md
 # Classifier metadata (feature importances, training counts)
 models/cricket_classifiers_meta.json
 
-# Claim review (contains internal infrastructure references)
-claim-review/
+# Claim review — restored for transparency (Dwayne's IATF audit)
+# claim-review/
 
 # Classifier training pipeline
 code/export_cricket_classifiers.py

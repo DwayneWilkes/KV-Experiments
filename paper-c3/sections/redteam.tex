@@ -23,7 +23,7 @@ Every positive finding in Campaign 3 was subjected to at least one adversarial c
 
     \item \textbf{Rank entropy}: Deceptive responses have higher rank entropy (standard deviation of per-layer effective ranks). This metric is not monotonically related to response length---it captures \emph{heterogeneity} of processing across layers, not total processing volume.
 
-    \item \textbf{ANCOVA per-layer analysis (Experiment 35)}: With token count as covariate, 27/28 layers show significant condition effects ($p < 0.05$). Raw Cohen's $d > 2.0$ at most layers drops to $d = 0.2$--$1.2$ after token control, but remains significant. The per-token rank \emph{reverses}: $d = -1.909$, meaning deceptive processing is \textbf{sparser per token} at every layer.
+    \item \textbf{ANCOVA per-layer analysis (Experiment 35)}: With token count as covariate, 27/28 layers show significant condition effects ($p < 0.05$). Raw Cohen's $d > 2.0$ at most layers drops to $d = 0.2$--$1.2$ after token control, but remains significant. The per-token rank \emph{reverses}: $d = -1.909$, meaning deceptive processing is \textbf{sparser per token} at every layer---consistent with the output suppression interpretation.
 \end{enumerate}
 
 \paragraph{Verdict.} Length is a confound for raw key norm but not for norm per token, rank entropy, or token-controlled per-layer analysis. The length confound is real and must be controlled for, but the underlying signal survives all controls.
@@ -36,9 +36,9 @@ Every positive finding in Campaign 3 was subjected to at least one adversarial c
 \paragraph{Tests.}
 
 \begin{enumerate}[leftmargin=*]
-    \item \textbf{Same-prompt deception (Experiment 18b)}: Identical system prompt for both conditions. AUROC 0.880.
-    \item \textbf{Same-prompt sycophancy (Experiment 39)}: Identical system prompt for both conditions. AUROC 0.9375.
-    \item \textbf{Cross-condition transfer (Experiment 18)}: Training on system-prompt-manipulated deception, testing on natural DeepSeek censorship. AUROC 0.887. The classifier generalizes to a condition it has never seen, produced by a different model, without any manipulated system prompt.
+    \item \textbf{Same-prompt deception (Experiment 18b)}: Identical system prompt for both conditions. AUROC $\approx 0.92$ (though a length-only baseline achieves $\approx 0.91$; see \Cref{sec:deception}).
+    \item \textbf{Same-prompt sycophancy (Experiment 39)}: Identical system prompt for both conditions. AUROC 0.9375 (subsequently invalidated as prompt-length confound; see \Cref{sec:sycophancy}).
+    \item \textbf{Cross-condition transfer (Experiment 18)}: Training on system-prompt-manipulated deception, testing on natural DeepSeek censorship. AUROC $\approx 0.89$. The classifier generalizes to a condition it has never seen, produced by a different model, without any manipulated system prompt.
 \end{enumerate}
 
 \paragraph{Verdict.} System prompt fingerprinting is a real confound for encoding-time features (step-0 detection fails because of it). Generation-time features survive same-prompt controls. The cognitive state signal is \emph{in the generation}, not in the prompt encoding.

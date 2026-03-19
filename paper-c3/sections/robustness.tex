@@ -69,4 +69,4 @@ The cross-model deception transfer results were presented in \Cref{sec:deception
 
 RF partitions the feature space with axis-aligned splits that are calibrated to absolute feature magnitudes. When Qwen produces key norms of ${\sim}29{,}000$ and Llama produces ${\sim}19{,}000$, RF splits learned on Qwen misclassify Llama inputs. LR's linear decision boundary, applied after standard scaling, captures the \emph{direction} of feature perturbation (deceptive processing increases norm, rank, and entropy while decreasing norm-per-token) regardless of architecture-specific magnitudes.
 
-This suggests that the deception signal is \emph{directionally universal}: all architectures perturb in the same direction, but with different magnitudes. A linear classifier captures the direction; a nonlinear classifier overfits to the magnitude.
+This suggests that the output suppression signal is \emph{directionally universal}: all architectures perturb in the same direction when suppressing output, but with different magnitudes. A linear classifier captures the direction; a nonlinear classifier overfits to the magnitude.

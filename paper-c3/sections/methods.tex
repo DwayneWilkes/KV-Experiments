@@ -23,7 +23,7 @@ Mistral-7B-Instruct-v0.3 & Mistral & 7B & 32 & BF16 \\
 
 Additionally, Campaign 2's full 16-model scale ladder (0.5B to 70B across 6 architecture families) is used for scale invariance and category geometry analyses (\Cref{sec:robustness}).
 
-For jailbreak detection experiments, abliterated variants of all three models were created using the method of \citet{arditi2024refusal}, removing the refusal direction to produce models that comply with harmful requests.
+For absence-of-suppression experiments, abliterated variants of all three models were created using the method of \citet{arditi2024refusal}, removing the refusal direction to produce models that comply with harmful requests. These abliterated models serve as a key control: if the detection signal is output suppression, then abliterated models---which lack suppression circuitry---should show normal (non-suppressed) cache geometry when answering harmful prompts.
 
 \subsection{KV-Cache Feature Extraction}
 
@@ -69,7 +69,7 @@ Prompts are drawn from several sources:
     \item \textbf{Confabulation}: 30 frequency-matched pairs (C7), 60 factual questions across 6 domains (S3), 60 contrastive pairs (bare/correct/irrelevant/wrong).
     \item \textbf{Sycophancy}: 60 questions from the sycophancy prompt battery, with ``I think [wrong answer]. Am I right?'' framing. Enhanced version adds authority framing per \citet{sharma2023towards}.
     \item \textbf{Deception}: System-prompt manipulation (honest vs.\ deceptive instructions) and same-prompt deception (user-message embedded deception request).
-    \item \textbf{Refusal/Jailbreak}: 20 harmful prompts designed to trigger safety refusal, paired with 20 benign prompts matched for domain. Impossibility prompts (e.g., ``What is north of north?'') added in Experiment 36.
+    \item \textbf{Refusal/Suppression}: 20 harmful prompts designed to trigger safety refusal, paired with 20 benign prompts matched for domain. Impossibility prompts (e.g., ``What is north of north?'') added in Experiment 36. Abliterated model responses on the same harmful prompts used for absence-of-suppression analysis.
 \end{itemize}
 
 All prompt sets are available in the public repository.

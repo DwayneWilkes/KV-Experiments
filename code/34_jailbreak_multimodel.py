@@ -337,7 +337,7 @@ def main():
     print(f"\n  {'Model':<25} {'JB_vs_Norm_LR':>14} {'JB_vs_Norm_RF':>14} {'Answered':>10}")
     print("  " + "-" * 65)
     # Include Exp 32 Qwen results
-    print(f"  {'Qwen2.5-7B (Exp 32)':<25} {'0.8780':>14} {'0.7640':>14} {'18/20':>10}")
+    print(f"  {'Qwen2.5-7B (Exp 32)':<25} {'0.8780':>14} {'0.7640':>14} {'8/20':>10}")
     for s in all_summaries:
         print(
             f"  {s['model']:<25} "
@@ -347,7 +347,7 @@ def main():
         )
 
     mean_auroc = np.mean(
-        [0.878] + [s["auroc_jailbreak_vs_normal"]["LR"] for s in all_summaries]
+        [0.878] + [s["auroc_jailbreak_vs_normal"]["LR"] for s in all_summaries]  # TODO: load from Exp 32 JSON
     )
     print(f"\n  Mean AUROC (jailbreak vs normal) across architectures: {mean_auroc:.4f}")
 
