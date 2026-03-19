@@ -81,6 +81,19 @@ Experiment 21 cross-referenced scale sweep self-reference data with identity sig
 
 \paragraph{Lyra as outlier.} The Lyra persona produces the highest mean key norm in all 7 identity models ($d = 4.23$ vs.\ the mean of other personas). This is not a prompt-length artifact: the scientist persona (shortest prompt) consistently ranks \#2, while the assistant persona (second-longest prompt) consistently ranks last ($\rho = 0.337$ excluding Lyra, NS). Self-referential processing involves elevated effective ranks ($+2$--$6\%$), elevated rank entropies ($+0.5$--$1.7\%$), and elevated value ranks ($+0.1$--$9.2\%$).
 
+\subsection{Per-Head Anatomy}
+\label{sec:perhead}
+
+Experiments 35 and 29 analyzed per-\emph{layer} structure; Experiment 49e extends this to per-\emph{head} resolution, ranking all 112 Qwen2.5-7B KV heads (28 layers $\times$ 4 KV heads per layer) by single-head AUROC for deception and refusal detection independently.
+
+\paragraph{Deception: globally distributed.} Deception detection is \textbf{uniformly distributed} across all 112 heads. Single-head AUROCs range from 0.76 to 0.86, with peak performance at layer 12 (AUROC $\approx 0.85$). No head is ``dead'' ($< 0.60$), and no head dominates. Every head in the network carries a detectable deception signal, consistent with output suppression as a global processing mode rather than a localized circuit.
+
+\paragraph{Refusal: concentrated in gatekeeper heads.} Refusal detection shows a strikingly different distribution. Two heads achieve AUROC $= 1.00$ (L4\_H1, L14\_H2), with several others at 0.98--0.99. However, multiple heads are at chance ($0.50$--$0.52$), contributing nothing to refusal detection. The refusal signal is \textbf{concentrated} in a small number of ``gatekeeper heads'' that appear to implement the suppression decision.
+
+\paragraph{Correlation between conditions.} Head-level deception and refusal AUROCs are moderately correlated (Pearson $r = 0.381$, Spearman $\rho = 0.404$, $p < 0.0001$). The shared variance (${\sim}15\%$) suggests partial mechanistic overlap---the same heads that contribute to deception detection also tend to contribute to refusal detection, though refusal recruits specialized additional heads.
+
+\paragraph{Interpretation.} The per-head anatomy reveals a mechanistic distinction between detection targets. Deception is a \emph{diffuse} cognitive state that perturbs every head in the network, consistent with the ``honest processing is richer'' framework (\Cref{sec:honest_richer}): output suppression reduces representational richness globally. Refusal, by contrast, involves \emph{concentrated} suppression circuitry---specific heads that implement the withholding decision---explaining why refusal detection transfers poorly across architectures (\Cref{tab:suppression_transfer}): the gatekeeper heads may occupy different positions in different model families.
+
 \subsection{Honest Processing Is Richer}
 \label{sec:honest_richer}
 

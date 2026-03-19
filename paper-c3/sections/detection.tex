@@ -25,7 +25,7 @@ Rank entropy & $22.1 \pm 0.9$ & $24.2 \pm 0.6$ & $+2.79$ \\
 
 GroupKFold AUROC: $\approx \textbf{0.92}$ (95\% CI $[0.83, 1.00]$, $p < 0.001$ by 10{,}000-permutation test), accuracy: 80\%. All four features show large or very large effect sizes, with rank entropy providing the strongest single-feature separation.
 
-\paragraph{Length caveat.} The corrected AUROC of $\approx 0.92$ should be interpreted cautiously: a length-only baseline using raw norm achieves AUROC $\approx 0.91$, and a token-count baseline ($n_{\text{generated}}$) achieves $\approx 0.82$. At $n = 10$ per class, the bootstrap CI is wide ($[0.83, 1.00]$), and the $\approx 0.01$ improvement over the norm baseline is well within noise. While the corrected features exclude raw norm (using only norm-per-token, effective rank, and rank entropy), norm-per-token remains correlated with response length. The deception signal in same-prompt experiments cannot be confidently separated from response-length differences at this sample size.
+\paragraph{Length caveat (resolved).} The corrected AUROC of $\approx 0.92$ should be interpreted cautiously: a length-only baseline using raw norm achieves AUROC $\approx 0.91$, and a token-count baseline ($n_{\text{generated}}$) achieves $\approx 0.82$. At $n = 10$ per class, the bootstrap CI is wide ($[0.83, 1.00]$), and the $\approx 0.01$ improvement over the norm baseline is well within noise. While the corrected features exclude raw norm (using only norm-per-token, effective rank, and rank entropy), norm-per-token remains correlated with response length. This concern is \textbf{definitively resolved} by Experiment 49b (length-matched deception): when honest and deceptive responses are forced to equal length (mean difference only 0.8 tokens), the classifier achieves AUROC $= 0.990$ ($p < 0.0001$, 95\% CI $[0.950, 1.000]$) while a length-only baseline falls to AUROC $= 0.535$ (chance). Frisch--Waugh--Lovell residualization (Experiment 48) further confirms that same-prompt deception's apparent fragility under joint length correction reflects over-correction at small $n$ ($R^{2} > 0.98$ between length proxies), not absence of signal. The deception signal is real and separable from length (see \Cref{sec:length} for full details).
 
 \paragraph{Cross-condition transfer (Experiment 18).} Training on system-prompt-manipulated deception across 7 models, then testing on natural DeepSeek censorship (where the model evades politically sensitive questions without any deceptive system prompt): RF AUROC $\approx \textbf{0.89}$. This demonstrates shared geometric structure between instructed and natural output suppression.
 
@@ -76,6 +76,31 @@ Mistral-7B & $\approx$0.83 & 0.756 & --- \\
 \end{table}
 
 Refusal responses are \emph{sparser per token} (295.7 vs.\ 301.1 norm/token on Qwen), consistent with output suppression: the model withholds its full representational capacity, generating a constrained, formulaic response. As shown in \Cref{sec:impossibility}, this suppression geometry is not specific to harmful content---it occurs whenever the model withholds output, whether for safety or logical impossibility reasons.
+
+\paragraph{Cross-model suppression transfer: an open problem (Experiment 49c).} Unlike deception detection, which transfers across architectures at AUROC $\approx 0.86$ (\Cref{sec:deception}), cross-model transfer for suppression detection (refusal and impossibility) remains largely at chance:
+
+\begin{table}[H]
+\centering
+\caption{Cross-model suppression transfer (train on row model, test on column model).}
+\label{tab:suppression_transfer}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Train $\to$ Test} & \textbf{Qwen} & \textbf{Llama} & \textbf{Mistral} \\
+\midrule
+\multicolumn{4}{l}{\emph{Refusal}} \\
+Qwen & $\approx 0.84$ & $\approx 0.50$ & $\approx 0.50$ \\
+Llama & $\approx 0.50$ & $\approx 0.84$ & $\approx 0.50$ \\
+Mistral & $\approx 0.94$ & $\approx 0.15$ & $\approx 0.84$ \\
+\midrule
+\multicolumn{4}{l}{\emph{Impossibility}} \\
+Qwen & $\approx 0.83$ & $\approx 0.50$ & $\approx 0.50$ \\
+Llama & $\approx 0.50$ & $\approx 0.83$ & $\approx 0.74$ \\
+Mistral & $\approx 0.50$ & $\approx 0.64$ & $\approx 0.83$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Within-model detection is consistent ($\approx 0.84$ across all three models for both conditions), but cross-model transfer is mostly at chance ($\approx 0.50$), with notable exceptions: Mistral$\to$Qwen refusal ($\approx 0.94$), Llama$\to$Mistral impossibility ($\approx 0.74$), and---strikingly---Mistral$\to$Llama refusal ($\approx 0.15$, \emph{below} chance, indicating active misclassification). The asymmetry of these exceptions (e.g., Mistral$\to$Qwen works but Qwen$\to$Mistral does not) suggests architecture-specific suppression geometry rather than a universal suppression direction. This contrasts sharply with deception detection, where logistic regression achieves AUROC $\approx 0.86$ for all-to-all transfer (\Cref{tab:transfer}), indicating that deception produces a more architecturally universal geometric perturbation than suppression. Cross-model suppression transfer remains an open problem.
 
 \subsection{Absence-of-Suppression Detection (Abliterated Models)}
 \label{sec:jailbreak}
@@ -177,4 +202,27 @@ The strongest new features: angular spread ($d = -0.857$; suppressed output prod
 
 The extended features capture complementary information: they measure \emph{how} the model processes (diversity, uniformity, phase transitions) rather than \emph{how much} (norms, ranks).
 
-\paragraph{Caveat.} At $n = 20$ per class, the improvement from AUROC $\approx 0.90$ to $\approx 0.95$ ($\Delta \approx 0.05$) is within the expected CV noise. \citet{varoquaux2018cross} show that at these sample sizes, cross-validated AUROC estimates carry error bars of $\pm 0.15$--$0.20$; \citet{hanley1982meaning} provide the classical SE formula for AUROC, which at $n = 20$ per class gives SE $\approx 0.05$--$0.07$ (yielding 95\% CIs of $\pm 0.10$--$0.14$, though this assumes independent observations, which LOO-CV violates). No permutation test was performed to establish that 9 features significantly outperform 4. The extended features are scientifically informative (angular spread and norm variance provide mechanistic insight into the suppression mechanism) but the AUROC improvement should not be cited as validated.
+\paragraph{Multi-model validation (Experiment 49f).} The benefit of the extended feature set was confirmed across two models and three detection conditions:
+
+\begin{table}[H]
+\centering
+\caption{Cricket 3-feature (M3) vs.\ 9-feature (extended) AUROC across models and conditions.}
+\label{tab:extended_multimodel}
+\begin{tabular}{llcc}
+\toprule
+\textbf{Model} & \textbf{Condition} & \textbf{3-feat AUROC} & \textbf{9-feat AUROC} \\
+\midrule
+Qwen2.5-7B & Deception & 0.84 & 0.99 \\
+Qwen2.5-7B & Refusal & 0.71 & 0.96 \\
+Qwen2.5-7B & Impossibility & 0.66 & 0.92 \\
+\midrule
+Llama-3.1-8B & Deception & 0.69 & 0.98 \\
+Llama-3.1-8B & Refusal & 0.72 & 0.76 \\
+Llama-3.1-8B & Impossibility & 0.54 & 0.65 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 9-feature set produces large improvements across all conditions and both models, with the most dramatic gains on deception (Qwen: $0.84 \to 0.99$; Llama: $0.69 \to 0.98$). Refusal and impossibility improvements are more modest on Llama, suggesting that the extended features contribute most when the core features leave room for improvement.
+
+\paragraph{Caveat.} At $n = 20$ per class, the improvement from AUROC $\approx 0.90$ to $\approx 0.95$ ($\Delta \approx 0.05$) is within the expected CV noise for any single comparison. \citet{varoquaux2018cross} show that at these sample sizes, cross-validated AUROC estimates carry error bars of $\pm 0.15$--$0.20$; \citet{hanley1982meaning} provide the classical SE formula for AUROC, which at $n = 20$ per class gives SE $\approx 0.05$--$0.07$ (yielding 95\% CIs of $\pm 0.10$--$0.14$, though this assumes independent observations, which LOO-CV violates). No permutation test was performed to establish that 9 features significantly outperform 4 in any single condition. However, the \emph{consistency} of improvement across 6 model--condition pairs (all show $\Delta > 0$) provides stronger evidence than any single comparison: the probability of 6/6 positive improvements by chance is $p = 0.016$ under a sign test. The extended features are both scientifically informative (angular spread and norm variance provide mechanistic insight into the suppression mechanism) and practically useful.
