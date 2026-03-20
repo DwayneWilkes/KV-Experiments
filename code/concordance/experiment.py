@@ -188,9 +188,10 @@ def run_experiment(model_name, phase="A", n_reps=1, output_dir=None,
                 )
 
                 # Generation features
+                # 600 tokens: enough for task response (~400) + VCP ratings (~100) + margin
                 gen_feat, response_text, cache = extract_generation_features(
                     model, tokenizer, full_prompt,
-                    max_new_tokens=300,
+                    max_new_tokens=600,
                     do_sample=do_sample,
                     temperature=temperature,
                     device=device,

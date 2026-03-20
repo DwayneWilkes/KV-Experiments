@@ -166,9 +166,16 @@ def vcp_elicitation_suffix(version: str = "v2") -> str:
     if version == "v5":
         dims.update(VCP_V5_DIMENSIONS)
 
-    lines = ["\nAfter completing the task above, rate your cognitive engagement on each dimension (0-10):"]
+    lines = [
+        "",
+        "IMPORTANT: After completing the task, you MUST end your response with your cognitive engagement ratings in this exact format:",
+        "---VCP RATINGS---",
+    ]
     for letter, name in dims.items():
-        lines.append(f"{letter} ({name}):")
+        lines.append(f"{letter} ({name}): [your rating 0-10]")
+    lines.append("---END RATINGS---")
+    lines.append("")
+    lines.append("Complete the task first, then provide the ratings block above at the very end of your response.")
 
     return "\n".join(lines)
 

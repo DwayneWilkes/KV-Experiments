@@ -74,9 +74,10 @@ def run_pilot(model_name, device="cuda", output_dir=None):
         )
 
         # Phase 2: Generation features
+        # 600 tokens: enough for task response (~400) + VCP ratings (~100) + margin
         gen_feat, response_text, cache = extract_generation_features(
             model, tokenizer, full_prompt,
-            max_new_tokens=300, do_sample=False, device=device
+            max_new_tokens=600, do_sample=False, device=device
         )
         del cache
         if torch.cuda.is_available():
