@@ -1,11 +1,11 @@
-"""Tests for kv_verify.tracking — experiment tracker with MLflow + caching."""
+"""Tests for kv_verify.tracking — experiment tracker with MLflow + caching + decorators."""
 
 import json
 import time
 from pathlib import Path
 from unittest.mock import patch
 
-from kv_verify.tracking import ExperimentTracker
+from kv_verify.tracking import ExperimentTracker, tracked, stage, validated
 
 
 class TestTrackerCreation:
@@ -206,3 +206,197 @@ class TestSklearnAutolog:
         """enable_sklearn_autolog should not crash with or without mlflow."""
         tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
         tracker.enable_sklearn_autolog()  # should not raise
+
+
+# ================================================================
+# DECORATOR TESTS
+# ================================================================
+
+class TestTrackedDecorator:
+    def test_caches_result(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+        call_count = 0
+
+        @tracked(tracker, cache_key=lambda x: f"key_{x}")
+        def compute(x):
+            nonlocal call_count
+            call_count += 1
+            return {"value": x * 2}
+
+        result1 = compute(5)
+        assert result1["value"] == 10
+        assert call_count == 1
+
+        result2 = compute(5)
+        assert result2["value"] == 10
+        assert call_count == 1  # cached, not called again
+
+    def test_different_args_not_cached(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+        call_count = 0
+
+        @tracked(tracker, cache_key=lambda x: f"key_{x}")
+        def compute(x):
+            nonlocal call_count
+            call_count += 1
+            return {"value": x * 2}
+
+        compute(5)
+        compute(10)
+        assert call_count == 2
+
+    def test_logs_timing(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+
+        @tracked(tracker, log_timing=True)
+        def slow_fn():
+            time.sleep(0.05)
+            return {"done": True}
+
+        slow_fn()
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert "slow_fn_seconds" in meta["metrics"]
+        assert meta["metrics"]["slow_fn_seconds"] >= 0.04
+
+    def test_no_caching_without_cache_key(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+        call_count = 0
+
+        @tracked(tracker)
+        def compute():
+            nonlocal call_count
+            call_count += 1
+            return {"v": 1}
+
+        compute()
+        compute()
+        assert call_count == 2  # no caching, both calls execute
+
+    def test_logs_metric(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+
+        @tracked(tracker, metric_name="auroc")
+        def get_auroc():
+            return 0.85
+
+        get_auroc()
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert meta["metrics"]["auroc"] == 0.85
+
+
+class TestStageDecorator:
+    def test_auto_caches_completion(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+
+        @stage(tracker, "my_stage")
+        def run_stage():
+            return {"items": 42}
+
+        result = run_stage()
+        assert result["items"] == 42
+        assert tracker.is_cached("stage_my_stage")
+
+    def test_skips_if_cached(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+        call_count = 0
+
+        @stage(tracker, "repeat_stage")
+        def run_stage():
+            nonlocal call_count
+            call_count += 1
+            return {"done": True}
+
+        run_stage()
+        run_stage()
+        assert call_count == 1  # second call skipped
+
+    def test_checks_dependencies(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+
+        @stage(tracker, "dependent_stage", depends_on=["prereq"])
+        def run_dependent():
+            return {"ok": True}
+
+        import pytest
+        with pytest.raises(RuntimeError, match="prereq"):
+            run_dependent()
+
+    def test_dependency_satisfied(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+
+        @stage(tracker, "prereq")
+        def run_prereq():
+            return {"ready": True}
+
+        @stage(tracker, "dependent", depends_on=["prereq"])
+        def run_dependent():
+            return {"done": True}
+
+        run_prereq()
+        result = run_dependent()
+        assert result["done"] is True
+
+    def test_logs_timing(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+
+        @stage(tracker, "timed_stage")
+        def run_stage():
+            time.sleep(0.05)
+            return {}
+
+        run_stage()
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert "timed_stage" in meta["stages"]
+        assert meta["stages"]["timed_stage"]["duration_seconds"] >= 0.04
+
+
+class TestValidatedDecorator:
+    def test_passes_when_valid(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+
+        def check_positive(x):
+            if x <= 0:
+                raise ValueError("x must be positive")
+            return True
+
+        @validated(tracker, checks=[check_positive])
+        def process(x):
+            return x * 2
+
+        assert process(5) == 10
+
+    def test_raises_when_invalid(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+
+        def check_positive(x):
+            if x <= 0:
+                raise ValueError("x must be positive")
+
+        @validated(tracker, checks=[check_positive])
+        def process(x):
+            return x * 2
+
+        import pytest
+        with pytest.raises(ValueError, match="positive"):
+            process(-1)
+
+    def test_logs_validation_failure(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+
+        def always_fail():
+            raise ValueError("bad input")
+
+        @validated(tracker, checks=[always_fail])
+        def process():
+            return 42
+
+        import pytest
+        with pytest.raises(ValueError):
+            process()
+
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert meta["metrics"].get("process_validation_failed") == 1

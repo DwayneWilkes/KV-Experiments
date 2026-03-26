@@ -1,4 +1,4 @@
-"""Experiment tracker with MLflow + disk caching.
+"""Experiment tracker with MLflow + disk caching + decorators.
 
 General-purpose ML experiment tracking library. Provides:
 - Structured logging (params, metrics, items, verdicts)
@@ -6,32 +6,40 @@ General-purpose ML experiment tracking library. Provides:
 - Optional MLflow integration (works without mlflow installed)
 - Per-item tracking with hash-based dedup
 - Stage timing via context manager
+- Decorator-based API for auto-caching, timing, and validation
 
-Not KV-cache-specific. Usable for any ML experiment pipeline.
-
-Usage:
+Imperative API:
     tracker = ExperimentTracker(output_dir="./output/run_001", experiment_name="my_exp")
     tracker.log_params(model_id="qwen-7b", n_per_group=200)
-
     with tracker.stage("extraction"):
         for prompt in prompts:
             if tracker.is_cached(prompt.hash):
                 continue
             features = extract(prompt)
             tracker.log_item(prompt.hash, features)
-
     tracker.log_metric("auroc", 0.85)
-    tracker.log_verdict("claim_1", "confirmed", "All tests passed")
-    tracker.end()
+
+Decorator API:
+    @tracked(tracker, cache_key=lambda prompt, **kw: hash(prompt))
+    def extract_features(prompt, model, tokenizer):
+        return do_extraction(prompt, model, tokenizer)
+
+    @stage(tracker, "extraction", depends_on=["tokenization"])
+    def run_extraction(config):
+        ...
+
+Not KV-cache-specific. Usable for any ML experiment pipeline.
 """
 
+import functools
+import hashlib
 import json
 import subprocess
 import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional, Union
 
 
 def _get_git_hash() -> Optional[str]:
@@ -302,3 +310,156 @@ class ExperimentTracker:
             except Exception:
                 pass
             self._mlflow_run = None
+
+
+# ================================================================
+# DECORATOR API
+# ================================================================
+
+def tracked(
+    tracker: ExperimentTracker,
+    cache_key: Optional[Callable] = None,
+    log_timing: bool = True,
+    metric_name: Optional[str] = None,
+):
+    """Decorator that auto-caches function results, times execution, and logs to tracker.
+
+    Args:
+        tracker: ExperimentTracker instance to log to
+        cache_key: function that takes the same args as the decorated function
+                   and returns a string cache key. If None, no caching.
+        log_timing: if True, logs wall-clock time as a metric
+        metric_name: if set, logs the return value as this metric (must be numeric)
+
+    Usage:
+        @tracked(tracker, cache_key=lambda prompt, **kw: hash(prompt))
+        def extract_features(prompt, model, tokenizer):
+            return do_extraction(prompt, model, tokenizer)
+
+        # First call: runs function, caches result
+        # Second call with same args: returns cached result, skips function
+    """
+    def decorator(fn: Callable) -> Callable:
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            # Check cache
+            key = None
+            if cache_key is not None:
+                key = str(cache_key(*args, **kwargs))
+                if tracker.is_cached(key):
+                    return tracker.load_cached(key)
+
+            # Run with timing
+            t0 = time.monotonic()
+            result = fn(*args, **kwargs)
+            elapsed = time.monotonic() - t0
+
+            # Log timing
+            if log_timing:
+                fn_name = fn.__name__
+                tracker.log_metric(f"{fn_name}_seconds", round(elapsed, 3))
+
+            # Cache result
+            if key is not None and isinstance(result, dict):
+                tracker.log_item(key, result)
+
+            # Log as metric
+            if metric_name is not None and isinstance(result, (int, float)):
+                tracker.log_metric(metric_name, float(result))
+
+            return result
+        return wrapper
+    return decorator
+
+
+def stage(
+    tracker: ExperimentTracker,
+    name: str,
+    depends_on: Optional[List[str]] = None,
+    skip_if_cached: bool = True,
+):
+    """Decorator that declares a pipeline stage with auto-timing and caching.
+
+    Args:
+        tracker: ExperimentTracker instance
+        name: stage name (used for caching and logging)
+        depends_on: list of stage names that must complete first
+        skip_if_cached: if True, skip the stage if already completed
+
+    Usage:
+        @stage(tracker, "extraction", depends_on=["tokenization"])
+        def run_extraction(config):
+            ...
+            return {"n_items": 200}
+
+        run_extraction(config)  # auto-timed, auto-cached, auto-skipped on restart
+    """
+    def decorator(fn: Callable) -> Callable:
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            stage_key = f"stage_{name}"
+
+            # Check cache
+            if skip_if_cached and tracker.is_cached(stage_key):
+                cached = tracker.load_cached(stage_key)
+                if cached.get("status") == "complete":
+                    return cached
+
+            # Check dependencies
+            if depends_on:
+                for dep in depends_on:
+                    dep_key = f"stage_{dep}"
+                    if not tracker.is_cached(dep_key):
+                        raise RuntimeError(
+                            f"Stage '{name}' depends on '{dep}' which has not completed"
+                        )
+
+            # Run with timing
+            with tracker.stage(name):
+                result = fn(*args, **kwargs)
+
+            # Cache completion
+            cache_data = {"status": "complete"}
+            if isinstance(result, dict):
+                cache_data.update(result)
+            tracker.log_item(stage_key, cache_data)
+
+            return result
+        return wrapper
+    return decorator
+
+
+def validated(
+    tracker: ExperimentTracker,
+    checks: Optional[List[Callable]] = None,
+):
+    """Decorator that runs validation checks before executing a function.
+
+    Args:
+        tracker: ExperimentTracker instance
+        checks: list of callable validators. Each takes the same args as
+                the decorated function. Must return True or raise ValueError.
+
+    Usage:
+        def check_prompts_exist(prompt_dir, **kw):
+            if not prompt_dir.exists():
+                raise ValueError(f"Prompt dir not found: {prompt_dir}")
+            return True
+
+        @validated(tracker, checks=[check_prompts_exist])
+        def run_analysis(prompt_dir, config):
+            ...
+    """
+    def decorator(fn: Callable) -> Callable:
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            if checks:
+                for check in checks:
+                    try:
+                        check(*args, **kwargs)
+                    except (ValueError, AssertionError) as e:
+                        tracker.log_metric(f"{fn.__name__}_validation_failed", 1)
+                        raise
+            return fn(*args, **kwargs)
+        return wrapper
+    return decorator
