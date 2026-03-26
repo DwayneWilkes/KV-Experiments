@@ -712,9 +712,7 @@ def run_f04(
     sha256 = hashlib.sha256(result_json.encode()).hexdigest()
     result_data["checksum"] = f"sha256:{sha256}"
 
-    result_path = output_dir / "f04_results.json"
-    with open(result_path, "w") as f:
-        json.dump(result_data, f, indent=2)
+    tracker.log_item("f04_result", result_data)
 
     # ---- Markdown summary ----
     md_lines = [

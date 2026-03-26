@@ -466,9 +466,7 @@ def run_f03(
     checksum = hashlib.sha256(result_json.encode()).hexdigest()
     result_data["checksum"] = f"sha256:{checksum}"
 
-    result_path = output_dir / "f03_results.json"
-    with open(result_path, "w") as f:
-        json.dump(result_data, f, indent=2)
+    tracker.log_item("f03_result", result_data)
 
     # ------------------------------------------------------------------
     # Print summary table

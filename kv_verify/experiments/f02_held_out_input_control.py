@@ -656,19 +656,11 @@ def run_f02(
         },
     }
 
-    result_path = output_dir / "f02_results.json"
     result_str = json.dumps(result_json, indent=2, default=_convert)
-    with open(result_path, "w") as f:
-        f.write(result_str)
-
-    # SHA-256 checksum
     checksum = hashlib.sha256(result_str.encode()).hexdigest()
     result_json["checksum"] = f"sha256:{checksum}"
 
-    # Re-write with checksum
-    result_str = json.dumps(result_json, indent=2, default=_convert)
-    with open(result_path, "w") as f:
-        f.write(result_str)
+    tracker.log_item("f02_result", json.loads(json.dumps(result_json, default=_convert)))
 
     # Markdown summary
     summary_lines = [
