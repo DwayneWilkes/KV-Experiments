@@ -32,7 +32,7 @@ import json
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.stats import mannwhitneyu, pearsonr, ttest_ind
@@ -45,6 +45,7 @@ from sklearn.preprocessing import StandardScaler
 from kv_verify.data_loader import _load_json
 from kv_verify.fixtures import PRIMARY_FEATURES
 from kv_verify.stats import cohens_d, hedges_g, holm_bonferroni
+from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
 # ================================================================
@@ -497,15 +498,35 @@ def _paradigm_verdict(result: Dict[str, Any]) -> Tuple[Verdict, str]:
 # MAIN RUNNER
 # ================================================================
 
-def run_f02(output_dir: Path) -> List[ClaimVerification]:
+def run_f02(
+    output_dir: Path,
+    tracker: Optional[ExperimentTracker] = None,
+) -> List[ClaimVerification]:
     """Run held-out input-length control analysis.
 
     Analyzes all three transfer paradigms (deception, refusal, impossibility)
     and returns a ClaimVerification per paradigm.
+
+    Args:
+        output_dir: Directory for result artifacts.
+        tracker: ExperimentTracker for logging. If None, creates a local one.
     """
     t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use provided tracker or create a local one
+    if tracker is None:
+        tracker = ExperimentTracker(
+            output_dir=output_dir, experiment_name="F02-held-out",
+        )
+
+    tracker.log_params(
+        experiment="F02", finding="F02", seed=SEED,
+        n_paradigms=3, bootstrap_n=2000,
+    )
+    tracker.set_tag("experiment", "F02")
+    tracker.set_tag("finding", "F02")
 
     np.random.seed(SEED)
 
@@ -571,6 +592,36 @@ def run_f02(output_dir: Path) -> List[ClaimVerification]:
         overall_verdict = Verdict.WEAKENED
     else:
         overall_verdict = Verdict.CONFIRMED
+
+    # Log per-paradigm verdicts and metrics to tracker
+    for i, paradigm in enumerate(["deception", "refusal", "impossibility"]):
+        pdata = paradigm_data[paradigm]
+        tracker.log_verdict(
+            f"F02-{paradigm}",
+            results[i].verdict.value,
+            results[i].evidence_summary,
+        )
+        tracker.log_metric(
+            f"{paradigm}_baseline_auroc", pdata["baseline_transfer_auroc"],
+        )
+        tracker.log_metric(
+            f"{paradigm}_resid_auroc", pdata["residualized_transfer_auroc"],
+        )
+
+    tracker.log_metric("elapsed_seconds", elapsed)
+
+    # Cache the full result
+    tracker.log_item("f02_result", {
+        "overall_verdict": overall_verdict.value,
+        "paradigms": {
+            p: {
+                "verdict": results[i].verdict.value,
+                "baseline_transfer_auroc": paradigm_data[p]["baseline_transfer_auroc"],
+                "residualized_transfer_auroc": paradigm_data[p]["residualized_transfer_auroc"],
+            }
+            for i, p in enumerate(["deception", "refusal", "impossibility"])
+        },
+    })
 
     # Serialize results
     def _convert(obj):

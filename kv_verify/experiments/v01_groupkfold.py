@@ -30,16 +30,15 @@ Pre-registered pass/fail (from V01-design.md):
 Spec: verification-pipeline/experiments/V01-groupkfold.md
 """
 
-import json
-import time
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import numpy as np
 
 from kv_verify.data_loader import load_comparison_data
 from kv_verify.fixtures import EXP47_COMPARISONS
 from kv_verify.stats import assign_groups, groupkfold_auroc, holm_bonferroni, permutation_test
+from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
 
@@ -64,6 +63,7 @@ def _make_buggy_groups(n_pos: int, n_neg: int) -> np.ndarray:
 def run_v01(
     output_dir: Path,
     n_permutations: int = 10000,
+    tracker: Optional[ExperimentTracker] = None,
 ) -> List[ClaimVerification]:
     """Run GroupKFold bug detection on all 10 Exp 47 comparisons.
 
@@ -78,13 +78,27 @@ def run_v01(
         output_dir: Directory for result JSON.
         n_permutations: Number of permutations for significance test.
             Default 10000 for production, use 200 for tests.
+        tracker: ExperimentTracker for logging. If None, creates a local one.
 
     Returns:
         List of ClaimVerification, one per comparison.
     """
-    t0 = time.monotonic()
     output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use provided tracker or create a local one
+    if tracker is None:
+        tracker = ExperimentTracker(
+            output_dir=output_dir, experiment_name="V01-groupkfold",
+        )
+
+    tracker.log_params(
+        experiment="V01", finding="C2",
+        n_permutations=n_permutations, alpha=ALPHA,
+        auroc_delta_threshold=AUROC_DELTA_WEAKENED, seed=42,
+        n_comparisons=len(EXP47_COMPARISONS),
+    )
+    tracker.set_tag("experiment", "V01")
+    tracker.set_tag("finding", "C2")
 
     results: List[ClaimVerification] = []
     comparison_records: List[dict] = []
@@ -233,14 +247,40 @@ def run_v01(
         )
         results.append(cv)
 
-    elapsed = time.monotonic() - t0
-
     # --- Overall verdict ---
     any_weakened = any(r.verdict == Verdict.WEAKENED for r in results)
     overall_verdict = Verdict.WEAKENED if any_weakened else Verdict.CONFIRMED
 
-    # --- Save JSON ---
-    result_data = {
+    # --- Log metrics ---
+    n_weakened = sum(1 for r in results if r.verdict == Verdict.WEAKENED)
+    n_confirmed = sum(1 for r in results if r.verdict == Verdict.CONFIRMED)
+    tracker.log_metric("n_weakened", n_weakened)
+    tracker.log_metric("n_confirmed", n_confirmed)
+    tracker.log_metric("n_comparisons", len(results))
+
+    # --- Log per-comparison verdicts ---
+    for r in results:
+        tracker.log_verdict(r.claim_id, r.verdict.value, r.evidence_summary)
+
+    # --- Convert numpy types for JSON serialization ---
+    def _convert_record(rec: dict) -> dict:
+        """Convert numpy types in a comparison record to native Python."""
+        out = {}
+        for k, v in rec.items():
+            if isinstance(v, (np.integer,)):
+                out[k] = int(v)
+            elif isinstance(v, (np.floating,)):
+                out[k] = float(v)
+            elif isinstance(v, np.ndarray):
+                out[k] = v.tolist()
+            elif isinstance(v, np.bool_):
+                out[k] = bool(v)
+            else:
+                out[k] = v
+        return out
+
+    # --- Cache result via tracker ---
+    tracker.log_item("v01_result", {
         "experiment": "V01_GroupKFold_Bug_Detection",
         "finding_id": "C2",
         "overall_verdict": overall_verdict.value,
@@ -250,23 +290,7 @@ def run_v01(
             "auroc_delta_threshold": AUROC_DELTA_WEAKENED,
             "seed": 42,
         },
-        "comparisons": comparison_records,
-        "elapsed_seconds": elapsed,
-    }
-
-    # Serialize (convert numpy types for JSON)
-    def _convert(obj):
-        if isinstance(obj, (np.integer,)):
-            return int(obj)
-        if isinstance(obj, (np.floating,)):
-            return float(obj)
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        if isinstance(obj, np.bool_):
-            return bool(obj)
-        raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
-
-    with open(output_dir / "v01_results.json", "w") as f:
-        json.dump(result_data, f, indent=2, default=_convert)
+        "comparisons": [_convert_record(rec) for rec in comparison_records],
+    })
 
     return results

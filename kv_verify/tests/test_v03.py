@@ -111,37 +111,38 @@ class TestV03StatsSchema:
 
 
 class TestV03ResultJSON:
-    """Results must be saved to output_dir/v03_results.json."""
+    """Results must be cached via tracker."""
 
-    def test_saves_json_file(self, tmp_path):
+    def test_saves_result_via_tracker(self, tmp_path):
         run_v03(tmp_path)
-        result_path = tmp_path / "v03_results.json"
+        # Result is now cached via tracker at cache/v03_result.json
+        result_path = tmp_path / "cache" / "v03_result.json"
         assert result_path.exists()
 
     def test_json_is_valid(self, tmp_path):
         run_v03(tmp_path)
-        result_path = tmp_path / "v03_results.json"
+        result_path = tmp_path / "cache" / "v03_result.json"
         with open(result_path) as f:
             data = json.load(f)
         assert isinstance(data, dict)
 
     def test_json_has_comparisons(self, tmp_path):
         run_v03(tmp_path)
-        with open(tmp_path / "v03_results.json") as f:
+        with open(tmp_path / "cache" / "v03_result.json") as f:
             data = json.load(f)
         assert "comparisons" in data
         assert len(data["comparisons"]) == len(EXP47_COMPARISONS)
 
     def test_json_has_overall_verdict(self, tmp_path):
         run_v03(tmp_path)
-        with open(tmp_path / "v03_results.json") as f:
+        with open(tmp_path / "cache" / "v03_result.json") as f:
             data = json.load(f)
         assert "leakage_verdict" in data
         assert "polynomial_verdict" in data
 
     def test_json_comparison_schema(self, tmp_path):
         run_v03(tmp_path)
-        with open(tmp_path / "v03_results.json") as f:
+        with open(tmp_path / "cache" / "v03_result.json") as f:
             data = json.load(f)
         for comp in data["comparisons"]:
             assert "name" in comp
@@ -202,21 +203,21 @@ class TestV03OverallVerdict:
 
     def test_json_polynomial_verdict_value(self, tmp_path):
         run_v03(tmp_path)
-        with open(tmp_path / "v03_results.json") as f:
+        with open(tmp_path / "cache" / "v03_result.json") as f:
             data = json.load(f)
         valid_verdicts = ["falsified", "strengthened", "weakened"]
         assert data["polynomial_verdict"] in valid_verdicts
 
     def test_json_has_surviving_count(self, tmp_path):
         run_v03(tmp_path)
-        with open(tmp_path / "v03_results.json") as f:
+        with open(tmp_path / "cache" / "v03_result.json") as f:
             data = json.load(f)
         assert "n_surviving" in data
         assert data["n_surviving"] == 7
 
     def test_json_has_collapsed_count(self, tmp_path):
         run_v03(tmp_path)
-        with open(tmp_path / "v03_results.json") as f:
+        with open(tmp_path / "cache" / "v03_result.json") as f:
             data = json.load(f)
         assert "n_collapsed_poly2" in data
         assert isinstance(data["n_collapsed_poly2"], int)
@@ -229,3 +230,29 @@ class TestV03ZeroGpuTime:
         results = run_v03(tmp_path)
         for r in results:
             assert r.gpu_time_seconds == 0.0
+
+
+class TestV03TrackerIntegration:
+    """Test that tracker logs metrics and verdicts."""
+
+    def test_tracker_logs_metrics(self, tmp_path):
+        run_v03(tmp_path)
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert "n_leakage_detected" in meta["metrics"]
+        assert "n_collapsed_poly2" in meta["metrics"]
+        assert "n_surviving" in meta["metrics"]
+        assert meta["metrics"]["n_surviving"] == 7
+
+    def test_tracker_logs_verdicts(self, tmp_path):
+        run_v03(tmp_path)
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        # Should have one verdict per comparison
+        assert len(meta["verdicts"]) == len(EXP47_COMPARISONS)
+        for claim_id, verdict_data in meta["verdicts"].items():
+            assert claim_id.startswith("C4-")
+            assert verdict_data["verdict"] in (
+                "confirmed", "falsified", "weakened",
+                "strengthened", "indeterminate",
+            )

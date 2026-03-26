@@ -72,15 +72,32 @@ class TestV10Verdict:
 
 
 class TestV10OutputFile:
-    def test_saves_json(self, v10_result, tmp_path_factory):
-        # Re-run to check output (the fixture already ran once)
+    def test_saves_result_via_tracker(self, tmp_path_factory):
         output_dir = tmp_path_factory.mktemp("v10_output")
         run_v10(output_dir, n_sim=200)
-        assert (output_dir / "v10_results.json").exists()
+        # Result is now cached via tracker at cache/v10_result.json
+        assert (output_dir / "cache" / "v10_result.json").exists()
 
     def test_json_valid(self, tmp_path):
         run_v10(tmp_path, n_sim=200)
-        with open(tmp_path / "v10_results.json") as f:
+        with open(tmp_path / "cache" / "v10_result.json") as f:
             data = json.load(f)
         assert data["claim_id"] == "M7-power"
         assert "power_table" in data["stats"]
+
+
+class TestV10TrackerIntegration:
+    def test_tracker_logs_metrics(self, tmp_path):
+        run_v10(tmp_path, n_sim=200)
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert "n_underpowered" in meta["metrics"]
+        assert "sig_count" in meta["metrics"]
+        assert "adequate_count" in meta["metrics"]
+
+    def test_tracker_logs_verdict(self, tmp_path):
+        run_v10(tmp_path, n_sim=200)
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert "M7-power" in meta["verdicts"]
+        assert meta["verdicts"]["M7-power"]["verdict"] == "weakened"

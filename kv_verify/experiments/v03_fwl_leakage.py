@@ -18,10 +18,8 @@ Pre-registered pass/fail:
 Spec: research-log/V03-design.md
 """
 
-import json
-import time
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import numpy as np
 
@@ -33,6 +31,7 @@ from kv_verify.stats import (
     fwl_residualize,
     groupkfold_auroc,
 )
+from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
 
@@ -180,6 +179,7 @@ def _polynomial_verdict(
 def run_v03(
     output_dir: Path,
     n_permutations: int = 200,
+    tracker: Optional[ExperimentTracker] = None,
 ) -> List[ClaimVerification]:
     """Run FWL leakage test on all 10 Exp 47 comparisons.
 
@@ -192,12 +192,28 @@ def run_v03(
         n_permutations: Reserved for future permutation testing. Currently
             unused since V03 compares FWL conditions via AUROC difference
             rather than permutation null distributions.
+        tracker: ExperimentTracker for logging. If None, creates a local one.
 
     Returns a list of ClaimVerification, one per comparison.
     """
-    t0 = time.monotonic()
     output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use provided tracker or create a local one
+    if tracker is None:
+        tracker = ExperimentTracker(
+            output_dir=output_dir, experiment_name="V03-fwl-leakage",
+        )
+
+    tracker.log_params(
+        experiment="V03", finding="C4",
+        leakage_threshold=LEAKAGE_THRESHOLD,
+        collapse_auroc=COLLAPSE_AUROC,
+        preserve_auroc=PRESERVE_AUROC,
+        collapse_count_threshold=COLLAPSE_COUNT_THRESHOLD,
+        n_comparisons=len(EXP47_COMPARISONS),
+    )
+    tracker.set_tag("experiment", "V03")
+    tracker.set_tag("finding", "C4")
 
     results: List[ClaimVerification] = []
     comparison_records: List[Dict] = []
@@ -292,13 +308,31 @@ def run_v03(
     )
     poly_verdict = _polynomial_verdict(comparison_records)
 
-    elapsed = time.monotonic() - t0
+    # --- Log metrics ---
+    n_leakage = sum(1 for c in comparison_records if c["leakage_detected"])
+    tracker.log_metric("n_leakage_detected", n_leakage)
+    tracker.log_metric("n_collapsed_poly2", n_collapsed)
+    tracker.log_metric("n_surviving", len(surviving))
 
-    # Serialize to JSON
-    output_data = {
+    # --- Log per-comparison verdicts ---
+    for r in results:
+        tracker.log_verdict(r.claim_id, r.verdict.value, r.evidence_summary)
+
+    # --- Handle NaN for JSON serialization ---
+    def _nan_to_none(obj):
+        """Convert NaN floats to None for JSON compatibility."""
+        if isinstance(obj, float) and np.isnan(obj):
+            return None
+        if isinstance(obj, dict):
+            return {k: _nan_to_none(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [_nan_to_none(v) for v in obj]
+        return obj
+
+    # --- Cache result via tracker ---
+    tracker.log_item("v03_result", _nan_to_none({
         "experiment": "V03_FWL_Leakage",
         "finding_id": "C4",
-        "elapsed_seconds": elapsed,
         "leakage_verdict": leakage_verdict,
         "polynomial_verdict": poly_verdict,
         "n_comparisons": len(comparison_records),
@@ -308,15 +342,6 @@ def run_v03(
         "collapse_auroc_threshold": COLLAPSE_AUROC,
         "preserve_auroc_threshold": PRESERVE_AUROC,
         "comparisons": comparison_records,
-    }
-
-    # Handle NaN for JSON serialization
-    def _json_safe(obj):
-        if isinstance(obj, float) and np.isnan(obj):
-            return None
-        raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
-
-    with open(output_dir / "v03_results.json", "w") as f:
-        json.dump(output_data, f, indent=2, default=_json_safe)
+    }))
 
     return results

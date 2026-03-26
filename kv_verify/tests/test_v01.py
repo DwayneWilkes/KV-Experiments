@@ -40,9 +40,9 @@ def v01_results(v01_output):
 
 @pytest.fixture(scope="module")
 def v01_json(v01_output):
-    """Parsed JSON from v01_results.json."""
+    """Parsed JSON from cache/v01_result.json (via tracker)."""
     _, out_dir = v01_output
-    with open(out_dir / "v01_results.json") as f:
+    with open(out_dir / "cache" / "v01_result.json") as f:
         return json.load(f)
 
 
@@ -143,9 +143,10 @@ class TestV01VerdictLogic:
 
 
 class TestV01OutputFile:
-    def test_saves_result_json(self, v01_output):
+    def test_saves_result_via_tracker(self, v01_output):
         _, out_dir = v01_output
-        assert (out_dir / "v01_results.json").exists()
+        # Result is now cached via tracker at cache/v01_result.json
+        assert (out_dir / "cache" / "v01_result.json").exists()
 
     def test_result_json_is_valid(self, v01_json):
         assert "comparisons" in v01_json
@@ -180,3 +181,24 @@ class TestV01BuggyGroups:
         for comp in v01_json["comparisons"]:
             if not comp.get("paired", False):
                 assert comp["n_groups_fixed"] == comp["n_pos"] + comp["n_neg"]
+
+
+class TestV01TrackerIntegration:
+    def test_tracker_logs_metrics(self, v01_output):
+        _, out_dir = v01_output
+        with open(out_dir / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert "n_weakened" in meta["metrics"]
+        assert "n_confirmed" in meta["metrics"]
+        assert "n_comparisons" in meta["metrics"]
+        assert meta["metrics"]["n_comparisons"] == len(EXP47_COMPARISONS)
+
+    def test_tracker_logs_verdicts(self, v01_output):
+        _, out_dir = v01_output
+        with open(out_dir / "run_metadata.json") as f:
+            meta = json.load(f)
+        # Should have one verdict per comparison
+        assert len(meta["verdicts"]) == len(EXP47_COMPARISONS)
+        for claim_id, verdict_data in meta["verdicts"].items():
+            assert claim_id.startswith("C2-")
+            assert verdict_data["verdict"] in ("confirmed", "weakened")

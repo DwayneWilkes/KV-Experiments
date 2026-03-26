@@ -17,6 +17,7 @@ Pre-registered: F01-falsification-battery.md (F01b extension)
 
 import json
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 from scipy.stats import pearsonr
@@ -27,13 +28,32 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from kv_verify.fixtures import PRIMARY_FEATURES
+from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
 
-def run_f01b_49b(output_dir: Path) -> ClaimVerification:
-    """Analyze whether input length explains the 49b "definitive" result."""
+def run_f01b_49b(
+    output_dir: Path,
+    tracker: Optional[ExperimentTracker] = None,
+) -> ClaimVerification:
+    """Analyze whether input length explains the 49b "definitive" result.
+
+    Args:
+        output_dir: Directory for result artifacts.
+        tracker: ExperimentTracker for logging. If None, creates a local one.
+    """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use provided tracker or create a local one
+    if tracker is None:
+        tracker = ExperimentTracker(
+            output_dir=output_dir, experiment_name="F01b-49b",
+        )
+
+    tracker.log_params(experiment="F01b-49b", finding="F01b", paper_auroc=0.990)
+    tracker.set_tag("experiment", "F01b-49b")
+    tracker.set_tag("finding", "F01b")
 
     hackathon = Path(__file__).resolve().parent.parent.parent / "results" / "hackathon"
     with open(hackathon / "49b_length_matched_deception.json") as f:
@@ -149,13 +169,22 @@ def run_f01b_49b(output_dir: Path) -> ClaimVerification:
         },
     )
 
-    with open(output_dir / "f01b_49b_results.json", "w") as f:
-        json.dump({
-            "claim_id": result.claim_id,
-            "verdict": result.verdict.value,
-            "evidence_summary": result.evidence_summary,
-            "stats": result.stats,
-        }, f, indent=2)
+    # Log metrics
+    tracker.log_metric("input_only_auroc", input_auroc)
+    tracker.log_metric("residualized_auroc", resid_auroc)
+    tracker.log_metric("input_length_diff", float(d_input.mean() - h_input.mean()))
+
+    # Log verdict
+    tracker.log_verdict("F01b-49b-input", verdict.value, evidence)
+
+    # Cache the full result
+    tracker.log_item("f01b_49b_result", {
+        "claim_id": result.claim_id,
+        "finding_id": result.finding_id,
+        "verdict": result.verdict.value,
+        "evidence_summary": result.evidence_summary,
+        "stats": result.stats,
+    })
 
     return result
 

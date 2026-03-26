@@ -82,16 +82,17 @@ class TestV07Verdict:
 
 
 class TestV07OutputFile:
-    """Test that results JSON is saved correctly."""
+    """Test that results are cached via tracker."""
 
-    def test_saves_result_json(self, tmp_path):
+    def test_saves_result_via_tracker(self, tmp_path):
         run_v07(tmp_path)
-        result_path = tmp_path / "v07_results.json"
+        # Result is now cached via tracker at cache/v07_result.json
+        result_path = tmp_path / "cache" / "v07_result.json"
         assert result_path.exists()
 
     def test_result_json_has_required_keys(self, tmp_path):
         run_v07(tmp_path)
-        result_path = tmp_path / "v07_results.json"
+        result_path = tmp_path / "cache" / "v07_result.json"
         with open(result_path) as f:
             data = json.load(f)
         assert data["claim_id"] == "M2-39-sycophancy"
@@ -102,7 +103,29 @@ class TestV07OutputFile:
 
     def test_result_json_has_finding_id(self, tmp_path):
         run_v07(tmp_path)
-        result_path = tmp_path / "v07_results.json"
+        result_path = tmp_path / "cache" / "v07_result.json"
         with open(result_path) as f:
             data = json.load(f)
         assert data["finding_id"] == "M2"
+
+
+class TestV07TrackerIntegration:
+    """Test that tracker logs metrics and verdicts."""
+
+    def test_tracker_logs_metrics(self, tmp_path):
+        run_v07(tmp_path)
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert "feature_auroc" in meta["metrics"]
+        assert "length_only_auroc" in meta["metrics"]
+        assert "fwl_both_auroc" in meta["metrics"]
+        # All AUROC values should be in [0, 1]
+        for key in ["feature_auroc", "length_only_auroc", "fwl_both_auroc"]:
+            assert 0.0 <= meta["metrics"][key] <= 1.0
+
+    def test_tracker_logs_verdict(self, tmp_path):
+        run_v07(tmp_path)
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert "M2-39-sycophancy" in meta["verdicts"]
+        assert meta["verdicts"]["M2-39-sycophancy"]["verdict"] == "falsified"

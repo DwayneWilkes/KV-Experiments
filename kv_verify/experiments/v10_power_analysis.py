@@ -15,19 +15,19 @@ Pre-registered pass/fail (from V10-design.md):
 Spec: verification-pipeline/experiments/V10-power-analysis.md
 """
 
-import json
-import time
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from kv_verify.fixtures import EXP47_COMPARISONS
 from kv_verify.stats import power_analysis
+from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
 
 def run_v10(
     output_dir: Path,
     n_sim: int = 10000,
+    tracker: Optional[ExperimentTracker] = None,
 ) -> ClaimVerification:
     """Compute achieved power for all 10 Exp 47 comparisons.
 
@@ -38,13 +38,22 @@ def run_v10(
         output_dir: Directory for result JSON.
         n_sim: Simulations per power estimate. Default 10000 for
             production, use 200-500 for tests.
+        tracker: ExperimentTracker for logging. If None, creates a local one.
 
     Returns:
         ClaimVerification with power table in stats.
     """
-    t0 = time.monotonic()
     output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use provided tracker or create a local one
+    if tracker is None:
+        tracker = ExperimentTracker(
+            output_dir=output_dir, experiment_name="V10-power-analysis",
+        )
+
+    tracker.log_params(experiment="V10", finding="M7", n_sim=n_sim, n_comparisons=10)
+    tracker.set_tag("experiment", "V10")
+    tracker.set_tag("finding", "M7")
 
     power_table: List[dict] = []
     underpowered: List[str] = []
@@ -114,7 +123,14 @@ def run_v10(
             f"requires N={lp['required_n']} for 80% power."
         )
 
-    elapsed = time.monotonic() - t0
+    # Log metrics
+    tracker.log_metric("n_underpowered", n_underpowered)
+    tracker.log_metric("sig_count", sig_count)
+    tracker.log_metric("adequate_count", adequate_count)
+
+    # Log verdict
+    evidence_text = " ".join(evidence_parts)
+    tracker.log_verdict("M7-power", verdict.value, evidence_text)
 
     result = ClaimVerification(
         claim_id="M7-power",
@@ -125,7 +141,7 @@ def run_v10(
         null_hypothesis="All significant results have power > 0.80",
         experiment_description="Simulation-based power analysis for all 10 comparisons",
         verdict=verdict,
-        evidence_summary=" ".join(evidence_parts),
+        evidence_summary=evidence_text,
         original_value=f"{sig_count} significant",
         corrected_value=f"{adequate_count}/{sig_count} adequately powered",
         visualization_paths=[],
@@ -134,19 +150,16 @@ def run_v10(
             "power_table": power_table,
             "n_underpowered": n_underpowered,
             "underpowered_comparisons": underpowered,
-            "elapsed_seconds": elapsed,
         },
     )
 
-    # Save results JSON
-    result_data = {
+    # Cache result via tracker
+    tracker.log_item("v10_result", {
         "claim_id": result.claim_id,
         "finding_id": result.finding_id,
         "verdict": result.verdict.value,
         "evidence_summary": result.evidence_summary,
         "stats": result.stats,
-    }
-    with open(output_dir / "v10_results.json", "w") as f:
-        json.dump(result_data, f, indent=2, default=str)
+    })
 
     return result

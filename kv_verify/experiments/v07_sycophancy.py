@@ -21,25 +21,40 @@ CPU only. Uses pre-computed per-item features from same_prompt_sycophancy.json.
 Spec: verification-pipeline/experiments/V07-design.md
 """
 
-import json
-import time
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 
 from kv_verify.data_loader import load_comparison_data
 from kv_verify.stats import assign_groups, groupkfold_auroc
+from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
 
-def run_v07(output_dir: Path) -> ClaimVerification:
+def run_v07(
+    output_dir: Path,
+    tracker: Optional[ExperimentTracker] = None,
+) -> ClaimVerification:
     """Run sycophancy length confound analysis on exp39 data.
+
+    Args:
+        output_dir: Directory for result artifacts.
+        tracker: ExperimentTracker for logging. If None, creates a local one.
 
     Returns a ClaimVerification with the verdict.
     """
-    t0 = time.monotonic()
     output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use provided tracker or create a local one
+    if tracker is None:
+        tracker = ExperimentTracker(
+            output_dir=output_dir, experiment_name="V07-sycophancy",
+        )
+
+    tracker.log_params(experiment="V07", finding="M2", alpha=0.05)
+    tracker.set_tag("experiment", "V07")
+    tracker.set_tag("finding", "M2")
 
     # ---- Load data ----
     X, y, meta = load_comparison_data("exp39_sycophancy")
@@ -80,6 +95,11 @@ def run_v07(output_dir: Path) -> ClaimVerification:
     )
     fwl_both_auroc = fwl_result.auroc
 
+    # ---- Log metrics ----
+    tracker.log_metric("feature_auroc", feature_auroc)
+    tracker.log_metric("length_only_auroc", length_only_auroc)
+    tracker.log_metric("fwl_both_auroc", fwl_both_auroc)
+
     # ---- Verdict per pre-registered criteria ----
     if length_only_auroc >= feature_auroc:
         verdict = Verdict.FALSIFIED
@@ -118,7 +138,8 @@ def run_v07(output_dir: Path) -> ClaimVerification:
             "Some geometric signal may exist but evidence is weak."
         )
 
-    elapsed = time.monotonic() - t0
+    # ---- Log verdict ----
+    tracker.log_verdict("M2-39-sycophancy", verdict.value, evidence)
 
     result = ClaimVerification(
         claim_id="M2-39-sycophancy",
@@ -144,12 +165,11 @@ def run_v07(output_dir: Path) -> ClaimVerification:
             "n_pos": n_pos,
             "n_neg": n_neg,
             "n_groups": int(len(np.unique(groups))),
-            "elapsed_seconds": elapsed,
         },
     )
 
-    # ---- Save result JSON ----
-    result_data = {
+    # ---- Cache result via tracker ----
+    tracker.log_item("v07_result", {
         "claim_id": result.claim_id,
         "finding_id": result.finding_id,
         "verdict": result.verdict.value,
@@ -157,8 +177,6 @@ def run_v07(output_dir: Path) -> ClaimVerification:
         "original_value": result.original_value,
         "corrected_value": result.corrected_value,
         "stats": result.stats,
-    }
-    with open(output_dir / "v07_results.json", "w") as f:
-        json.dump(result_data, f, indent=2)
+    })
 
     return result

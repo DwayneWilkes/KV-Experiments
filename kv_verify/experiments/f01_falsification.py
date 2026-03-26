@@ -11,11 +11,10 @@ F01d: Independent feature re-extraction (requires GPU)
 Pre-registered design: research-log/F01-falsification-battery.md
 """
 
-import json
 import re
 import time
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -26,6 +25,7 @@ from sklearn.pipeline import make_pipeline
 
 from kv_verify.data_loader import load_comparison_data, list_comparisons, _load_json
 from kv_verify.fixtures import EXP47_COMPARISONS, PRIMARY_FEATURES
+from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
 
@@ -49,15 +49,34 @@ def _stratified_auroc(X, y, n_splits=5):
     return float(roc_auc_score(y[valid], y_proba[valid]))
 
 
-def run_f01a(output_dir: Path, n_repeats: int = 100) -> ClaimVerification:
+def run_f01a(
+    output_dir: Path,
+    n_repeats: int = 100,
+    tracker: Optional[ExperimentTracker] = None,
+) -> ClaimVerification:
     """Null experiment: classify within the same condition.
 
     If the classifier can distinguish random halves of the same condition
     at AUROC > 0.65, it's picking up prompt-level variation, not condition signal.
+
+    Args:
+        output_dir: Directory for result artifacts.
+        n_repeats: Number of random-split repeats per pool.
+        tracker: ExperimentTracker for logging. If None, creates a local one.
     """
     t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use provided tracker or create a local one
+    if tracker is None:
+        tracker = ExperimentTracker(
+            output_dir=output_dir, experiment_name="F01a-null",
+        )
+
+    tracker.log_params(experiment="F01a", finding="F01a", n_repeats=n_repeats)
+    tracker.set_tag("experiment", "F01a")
+    tracker.set_tag("finding", "F01a")
 
     # Collect all condition pools from source JSONs
     condition_pools = {}
@@ -148,9 +167,22 @@ def run_f01a(output_dir: Path, n_repeats: int = 100) -> ClaimVerification:
         },
     )
 
-    with open(output_dir / "f01a_results.json", "w") as f:
-        json.dump({"claim_id": result.claim_id, "verdict": result.verdict.value,
-                    "evidence_summary": result.evidence_summary, "stats": result.stats}, f, indent=2)
+    # Log metrics
+    tracker.log_metric("max_null_auroc", max_null)
+    tracker.log_metric("n_pools", len(null_results))
+    tracker.log_metric("elapsed_seconds", elapsed)
+
+    # Log verdict
+    tracker.log_verdict("F01a-null", verdict.value, evidence)
+
+    # Cache the full result
+    tracker.log_item("f01a_result", {
+        "claim_id": result.claim_id,
+        "finding_id": result.finding_id,
+        "verdict": result.verdict.value,
+        "evidence_summary": result.evidence_summary,
+        "stats": result.stats,
+    })
 
     return result
 
@@ -159,16 +191,33 @@ def run_f01a(output_dir: Path, n_repeats: int = 100) -> ClaimVerification:
 # F01b: Input-Length Confound
 # ================================================================
 
-def run_f01b(output_dir: Path) -> ClaimVerification:
+def run_f01b(
+    output_dir: Path,
+    tracker: Optional[ExperimentTracker] = None,
+) -> ClaimVerification:
     """Input-length confound: can prompt text features predict condition?
 
     If a classifier on input word count, character count, and sentence count
     achieves AUROC > 0.70, the model's cache geometry may simply reflect
     input structure.
+
+    Args:
+        output_dir: Directory for result artifacts.
+        tracker: ExperimentTracker for logging. If None, creates a local one.
     """
     t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use provided tracker or create a local one
+    if tracker is None:
+        tracker = ExperimentTracker(
+            output_dir=output_dir, experiment_name="F01b-input",
+        )
+
+    tracker.log_params(experiment="F01b", finding="F01b", threshold=0.70)
+    tracker.set_tag("experiment", "F01b")
+    tracker.set_tag("finding", "F01b")
 
     # Source JSONs with prompt text
     sources = {
@@ -259,9 +308,22 @@ def run_f01b(output_dir: Path) -> ClaimVerification:
         },
     )
 
-    with open(output_dir / "f01b_results.json", "w") as f:
-        json.dump({"claim_id": result.claim_id, "verdict": result.verdict.value,
-                    "evidence_summary": result.evidence_summary, "stats": result.stats}, f, indent=2)
+    # Log metrics
+    tracker.log_metric("max_input_auroc", max_input_auroc)
+    tracker.log_metric("n_confounded", len(confounded))
+    tracker.log_metric("elapsed_seconds", elapsed)
+
+    # Log verdict
+    tracker.log_verdict("F01b-input", verdict.value, evidence)
+
+    # Cache the full result
+    tracker.log_item("f01b_result", {
+        "claim_id": result.claim_id,
+        "finding_id": result.finding_id,
+        "verdict": result.verdict.value,
+        "evidence_summary": result.evidence_summary,
+        "stats": result.stats,
+    })
 
     return result
 
@@ -270,15 +332,32 @@ def run_f01b(output_dir: Path) -> ClaimVerification:
 # F01c: Format Classifier Baseline
 # ================================================================
 
-def run_f01c(output_dir: Path) -> ClaimVerification:
+def run_f01c(
+    output_dir: Path,
+    tracker: Optional[ExperimentTracker] = None,
+) -> ClaimVerification:
     """Format classifier: do response text statistics match geometry AUROC?
 
     Train on word count, sentence count, type-token ratio, mean sentence length.
     If format AUROC >= cache AUROC - 0.05, geometry adds nothing.
+
+    Args:
+        output_dir: Directory for result artifacts.
+        tracker: ExperimentTracker for logging. If None, creates a local one.
     """
     t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use provided tracker or create a local one
+    if tracker is None:
+        tracker = ExperimentTracker(
+            output_dir=output_dir, experiment_name="F01c-format",
+        )
+
+    tracker.log_params(experiment="F01c", finding="F01c", threshold=0.05)
+    tracker.set_tag("experiment", "F01c")
+    tracker.set_tag("finding", "F01c")
 
     # Comparisons with generated_text available
     sources = {
@@ -382,8 +461,21 @@ def run_f01c(output_dir: Path) -> ClaimVerification:
         },
     )
 
-    with open(output_dir / "f01c_results.json", "w") as f:
-        json.dump({"claim_id": result.claim_id, "verdict": result.verdict.value,
-                    "evidence_summary": result.evidence_summary, "stats": result.stats}, f, indent=2)
+    # Log metrics
+    tracker.log_metric("n_confounded", len(confounded))
+    tracker.log_metric("n_comparisons", len(format_results))
+    tracker.log_metric("elapsed_seconds", elapsed)
+
+    # Log verdict
+    tracker.log_verdict("F01c-format", verdict.value, evidence)
+
+    # Cache the full result
+    tracker.log_item("f01c_result", {
+        "claim_id": result.claim_id,
+        "finding_id": result.finding_id,
+        "verdict": result.verdict.value,
+        "evidence_summary": result.evidence_summary,
+        "stats": result.stats,
+    })
 
     return result

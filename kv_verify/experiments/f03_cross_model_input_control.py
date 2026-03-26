@@ -27,7 +27,7 @@ import hashlib
 import json
 import time
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.stats import mannwhitneyu, pearsonr
@@ -38,6 +38,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 from kv_verify.fixtures import PRIMARY_FEATURES
+from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
 # Short names used as keys in per_model_data
@@ -133,7 +134,10 @@ def _residualize_cross_model(
     return X_train_resid, X_test_resid
 
 
-def run_f03(output_dir: Path) -> ClaimVerification:
+def run_f03(
+    output_dir: Path,
+    tracker: Optional[ExperimentTracker] = None,
+) -> ClaimVerification:
     """Run cross-model transfer with input-length control.
 
     For each model pair (train A, test B):
@@ -142,10 +146,27 @@ def run_f03(output_dir: Path) -> ClaimVerification:
       3. Residualized AUROC (features residualized against input length)
 
     Also within-model: LOO with input-length residualization.
+
+    Args:
+        output_dir: Directory for result artifacts.
+        tracker: ExperimentTracker for logging. If None, creates a local one.
     """
     t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use provided tracker or create a local one
+    if tracker is None:
+        tracker = ExperimentTracker(
+            output_dir=output_dir, experiment_name="F03-cross-model",
+        )
+
+    tracker.log_params(
+        experiment="F03", finding="F03",
+        n_models=len(MODEL_SHORT_NAMES), tasks=TASKS,
+    )
+    tracker.set_tag("experiment", "F03")
+    tracker.set_tag("finding", "F03")
 
     data = _load_49c_data()
     pmd = data["per_model_data"]
@@ -410,6 +431,26 @@ def run_f03(output_dir: Path) -> ClaimVerification:
             "elapsed_seconds": round(elapsed, 2),
         },
     )
+
+    # Log metrics
+    tracker.log_metric("mean_cross_raw_auroc", mean_cross_raw)
+    tracker.log_metric("mean_cross_resid_auroc", mean_cross_resid)
+    tracker.log_metric("mean_cross_input_auroc", mean_cross_input)
+    tracker.log_metric("n_cross_input_confounded", n_input_confounded)
+    tracker.log_metric("n_cross_degraded", n_degraded)
+    tracker.log_metric("elapsed_seconds", elapsed)
+
+    # Log verdict
+    tracker.log_verdict("F03-cross-model", verdict.value, evidence)
+
+    # Cache the full result
+    tracker.log_item("f03_result", {
+        "claim_id": result.claim_id,
+        "finding_id": result.finding_id,
+        "verdict": result.verdict.value,
+        "evidence_summary": result.evidence_summary,
+        "stats": result.stats,
+    })
 
     # ------------------------------------------------------------------
     # Serialize results

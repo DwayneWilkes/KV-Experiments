@@ -45,11 +45,12 @@ import json
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import numpy as np
 from scipy.stats import mannwhitneyu
 
+from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
 
@@ -495,16 +496,33 @@ def run_f04d(
 # Main analysis
 # ================================================================
 
-def run_f04(output_dir: Path) -> ClaimVerification:
+def run_f04(
+    output_dir: Path,
+    tracker: Optional[ExperimentTracker] = None,
+) -> ClaimVerification:
     """Run the full cross-condition transfer validity analysis.
 
     This is primarily an interpretive analysis of existing data, not
     a new computation. The experiment script structures the argument
     and provides quantitative backing for the interpretive claims.
+
+    Args:
+        output_dir: Directory for result artifacts.
+        tracker: ExperimentTracker for logging. If None, creates a local one.
     """
     t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Use provided tracker or create a local one
+    if tracker is None:
+        tracker = ExperimentTracker(
+            output_dir=output_dir, experiment_name="F04-transfer",
+        )
+
+    tracker.log_params(experiment="F04", finding="F04")
+    tracker.set_tag("experiment", "F04")
+    tracker.set_tag("finding", "F04")
 
     # Load data
     transfer_data = _load_json("cross_condition_transfer.json")
@@ -667,6 +685,22 @@ def run_f04(output_dir: Path) -> ClaimVerification:
             "elapsed_seconds": elapsed,
         },
     )
+
+    # Log metrics
+    tracker.log_metric("critical_failures", critical_failures)
+    tracker.log_metric("elapsed_seconds", elapsed)
+
+    # Log verdict
+    tracker.log_verdict("F04-transfer", verdict.value, evidence)
+
+    # Cache the full result
+    tracker.log_item("f04_result", {
+        "claim_id": result.claim_id,
+        "finding_id": result.finding_id,
+        "verdict": result.verdict.value,
+        "evidence_summary": result.evidence_summary,
+        "critical_failures": critical_failures,
+    })
 
     # ---- Serialize ----
     result_data = {

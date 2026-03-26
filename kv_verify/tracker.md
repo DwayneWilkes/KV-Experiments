@@ -103,6 +103,17 @@ After input-length residualization: deception 0.920 -> 0.160, sycophancy 0.938 -
 - [ ] **Chunk 17**: `runner.py`
 - [ ] **Chunk 18**: Integration + `__main__.py`
 
+## Reusable Libraries Built
+
+| Library | Module | Purpose | Tests |
+|---------|--------|---------|-------|
+| experiment-tracker | `tracking.py` | MLflow + disk cache + `@tracked`/`@stage`/`@validated` decorators | 34 |
+| probe-stats | `stats.py` | GroupKFold, FWL, permutation, bootstrap, power | 63 |
+| minimal-pairs | `prompt_gen.py` | BLiMP-style minimal pair generation | 17 |
+| cache-inspector | `feature_extractor.py` | KV-cache feature extraction for HF models | 14 |
+| scorers | `scorers.py` | MLflow-compatible evaluation (statistical + response + prompt quality) | 21 |
+| prompt-analyzer | `prompt_analyzer.py` | Dataset quality analysis (exact token counts via tokenizer) | pending |
+
 ## Test Counts
 
 | Module | Tests | Status |
@@ -111,12 +122,18 @@ After input-length residualization: deception 0.920 -> 0.160, sycophancy 0.938 -
 | fixtures.py | 19 | PASS |
 | stats.py | 63 | PASS |
 | data_loader.py | 15 | PASS |
-| v04 experiment | 8 | PASS |
+| config.py | 8 | PASS |
+| tracking.py | 34 | PASS |
+| prompt_gen.py | 17 | PASS |
+| feature_extractor.py | 14 | PASS |
+| scorers.py | 21 | PASS |
+| pipeline.py | 11 | PASS |
+| v04 experiment | 10 | PASS |
 | v01 experiment | 22 | PASS |
 | v03 experiment | 25 | PASS |
 | v07 experiment | 14 | PASS |
 | v10 experiment | 14 | PASS |
-| **Total** | **193** | **ALL PASS** |
+| **Total** | **~300** | **ALL PASS** |
 
 ## Submodule Commits
 
@@ -127,6 +144,31 @@ After input-length residualization: deception 0.920 -> 0.160, sycophancy 0.938 -
 | `f8a7a5d` | V10 power analysis |
 | `c222b7e` | Tracker update with all 5 CPU verdicts |
 | `b937cb9` | Verdict result JSONs committed to outputs/ |
+| `2105ee4` | Move results to experiments/output/ |
+| `c99307a` | Pre-register F01 falsification battery |
+| `2e935a3` | F01 falsification battery — input confound is fatal |
+| `455315d` | F01b-49b — paper's "definitive" control is confounded |
+| `f6c13b6` | F01b all-comparisons input-length residualization |
+| `df87b9e` | F02, F03, F04 — held-out, cross-model, cross-condition |
+| `be2632c` | F05 remaining data analysis |
+| `f9f0a58` | config.py + tracking.py — experiment infrastructure |
+| `c0ccb98` | prompt_gen.py — minimal pair generation library |
+| `dadeaa5` | feature_extractor.py — cache-inspector library |
+| `2cb9ef9` | pipeline.py + __main__.py — stage orchestrator |
+| `1202901` | Switch MLflow to sqlite backend |
+| `3a555f5` | MLflow best practices — artifacts, datasets, autolog, tags |
+| `fa018fa` | scorers.py — MLflow-compatible evaluation scorers |
+| `aa80dd0` | prompt_analyzer + raw prompt data + agent test files |
+| `ca48d0e` | tracking decorators — @tracked, @stage, @validated |
+| `f3ece26` | Retrofit V04 with ExperimentTracker (pattern for all) |
+
+## In Progress
+
+- [ ] Retrofit remaining 10 experiments with ExperimentTracker (2 agents running)
+- [ ] Run prompt_analyzer tests with real tokenizer
+- [ ] Generate 600 minimal pairs with exact token validation
+- [ ] Refactor pipeline.py to use decorator API
+- [ ] Run full pipeline on GPU
 | `2105ee4` | Move results to experiments/output/ |
 | `c99307a` | Pre-register F01 falsification battery |
 | `2e935a3` | F01 falsification battery — input confound is fatal |
