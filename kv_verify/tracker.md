@@ -71,11 +71,15 @@ After input-length residualization: deception 0.920 -> 0.160, sycophancy 0.938 -
 | exp18b deception | 0.920 | 0.160 | **FATAL** |
 | exp39 sycophancy | 0.938 | 0.570 | **FATAL** |
 
-### In Progress (parallel agents)
+### F02-F04: Deeper Falsification (COMPLETE)
 
-- [ ] **F02**: 49d held-out generalization + input control
-- [ ] **F03**: 49c cross-model transfer + input control
-- [ ] **F04**: Cross-condition transfer validity (deception -> censorship)
+| Test | Verdict | Key Finding |
+|------|---------|-------------|
+| F02-deception | **FALSIFIED** | Held-out deception has same input confound (input AUROC=1.000) |
+| F02-refusal | WEAKENED | Transfer marginal (0.53 -> 0.59) |
+| F02-impossibility | **CONFIRMED** | Transfer improves with input control (0.49 -> 0.77) |
+| F03 cross-model | **WEAKENED** | Raw transfer at chance (mean=0.52). Paper's 0.86 not reproduced. |
+| F04 cross-condition | **FALSIFIED** | No discriminative boundary. Same-model at chance (0.53). |
 
 ---
 
@@ -128,3 +132,4 @@ After input-length residualization: deception 0.920 -> 0.160, sycophancy 0.938 -
 | `2e935a3` | F01 falsification battery — input confound is fatal |
 | `455315d` | F01b-49b — paper's "definitive" control is confounded |
 | `f6c13b6` | F01b all-comparisons input-length residualization |
+| `df87b9e` | F02, F03, F04 — held-out, cross-model, cross-condition |
