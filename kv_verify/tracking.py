@@ -218,6 +218,73 @@ class ExperimentTracker:
                 pass
 
     # ================================================================
+    # Artifacts
+    # ================================================================
+
+    def log_artifact(self, local_path: str, artifact_subdir: Optional[str] = None) -> None:
+        """Log a file as an artifact (stored with this run)."""
+        if self._mlflow_run:
+            try:
+                import mlflow
+                if artifact_subdir:
+                    mlflow.log_artifact(local_path, artifact_subdir)
+                else:
+                    mlflow.log_artifact(local_path)
+            except Exception:
+                pass
+
+    def log_dataset(self, path: str, name: str, context: str = "evaluation") -> None:
+        """Log a dataset reference (MLflow dataset tracking)."""
+        self._metadata.setdefault("datasets", {})[name] = {
+            "path": str(path),
+            "context": context,
+            "logged_at": _utc_now(),
+        }
+        self._save_metadata()
+
+        if self._mlflow_run:
+            try:
+                import mlflow
+                from mlflow.data.sources import LocalArtifactDatasetSource
+                ds = mlflow.data.from_json(
+                    path=str(path),
+                    source=LocalArtifactDatasetSource(path=str(path)),
+                    name=name,
+                )
+                mlflow.log_input(ds, context=context)
+            except Exception:
+                pass
+
+    def enable_sklearn_autolog(self) -> None:
+        """Enable MLflow sklearn autologging for classifier runs."""
+        if self._mlflow_run:
+            try:
+                import mlflow
+                mlflow.sklearn.autolog(
+                    log_models=False,  # don't persist LogisticRegression models
+                    log_datasets=False,  # we log datasets manually
+                    silent=True,
+                )
+            except Exception:
+                pass
+
+    # ================================================================
+    # Tags
+    # ================================================================
+
+    def set_tag(self, key: str, value: str) -> None:
+        """Set a run tag (for filtering in MLflow UI)."""
+        self._metadata.setdefault("tags", {})[key] = value
+        self._save_metadata()
+
+        if self._mlflow_run:
+            try:
+                import mlflow
+                mlflow.set_tag(key, value)
+            except Exception:
+                pass
+
+    # ================================================================
     # Lifecycle
     # ================================================================
 

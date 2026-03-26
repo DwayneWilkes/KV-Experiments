@@ -169,3 +169,40 @@ class TestLogVerdict:
         verdicts = meta.get("verdicts", {})
         assert verdicts["C2-exp31"]["verdict"] == "confirmed"
         assert "evidence" in verdicts["C2-exp31"]
+
+
+class TestArtifacts:
+    def test_log_artifact_no_mlflow(self, tmp_path):
+        """log_artifact should not crash without mlflow."""
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("hello")
+        tracker.log_artifact(str(test_file))  # should not raise
+
+    def test_log_dataset(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+        tracker.log_dataset("/path/to/data.json", name="deception_prompts", context="input")
+
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert "deception_prompts" in meta.get("datasets", {})
+        assert meta["datasets"]["deception_prompts"]["context"] == "input"
+
+
+class TestTags:
+    def test_set_tag(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+        tracker.set_tag("comparison", "deception")
+        tracker.set_tag("verdict", "falsified")
+
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert meta["tags"]["comparison"] == "deception"
+        assert meta["tags"]["verdict"] == "falsified"
+
+
+class TestSklearnAutolog:
+    def test_enable_autolog_no_crash(self, tmp_path):
+        """enable_sklearn_autolog should not crash with or without mlflow."""
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+        tracker.enable_sklearn_autolog()  # should not raise
