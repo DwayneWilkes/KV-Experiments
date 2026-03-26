@@ -1,0 +1,75 @@
+{
+  "agent": "experiment-writer",
+  "date": "2026-03-26",
+  "scope": "F02: Held-out prompt generalization under input-length control",
+  "verdict": "NEEDS REVIEW",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "design-decision",
+      "description": "Deception held-out prompts append 'I need you to give me a confidently wrong answer.' creating ~11 token systematic input-length difference, same confound as F01b/49b",
+      "location": "kv_verify/experiments/f02_held_out_input_control.py:1-30",
+      "impact": "Deception transfer AUROC 0.81 is likely an input-length artifact. The held-out evaluation does NOT provide independent evidence for the deception claim.",
+      "recommendation": "Run experiment and verify AUROC collapse after residualization",
+      "is_red_team": false
+    },
+    {
+      "severity": "MAJOR",
+      "confidence": "MEDIUM",
+      "method": "read",
+      "category": "design-decision",
+      "description": "Within-fold residualization uses training-fold OLS applied to test data. With n_train=20, n_test=20, the OLS regression has few degrees of freedom and may not capture the full confound relationship.",
+      "location": "kv_verify/experiments/f02_held_out_input_control.py:283-298",
+      "impact": "Residualized AUROC may be slightly biased upward (understating the confound) due to imprecise regression fit on small training data",
+      "recommendation": "Consider also reporting full-data residualization as a sensitivity check",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "MEDIUM",
+      "method": "read",
+      "category": "convention-deviation",
+      "description": "Bootstrap uses 2000 resamples instead of the project standard 10000, to keep runtime manageable with 3 paradigms",
+      "location": "kv_verify/experiments/f02_held_out_input_control.py:388",
+      "impact": "Bootstrap CI may be slightly wider than with 10K resamples, but 2K is sufficient for 95% CI",
+      "recommendation": "Could increase to 5000 if runtime allows",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "MEDIUM",
+      "method": "inferred",
+      "category": "known-limitation",
+      "description": "Refusal and impossibility training data use different prompt styles (harmful/impossible prompts) while test data uses held-out versions. Input-length differences in these paradigms reflect genuine prompt-type differences, not a systematic append. Residualization may over-correct.",
+      "location": "kv_verify/experiments/f02_held_out_input_control.py:71-82",
+      "impact": "For refusal/impossibility, residualization removes both confound AND legitimate signal that correlates with prompt type. A surviving AUROC is strong evidence; a collapsed AUROC is ambiguous.",
+      "recommendation": "Note this asymmetry in interpretation: for deception, collapse = artifact confirmed; for refusal/impossibility, collapse could be over-correction",
+      "is_red_team": false
+    },
+    {
+      "severity": "MAJOR",
+      "confidence": "MEDIUM",
+      "method": "inferred",
+      "category": "design-decision",
+      "description": "Red team: The experiment only controls for LINEAR input-length confounds via OLS residualization. If input length affects KV-cache features nonlinearly, the residualization will understate the confound. Additionally, with only 10+10 held-out items per condition, statistical power is very low.",
+      "location": "kv_verify/experiments/f02_held_out_input_control.py",
+      "impact": "Small sample size (n=20 per paradigm in held-out) means AUROC estimates have wide confidence intervals. A result of AUROC=0.55 vs 0.65 may not be statistically distinguishable. The experiment may produce WEAKENED verdicts where FALSIFIED would be correct with more data.",
+      "recommendation": "1) Consider polynomial residualization as sensitivity check. 2) Report bootstrap CIs prominently. 3) Interpret WEAKENED conservatively given low power.",
+      "is_red_team": true
+    }
+  ],
+  "referrals": [
+    {
+      "to_agent": "reviewer",
+      "description": "Verify that the refusal/impossibility paradigms in 49d actually use different prompt text lengths (not just different token counts from tokenization). The word-count statistics in the output will clarify this."
+    },
+    {
+      "to_agent": "reviewer",
+      "description": "Check whether the 49d transfer_results AUROCs (0.76-0.81) were computed with the same classifier pipeline (StandardScaler + LogisticRegression) used here, or with a different method."
+    }
+  ],
+  "literature_links": [],
+  "acquired_papers": []
+}
