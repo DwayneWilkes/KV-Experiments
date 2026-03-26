@@ -50,14 +50,29 @@ class TestV04:
         assert exp36["was_significant"] is True
         assert exp36["is_significant"] is False
 
-    def test_saves_result_json(self, tmp_path):
+    def test_saves_result_via_tracker(self, tmp_path):
         run_v04(tmp_path)
-        result_path = tmp_path / "v04_results.json"
+        # Result is now cached via tracker at cache/v04_result.json
+        result_path = tmp_path / "cache" / "v04_result.json"
         assert result_path.exists()
         with open(result_path) as f:
             data = json.load(f)
         assert data["claim_id"] == "C5-47-holm"
         assert data["verdict"] == "weakened"
+
+    def test_tracker_logs_metrics(self, tmp_path):
+        run_v04(tmp_path)
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert meta["metrics"]["n_significant_raw"] == 9
+        assert meta["metrics"]["n_significant_corrected"] == 8
+
+    def test_tracker_logs_verdict(self, tmp_path):
+        run_v04(tmp_path)
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert "C5-47-holm" in meta["verdicts"]
+        assert meta["verdicts"]["C5-47-holm"]["verdict"] == "weakened"
 
     def test_zero_gpu_time(self, tmp_path):
         result = run_v04(tmp_path)
