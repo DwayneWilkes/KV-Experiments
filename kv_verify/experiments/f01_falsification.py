@@ -12,7 +12,6 @@ Pre-registered design: research-log/F01-falsification-battery.md
 """
 
 import re
-import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -64,7 +63,6 @@ def run_f01a(
         n_repeats: Number of random-split repeats per pool.
         tracker: ExperimentTracker for logging. If None, creates a local one.
     """
-    t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -142,8 +140,6 @@ def run_f01a(
             f"Between-condition signal is not attributable to prompt variation."
         )
 
-    elapsed = time.monotonic() - t0
-
     result = ClaimVerification(
         claim_id="F01a-null",
         claim_text="KV-cache features detect condition-level signal, not prompt-level variation",
@@ -163,14 +159,12 @@ def run_f01a(
             "max_null_auroc": max_null,
             "worst_pool": worst_pool,
             "fatal": fatal,
-            "elapsed_seconds": elapsed,
         },
     )
 
     # Log metrics
     tracker.log_metric("max_null_auroc", max_null)
     tracker.log_metric("n_pools", len(null_results))
-    tracker.log_metric("elapsed_seconds", elapsed)
 
     # Log verdict
     tracker.log_verdict("F01a-null", verdict.value, evidence)
@@ -205,7 +199,6 @@ def run_f01b(
         output_dir: Directory for result artifacts.
         tracker: ExperimentTracker for logging. If None, creates a local one.
     """
-    t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -284,8 +277,6 @@ def run_f01b(
             f"Condition labels are not predictable from prompt text features alone."
         )
 
-    elapsed = time.monotonic() - t0
-
     result = ClaimVerification(
         claim_id="F01b-input",
         claim_text="Condition signal comes from model response processing, not input structure",
@@ -304,14 +295,12 @@ def run_f01b(
             "input_confound_results": input_confound_results,
             "confounded_comparisons": confounded,
             "max_input_auroc": max_input_auroc,
-            "elapsed_seconds": elapsed,
         },
     )
 
     # Log metrics
     tracker.log_metric("max_input_auroc", max_input_auroc)
     tracker.log_metric("n_confounded", len(confounded))
-    tracker.log_metric("elapsed_seconds", elapsed)
 
     # Log verdict
     tracker.log_verdict("F01b-input", verdict.value, evidence)
@@ -345,7 +334,6 @@ def run_f01c(
         output_dir: Directory for result artifacts.
         tracker: ExperimentTracker for logging. If None, creates a local one.
     """
-    t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -438,8 +426,6 @@ def run_f01c(
             f"{len(format_results)} comparisons. Signal is beyond text statistics."
         )
 
-    elapsed = time.monotonic() - t0
-
     result = ClaimVerification(
         claim_id="F01c-format",
         claim_text="KV-cache geometry captures signal beyond response text statistics",
@@ -457,14 +443,12 @@ def run_f01c(
         stats={
             "format_results": format_results,
             "confounded_comparisons": confounded,
-            "elapsed_seconds": elapsed,
         },
     )
 
     # Log metrics
     tracker.log_metric("n_confounded", len(confounded))
     tracker.log_metric("n_comparisons", len(format_results))
-    tracker.log_metric("elapsed_seconds", elapsed)
 
     # Log verdict
     tracker.log_verdict("F01c-format", verdict.value, evidence)

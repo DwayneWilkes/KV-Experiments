@@ -151,7 +151,6 @@ def run_f03(
         output_dir: Directory for result artifacts.
         tracker: ExperimentTracker for logging. If None, creates a local one.
     """
-    t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -393,8 +392,6 @@ def run_f03(
             f"Some signal may exist but input length contributes."
         )
 
-    elapsed = time.monotonic() - t0
-
     result = ClaimVerification(
         claim_id="F03-cross-model",
         claim_text="Cross-model suppression transfer reflects universal geometric signal",
@@ -428,7 +425,6 @@ def run_f03(
                 "n_within_survive": n_within_survive,
                 "n_within_total": n_within_total,
             },
-            "elapsed_seconds": round(elapsed, 2),
         },
     )
 
@@ -438,7 +434,6 @@ def run_f03(
     tracker.log_metric("mean_cross_input_auroc", mean_cross_input)
     tracker.log_metric("n_cross_input_confounded", n_input_confounded)
     tracker.log_metric("n_cross_degraded", n_degraded)
-    tracker.log_metric("elapsed_seconds", elapsed)
 
     # Log verdict
     tracker.log_verdict("F03-cross-model", verdict.value, evidence)

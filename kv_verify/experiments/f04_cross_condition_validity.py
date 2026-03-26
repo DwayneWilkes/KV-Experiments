@@ -42,7 +42,6 @@ Pre-registered design: F04-cross-condition-validity.md (inline)
 
 import hashlib
 import json
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -510,7 +509,6 @@ def run_f04(
         output_dir: Directory for result artifacts.
         tracker: ExperimentTracker for logging. If None, creates a local one.
     """
-    t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -614,8 +612,6 @@ def run_f04(
         verdict = Verdict.INDETERMINATE
         evidence = "No critical failures detected but confound risk remains."
 
-    elapsed = time.monotonic() - t0
-
     # ---- What the data CAN and CANNOT tell us ----
     can_determine = [
         "The classifier predicts all test samples as 'deceptive' (from per_topic data)",
@@ -682,13 +678,11 @@ def run_f04(
             "critical_failures": critical_failures,
             "can_determine": can_determine,
             "cannot_determine": cannot_determine,
-            "elapsed_seconds": elapsed,
         },
     )
 
     # Log metrics
     tracker.log_metric("critical_failures", critical_failures)
-    tracker.log_metric("elapsed_seconds", elapsed)
 
     # Log verdict
     tracker.log_verdict("F04-transfer", verdict.value, evidence)

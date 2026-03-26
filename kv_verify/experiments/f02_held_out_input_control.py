@@ -29,7 +29,6 @@ Pre-registered: F02-held-out-input-control.md
 
 import hashlib
 import json
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -511,7 +510,6 @@ def run_f02(
         output_dir: Directory for result artifacts.
         tracker: ExperimentTracker for logging. If None, creates a local one.
     """
-    t0 = time.monotonic()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -582,8 +580,6 @@ def run_f02(
         )
         results.append(cv)
 
-    elapsed = time.monotonic() - t0
-
     # Determine overall verdict
     verdicts = [r.verdict for r in results]
     if Verdict.FALSIFIED in verdicts:
@@ -607,8 +603,6 @@ def run_f02(
         tracker.log_metric(
             f"{paradigm}_resid_auroc", pdata["residualized_transfer_auroc"],
         )
-
-    tracker.log_metric("elapsed_seconds", elapsed)
 
     # Cache the full result
     tracker.log_item("f02_result", {
@@ -660,7 +654,6 @@ def run_f02(
             }
             for i, paradigm in enumerate(["deception", "refusal", "impossibility"])
         },
-        "elapsed_seconds": elapsed,
     }
 
     result_path = output_dir / "f02_results.json"
@@ -682,7 +675,6 @@ def run_f02(
         "# F02: Held-Out Prompt Generalization Under Input-Length Control",
         "",
         f"**Overall verdict**: {overall_verdict.value.upper()}",
-        f"**Elapsed**: {elapsed:.1f}s",
         "",
         "## Results by Paradigm",
         "",
