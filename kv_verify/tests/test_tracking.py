@@ -133,10 +133,12 @@ class TestGitHash:
 class TestMLflowIntegration:
     def test_mlflow_logs_params(self, tmp_path):
         """When mlflow is available, params are logged there too."""
+        db_path = tmp_path / "test_mlflow.db"
         tracker = ExperimentTracker(
             output_dir=tmp_path,
             experiment_name="test_mlflow",
             use_mlflow=True,
+            mlflow_tracking_uri=f"sqlite:///{db_path}",
         )
         tracker.log_params(model_id="test", n=50)
         tracker.log_metric("auroc", 0.90)

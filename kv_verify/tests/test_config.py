@@ -59,7 +59,7 @@ class TestPipelineConfig:
 
     def test_mlflow_defaults(self):
         cfg = PipelineConfig()
-        assert cfg.mlflow_tracking_uri == "file:./mlruns"
+        assert cfg.mlflow_tracking_uri == "sqlite:///mlflow.db"
         assert cfg.mlflow_experiment == "kv-cache-verification"
 
     def test_skip_gpu(self):

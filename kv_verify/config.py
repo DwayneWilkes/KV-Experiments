@@ -40,8 +40,8 @@ class PipelineConfig:
     # Output
     output_dir: Path = field(default_factory=lambda: Path("experiments/output/pipeline"))
 
-    # MLflow
-    mlflow_tracking_uri: str = "file:./mlruns"
+    # MLflow (sqlite backend per MLflow 2026 recommendation)
+    mlflow_tracking_uri: str = "sqlite:///mlflow.db"
     mlflow_experiment: str = "kv-cache-verification"
 
     # Flags
