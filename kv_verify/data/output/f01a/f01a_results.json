@@ -1,0 +1,53 @@
+{
+  "claim_id": "F01a-null",
+  "verdict": "confirmed",
+  "evidence_summary": "Null AUROCs all below 0.65 (max=0.503 in exp31_normal). Within-condition classification near chance. Between-condition signal is not attributable to prompt variation.",
+  "stats": {
+    "null_results": {
+      "exp31_refusal": {
+        "mean_auroc": 0.4899000000000001,
+        "std_auroc": 0.15901254667478287,
+        "ci_lower": 0.169,
+        "ci_upper": 0.7152499999999999,
+        "n_items": 20,
+        "n_repeats": 100
+      },
+      "exp31_normal": {
+        "mean_auroc": 0.5032,
+        "std_auroc": 0.146477848154593,
+        "ci_lower": 0.19475,
+        "ci_upper": 0.7609999999999997,
+        "n_items": 20,
+        "n_repeats": 100
+      },
+      "exp36_impossible": {
+        "mean_auroc": 0.4582,
+        "std_auroc": 0.1693598535663042,
+        "ci_lower": 0.16475,
+        "ci_upper": 0.7414999999999995,
+        "n_items": 20,
+        "n_repeats": 100
+      },
+      "exp36_harmful": {
+        "mean_auroc": 0.48100000000000004,
+        "std_auroc": 0.14932849694549266,
+        "ci_lower": 0.14900000000000002,
+        "ci_upper": 0.7204999999999998,
+        "n_items": 20,
+        "n_repeats": 100
+      },
+      "exp36_benign": {
+        "mean_auroc": 0.46760000000000007,
+        "std_auroc": 0.15741740691549969,
+        "ci_lower": 0.159,
+        "ci_upper": 0.7304999999999998,
+        "n_items": 20,
+        "n_repeats": 100
+      }
+    },
+    "max_null_auroc": 0.5032,
+    "worst_pool": "exp31_normal",
+    "fatal": false,
+    "elapsed_seconds": 3.3382414770312607
+  }
+}

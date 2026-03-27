@@ -1,0 +1,75 @@
+{
+  "agent": "experiment-writer",
+  "date": "2026-03-26",
+  "scope": "F03 cross-model transfer with input-length control",
+  "verdict": "NEEDS REVIEW",
+  "findings": [
+    {
+      "severity": "MAJOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "known-limitation",
+      "description": "Raw 49c data shows most refusal cross-model pairs at AUROC=0.5 (chance). Only Mistral->Qwen shows high transfer (0.942). The paper's claimed ~0.86 is not reproduced in the raw data before any input control is applied.",
+      "location": "results/hackathon/49c_cross_model_suppression.json:204-276",
+      "impact": "The experiment may find WEAKENED verdict simply because the raw transfer was already near chance, not because input-length control changed anything. The interesting finding may be that the paper's universality claim was never supported by the raw data.",
+      "recommendation": "Confirm whether the paper's ~0.86 claim aggregates across tasks (refusal + impossible) or uses a different evaluation method. Consider adding impossible task to the analysis.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "MEDIUM",
+      "method": "read",
+      "category": "design-decision",
+      "description": "Linear residualization only. No polynomial residualization variant included.",
+      "location": "kv_verify/experiments/f03_cross_model_input_control.py:107-124",
+      "impact": "If the input-length confound is nonlinear, residualization will undercontrol. However, F01b precedent uses linear and it was sufficient.",
+      "recommendation": "Could add polynomial degree 2 as a robustness check, but not critical for the primary hypothesis.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "MEDIUM",
+      "method": "inferred",
+      "category": "convention-deviation",
+      "description": "No argparse CLI. Uses function-based API with Path argument, matching existing experiment convention.",
+      "location": "kv_verify/experiments/f03_cross_model_input_control.py:275",
+      "impact": "None. Follows project convention.",
+      "recommendation": "No action needed.",
+      "is_red_team": false
+    },
+    {
+      "severity": "CRITICAL",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "known-limitation",
+      "description": "Same 15 harmful + 15 benign prompts used across all 3 models. Input-length structure is identical across models (same text, different tokenization). The input-only classifier will transfer trivially if tokenization lengths are correlated, which they are for similar-sized BPE vocabularies.",
+      "location": "results/hackathon/49c_cross_model_suppression.json:278-end",
+      "impact": "If the input-only AUROC is high cross-model, it proves the confound is 'universal' too, but this universality is trivial (same prompts = same lengths). The paper's claim of universal GEOMETRY becomes 'universal prompt structure.'",
+      "recommendation": "This is actually the key finding the experiment is designed to surface. Not a flaw but should be highlighted in interpretation.",
+      "is_red_team": true
+    },
+    {
+      "severity": "MAJOR",
+      "confidence": "LOW",
+      "method": "inferred",
+      "category": "test-coverage",
+      "description": "Tests could not be executed due to Bash permission denial. All 14 tests are written but unverified.",
+      "location": "kv_verify/tests/test_f03_cross_model.py",
+      "impact": "Code may have runtime errors not caught by static analysis.",
+      "recommendation": "PI should run: TMPDIR=/tmp/claude-1000 .venv/bin/python -m pytest kv_verify/tests/test_f03_cross_model.py -v",
+      "is_red_team": false
+    }
+  ],
+  "referrals": [
+    {
+      "to_agent": "PI",
+      "description": "Verify paper's ~0.86 cross-model AUROC claim: is it refusal-only or averaged across tasks? Raw 49c data shows most refusal pairs at chance."
+    },
+    {
+      "to_agent": "PI",
+      "description": "Run tests and experiment: TMPDIR=/tmp/claude-1000 .venv/bin/python -m pytest kv_verify/tests/test_f03_cross_model.py -v && TMPDIR=/tmp/claude-1000 .venv/bin/python -m kv_verify.experiments.f03_cross_model_input_control"
+    }
+  ],
+  "literature_links": [],
+  "acquired_papers": []
+}

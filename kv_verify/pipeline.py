@@ -493,8 +493,8 @@ class Pipeline:
 # PROMPT GENERATION HELPERS — load from raw prompt banks (200 each)
 # ================================================================
 
-# Raw prompt files at kv_verify/experiments/prompts/
-_PROMPTS_DIR = Path(__file__).parent / "experiments" / "prompts"
+# Raw prompt files at kv_verify/data/prompts/
+_PROMPTS_DIR = Path(__file__).parent / "data" / "prompts"
 
 # 200 factual questions (inline, since they're simple strings not tuples)
 _FACTUAL_QUESTIONS = [

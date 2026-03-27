@@ -1,0 +1,32 @@
+{
+  "claim_id": "F01b-49b-input",
+  "verdict": "falsified",
+  "evidence_summary": "49b is confounded by input length. Input-only AUROC=1.000 (perfect classification). Input is 11 tokens longer for deceptive prompts. After input-length residualization, AUROC drops from 0.990 to 0.390. The paper's 'definitive' length control matched response length but not input length.",
+  "stats": {
+    "paper_auroc": 0.99,
+    "input_only_auroc": 1.0,
+    "residualized_auroc": 0.39,
+    "input_length_honest_mean": 35.1,
+    "input_length_deceptive_mean": 46.1,
+    "input_length_diff": 11.0,
+    "correlations": {
+      "norm_per_token": {
+        "r": -0.894567363727832,
+        "p": 1.0369347611577866e-07
+      },
+      "key_rank": {
+        "r": 0.9438573217923422,
+        "p": 4.2890548311194e-10
+      },
+      "key_entropy": {
+        "r": 0.6048045479297685,
+        "p": 0.004727417031063545
+      }
+    },
+    "r_squared": {
+      "norm_per_token": 0.8002507682469628,
+      "key_rank": 0.8908666439010129,
+      "key_entropy": 0.36578854119654014
+    }
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "experiment": "F03_cross_model_input_control",
+  "timestamp": "2026-03-26T04:03:30",
+  "claim_id": "F03-cross-model",
+  "finding_id": "F03",
+  "verdict": "weakened",
+  "evidence_summary": "Cross-model transfer was already near chance before input control. Mean raw AUROC=0.520. Nothing to residualize. The paper's ~0.86 claim is not reproduced in the raw data.",
+  "original_value": "mean cross-model raw AUROC=0.520",
+  "corrected_value": "mean cross-model resid AUROC=0.553",
+  "stats": {
+    "cross_model_results": {
+      "refusal_Qwen2.5-7B-Instruct_to_Llama-3.1-8B-Instruct": {
+        "train_model": "Qwen2.5-7B-Instruct",
+        "test_model": "Llama-3.1-8B-Instruct",
+        "task": "refusal",
+        "paper_auroc": 0.5,
+        "raw_auroc": 0.5,
+        "input_only_auroc": 0.7933,
+        "resid_auroc": 0.5,
+        "auroc_drop": 0.0,
+        "test_input_length_diff": 2.2
+      },
+      "refusal_Qwen2.5-7B-Instruct_to_Mistral-7B-Instruct-v0.3": {
+        "train_model": "Qwen2.5-7B-Instruct",
+        "test_model": "Mistral-7B-Instruct-v0.3",
+        "task": "refusal",
+        "paper_auroc": 0.5,
+        "raw_auroc": 0.5,
+        "input_only_auroc": 0.8511,
+        "resid_auroc": 0.5,
+        "auroc_drop": 0.0,
+        "test_input_length_diff": 3.1
+      },
+      "refusal_Llama-3.1-8B-Instruct_to_Qwen2.5-7B-Instruct": {
+        "train_model": "Llama-3.1-8B-Instruct",
+        "test_model": "Qwen2.5-7B-Instruct",
+        "task": "refusal",
+        "paper_auroc": 0.5,
+        "raw_auroc": 0.5,
+        "input_only_auroc": 0.7933,
+        "resid_auroc": 0.5,
+        "auroc_drop": 0.0,
+        "test_input_length_diff": 2.2
+      },
+      "refusal_Llama-3.1-8B-Instruct_to_Mistral-7B-Instruct-v0.3": {
+        "train_model": "Llama-3.1-8B-Instruct",
+        "test_model": "Mistral-7B-Instruct-v0.3",
+        "task": "refusal",
+        "paper_auroc": 0.5289,
+        "raw_auroc": 0.5289,
+        "input_only_auroc": 0.8511,
+        "resid_auroc": 0.3867,
+        "auroc_drop": 0.1422,
+        "test_input_length_diff": 3.1
+      },
+      "refusal_Mistral-7B-Instruct-v0.3_to_Qwen2.5-7B-Instruct": {
+        "train_model": "Mistral-7B-Instruct-v0.3",
+        "test_model": "Qwen2.5-7B-Instruct",
+        "task": "refusal",
+        "paper_auroc": 0.9422,
+        "raw_auroc": 0.9422,
+        "input_only_auroc": 0.7933,
+        "resid_auroc": 0.7822,
+        "auroc_drop": 0.16,
+        "test_input_length_diff": 2.2
+      },
+      "refusal_Mistral-7B-Instruct-v0.3_to_Llama-3.1-8B-Instruct": {
+        "train_model": "Mistral-7B-Instruct-v0.3",
+        "test_model": "Llama-3.1-8B-Instruct",
+        "task": "refusal",
+        "paper_auroc": 0.1511,
+        "raw_auroc": 0.1511,
+        "input_only_auroc": 0.7933,
+        "resid_auroc": 0.6489,
+        "auroc_drop": -0.4978,
+        "test_input_length_diff": 2.2
+      }
+    },
+    "within_model_results": {
+      "Qwen2.5-7B-Instruct_refusal": {
+        "model": "Qwen2.5-7B-Instruct",
+        "task": "refusal",
+        "n_pos": 15,
+        "n_neg": 15,
+        "input_length_pos_mean": 39.2,
+        "input_length_neg_mean": 37.0,
+        "input_length_diff": 2.2,
+        "input_length_mann_whitney_p": 0.005907,
+        "raw_auroc": 0.9067,
+        "input_only_auroc": 0.7333,
+        "resid_auroc": 0.7333,
+        "auroc_drop": 0.1733,
+        "correlations": {
+          "norm_per_token": {
+            "r": -0.4315,
+            "p": 0.017259
+          },
+          "key_rank": {
+            "r": 0.5408,
+            "p": 0.002033
+          },
+          "key_entropy": {
+            "r": 0.3058,
+            "p": 0.10029
+          }
+        }
+      },
+      "Llama-3.1-8B-Instruct_refusal": {
+        "model": "Llama-3.1-8B-Instruct",
+        "task": "refusal",
+        "n_pos": 15,
+        "n_neg": 15,
+        "input_length_pos_mean": 46.2,
+        "input_length_neg_mean": 44.0,
+        "input_length_diff": 2.2,
+        "input_length_mann_whitney_p": 0.005907,
+        "raw_auroc": 0.8444,
+        "input_only_auroc": 0.7333,
+        "resid_auroc": 0.8089,
+        "auroc_drop": 0.0356,
+        "correlations": {
+          "norm_per_token": {
+            "r": 0.1349,
+            "p": 0.477373
+          },
+          "key_rank": {
+            "r": 0.0507,
+            "p": 0.790065
+          },
+          "key_entropy": {
+            "r": -0.1802,
+            "p": 0.340658
+          }
+        }
+      },
+      "Mistral-7B-Instruct-v0.3_refusal": {
+        "model": "Mistral-7B-Instruct-v0.3",
+        "task": "refusal",
+        "n_pos": 15,
+        "n_neg": 15,
+        "input_length_pos_mean": 15.5,
+        "input_length_neg_mean": 12.5,
+        "input_length_diff": 3.1,
+        "input_length_mann_whitney_p": 0.001032,
+        "raw_auroc": 0.8267,
+        "input_only_auroc": 0.8222,
+        "resid_auroc": 0.4533,
+        "auroc_drop": 0.3733,
+        "correlations": {
+          "norm_per_token": {
+            "r": -0.5933,
+            "p": 0.000548
+          },
+          "key_rank": {
+            "r": 0.5803,
+            "p": 0.000774
+          },
+          "key_entropy": {
+            "r": -0.055,
+            "p": 0.772708
+          }
+        }
+      }
+    },
+    "summary": {
+      "mean_cross_raw_auroc": 0.5204,
+      "mean_cross_resid_auroc": 0.553,
+      "mean_cross_input_auroc": 0.8126,
+      "n_cross_input_confounded": 6,
+      "n_cross_degraded": 2,
+      "n_cross_total": 6,
+      "mean_within_raw_auroc": 0.8593,
+      "mean_within_resid_auroc": 0.6652,
+      "mean_within_input_auroc": 0.7629,
+      "n_within_survive": 2,
+      "n_within_total": 3
+    },
+    "elapsed_seconds": 0.42
+  },
+  "checksum": "sha256:44164b7fbb8728b9750abcbd99512c7471e5d6c2c63c4439ec2f1db8419212a6"
+}

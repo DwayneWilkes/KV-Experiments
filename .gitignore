@@ -35,6 +35,13 @@ Thumbs.db
 *.log
 wandb/
 
+# MLflow (local tracking data, not research output)
+mlruns/
+mlflow.db
+
+# Agent worktree artifacts (leaked to repo root)
+reviews/fix-manual-timing/
+
 # Abliterated model weights (15GB+)
 results/abliterated_*/
 

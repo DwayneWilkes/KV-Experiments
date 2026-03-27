@@ -1,0 +1,97 @@
+{
+  "agent": "experiment-writer",
+  "date": "2026-03-26",
+  "scope": "F04: Cross-condition transfer validity analysis",
+  "verdict": "NEEDS REVIEW",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "design-decision",
+      "description": "The deception-trained classifier predicts 100% of ALL test samples as 'deceptive' (per_topic data shows predicted_deceptive_pct=100.0 for censored, control, and complex_noncensored categories). AUROC > 0.5 depends entirely on probability score ranking, not any discriminative boundary.",
+      "location": "results/hackathon/cross_condition_transfer.json:per_topic",
+      "impact": "The transfer AUROC is not measuring what the paper claims. A classifier with no discriminative power cannot demonstrate 'shared geometric structure.'",
+      "recommendation": "This finding alone invalidates the transfer claim interpretation. The paper should acknowledge the classifier has no decision boundary.",
+      "is_red_team": false
+    },
+    {
+      "severity": "CRITICAL",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "known-limitation",
+      "description": "Same-model transfer (Mistral -> Mistral: AUROC 0.53, Qwen -> Qwen: AUROC 0.52) is at chance, while cross-model pooled transfer (All -> DeepSeek: AUROC 0.89) is high. This is the opposite of what 'shared suppression geometry' predicts.",
+      "location": "results/hackathon/cross_condition_transfer.json:summary",
+      "impact": "If deception and censorship share geometric structure, same-model should be the easiest transfer case, not the hardest. The high cross-model AUROC likely reflects model-scale artifacts.",
+      "recommendation": "The paper should test same-model transfer as a necessary condition before claiming cross-condition geometry.",
+      "is_red_team": false
+    },
+    {
+      "severity": "CRITICAL",
+      "confidence": "HIGH",
+      "method": "computed",
+      "category": "known-limitation",
+      "description": "The transfer classifier's top features (norms_per_token: ~38% importance, key_ranks: ~20% importance) have R^2 = 0.80 and R^2 = 0.89 with input length respectively (from F01b-49b). Weighted average confound R^2 is approximately 0.76.",
+      "location": "kv_verify/experiments/f04_cross_condition_validity.py:run_f04b",
+      "impact": "The transfer classifier inherits the input-length confound from deception training. Its learned features are substantially aligned with input-length variation.",
+      "recommendation": "A valid transfer test would require input-length-residualized features at training time.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MAJOR",
+      "confidence": "MEDIUM",
+      "method": "read",
+      "category": "known-limitation",
+      "description": "Per-item features are not stored in the cross-condition transfer JSON. Only aggregate metrics (AUROC, F1, accuracy) and per-topic summaries are available. This means we cannot directly test whether censored DeepSeek responses have systematically different cache geometry correlated with length.",
+      "location": "results/hackathon/cross_condition_transfer.json",
+      "impact": "We cannot run input-length residualization on the transfer experiment without re-running with per-item data.",
+      "recommendation": "Re-run cross-condition transfer with per-item feature storage to enable direct length-confound testing.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MAJOR",
+      "confidence": "MEDIUM",
+      "method": "read",
+      "category": "known-limitation",
+      "description": "Qwen2.5-14B gets AUROC=0.70 while DeepSeek gets 0.89 and Mistral gets 0.87. This 0.19 spread across test models is inconsistent with 'universal suppression geometry.'",
+      "location": "results/hackathon/cross_condition_transfer.json:summary:E_Qwen2.5-14B",
+      "impact": "If the signal were universal, transfer AUROC should be consistent across target models.",
+      "recommendation": "Report per-model variability alongside the aggregate claim.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "LOW",
+      "method": "inferred",
+      "category": "convention-deviation",
+      "description": "The experiment does not use CLI arguments (argparse) because it is interpretive analysis of existing JSON data, not a parameterized computation. All parameters are fixed by the source data.",
+      "location": "kv_verify/experiments/f04_cross_condition_validity.py",
+      "impact": "Deviates from project convention but justified by experiment nature.",
+      "recommendation": "Accept this deviation.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MAJOR",
+      "confidence": "MEDIUM",
+      "method": "inferred",
+      "category": "design-decision",
+      "description": "RED TEAM: The analysis cannot rule out that the cross-model transfer AUROC reflects something real but poorly characterized. The model-scale hypothesis (small training models vs 14B test models) is plausible but unproven. It is possible that there IS shared geometry that happens to be confounded with length, where removing the length confound would still leave a weaker but real signal. The same-model failure at scenarios A and B could be because n=150 training samples from a single model is too few, not because the geometry is absent. A proper test would train on 990 same-model samples.",
+      "location": "kv_verify/experiments/f04_cross_condition_validity.py",
+      "impact": "The analysis is interpretive, not definitive. The FALSIFIED verdict is based on circumstantial evidence, not direct proof.",
+      "recommendation": "The strongest follow-up would be: (1) re-run cross-condition transfer with per-item features stored, (2) test input-length residualization on the transfer, (3) test same-model transfer with n=990 from a single model.",
+      "is_red_team": true
+    }
+  ],
+  "referrals": [
+    {
+      "to_agent": "experiment-runner",
+      "description": "Run the F04 experiment script and verify output matches expectations. Python execution was denied by sandbox during writing."
+    },
+    {
+      "to_agent": "code-reviewer",
+      "description": "Review the statistical argument: is the confound cascade from F01b through to the transfer claim logically sound? Does the same-model failure genuinely invalidate the shared geometry interpretation?"
+    }
+  ],
+  "literature_links": [],
+  "acquired_papers": []
+}

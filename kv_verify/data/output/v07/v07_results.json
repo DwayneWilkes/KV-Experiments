@@ -1,0 +1,17 @@
+{
+  "claim_id": "M2-39-sycophancy",
+  "finding_id": "M2",
+  "verdict": "falsified",
+  "evidence_summary": "Feature-only AUROC=0.933, length-only AUROC=0.948, FWL-both AUROC=0.585. Length-only classifier matches or exceeds cache geometry features. Sycophancy signal is entirely length-driven.",
+  "original_value": "feature AUROC=0.933",
+  "corrected_value": "length AUROC=0.948, FWL AUROC=0.585",
+  "stats": {
+    "feature_auroc": 0.9325000000000001,
+    "length_only_auroc": 0.9475,
+    "fwl_both_auroc": 0.585,
+    "n_pos": 20,
+    "n_neg": 20,
+    "n_groups": 20,
+    "elapsed_seconds": 0.05122116405982524
+  }
+}
