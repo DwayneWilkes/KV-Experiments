@@ -167,7 +167,12 @@ class Pipeline:
         return info
 
     def _do_prompt_gen(self) -> Dict:
-        """Generate minimal pair prompt sets from full raw prompt banks."""
+        """Generate minimal pair prompt sets.
+
+        Two modes:
+        - With GPU: uses PromptGenerator + local model for gap-aware generation
+        - Without GPU (skip_gpu): uses raw prompt banks from data/prompts/
+        """
         from kv_verify.prompt_gen import (
             generate_deception_set,
             generate_refusal_set,
@@ -180,6 +185,62 @@ class Pipeline:
         n = self.config.n_per_group
         generated = {}
 
+        # Check if we should use LLM-powered gap-aware generation
+        use_llm = not self.config.skip_gpu
+        if use_llm:
+            try:
+                from kv_verify.models import load_model, load_tokenizer, is_downloaded
+                from kv_verify.prompt_generator import PromptGenerator, PromptGeneratorConfig
+
+                if is_downloaded(self.config.model_id):
+                    model, tokenizer = load_model(self.config.model_id)
+                    gen_config = PromptGeneratorConfig(
+                        n_target=n,
+                        effective_n_target=max(n * 0.25, 50),  # at least 25% efficiency
+                        max_iterations=5,
+                        candidates_per_iteration=50,
+                        temperature=0.7,
+                    )
+
+                    for comparison in self.config.comparisons:
+                        # Start from raw prompt bank, let gap analyzer find the topics
+                        existing = self._load_existing_prompts(comparison, n)
+
+                        # Run gap analysis to determine seed topics automatically
+                        seed_topics = []
+                        if existing and existing.pairs:
+                            from kv_verify.prompt_gap_filler import analyze_gaps
+                            gaps = analyze_gaps(existing, tokenizer)
+                            seed_topics = [
+                                g.target_domain for g in gaps.gaps
+                                if g.target_domain not in ("any", "")
+                            ][:5]
+
+                        gen = PromptGenerator(
+                            gen_config,
+                            seed_topics=seed_topics,
+                            existing_pairs=existing,
+                            tracker=self.tracker,
+                        )
+                        result = gen.generate(comparison, model=model, tokenizer=tokenizer)
+                        if result.pair_set:
+                            path = prompts_dir / f"{comparison}.json"
+                            result.pair_set.save(path)
+                            self.tracker.log_dataset(str(path), f"{comparison}_prompts", "input")
+                            generated[comparison] = len(result.pair_set.pairs)
+
+                    # Cleanup GPU
+                    del model
+                    import gc, torch
+                    gc.collect()
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+
+                    return {"generated": generated, "method": "llm_gap_aware"}
+            except Exception as e:
+                print(f"  LLM prompt generation failed ({e}), falling back to seed bank")
+
+        # Fallback: use raw prompt banks
         if "deception" in self.config.comparisons:
             questions = _load_factual_questions(n)
             ps = generate_deception_set(questions)
@@ -204,11 +265,33 @@ class Pipeline:
             self.tracker.log_dataset(str(path), "impossibility_prompts", "input")
             generated["impossibility"] = len(ps.pairs)
 
-        return {"generated": generated}
+        return {"generated": generated, "method": "seed_bank"}
+
+    def _load_existing_prompts(self, comparison: str, n: int):
+        """Load existing raw prompts as a PairSet for gap-fill seeding."""
+        from kv_verify.prompt_gen import (
+            generate_deception_set, generate_refusal_set, generate_impossibility_set,
+        )
+        if comparison == "deception":
+            return generate_deception_set(_load_factual_questions(n))
+        elif comparison == "refusal":
+            return generate_refusal_set(_load_refusal_items(n))
+        elif comparison == "impossibility":
+            return generate_impossibility_set(_load_impossibility_items(n))
+        return None
 
     def _do_tokenization(self) -> Dict:
-        """Verify token count matching for all prompt pairs."""
+        """Verify token count matching using the actual model tokenizer."""
+        from kv_verify.models import load_tokenizer, is_downloaded
         from kv_verify.prompt_gen import PairSet, validate_token_counts
+
+        # Load real tokenizer for exact token counts (no proxies)
+        tokenizer = None
+        try:
+            if is_downloaded(self.config.model_id):
+                tokenizer = load_tokenizer(self.config.model_id)
+        except Exception:
+            pass  # graceful fallback to word count in test/CI environments
 
         prompts_dir = self.config.output_dir / "prompts"
         results = {}
@@ -217,13 +300,19 @@ class Pipeline:
             ps = PairSet.load(path)
             valid = 0
             invalid = 0
+            outliers = []
             for pair in ps.pairs:
-                check = validate_token_counts(pair, max_diff=3)
+                check = validate_token_counts(pair, tokenizer=tokenizer, max_diff=2)
                 if check["valid"]:
                     valid += 1
                 else:
                     invalid += 1
-            results[ps.comparison] = {"total": len(ps.pairs), "valid": valid, "invalid": invalid}
+                    outliers.append({"pair_id": pair.pair_id, "diff": check["diff"]})
+            results[ps.comparison] = {
+                "total": len(ps.pairs), "valid": valid, "invalid": invalid,
+                "method": check.get("method", "unknown"),
+                "outliers": outliers[:10],  # first 10 for logging
+            }
             self.tracker.log_metric(f"{ps.comparison}_valid_pairs", valid)
             self.tracker.log_metric(f"{ps.comparison}_invalid_pairs", invalid)
 
