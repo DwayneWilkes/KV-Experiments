@@ -21,19 +21,12 @@ from kv_verify.prompt_gen import MinimalPair, PairSet
 
 @pytest.fixture(scope="module")
 def tokenizer():
-    """Load a real tokenizer. Uses Qwen if available, falls back to GPT-2."""
-    import os
-    os.environ.setdefault("HF_HOME", "/mnt/d/dev/models")
+    """Load Qwen tokenizer from local cache via models.py."""
     try:
-        from transformers import AutoTokenizer
-        # Try Qwen first (our target model)
-        try:
-            tok = AutoTokenizer.from_pretrained(
-                "Qwen/Qwen2.5-7B-Instruct"            )
-        except Exception:
-            # Fall back to GPT-2 tokenizer (always available, small download)
-            tok = AutoTokenizer.from_pretrained("gpt2")
-        return tok
+        from kv_verify.models import load_tokenizer, is_downloaded
+        if not is_downloaded("qwen"):
+            pytest.skip("Qwen model not in local cache at /mnt/d/dev/models")
+        return load_tokenizer("qwen")
     except ImportError:
         pytest.skip("transformers not installed")
 

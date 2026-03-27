@@ -231,23 +231,14 @@ class Pipeline:
 
     def _do_extraction(self) -> Dict:
         """GPU inference + feature extraction with per-item caching via @tracked."""
-        from kv_verify.feature_extractor import extract_from_cache, DEFAULT_MODEL_CACHE_DIR
+        from kv_verify.feature_extractor import extract_from_cache
+        from kv_verify.models import load_model
         from kv_verify.prompt_gen import PairSet
 
-        os.environ["HF_HOME"] = DEFAULT_MODEL_CACHE_DIR
-
         import torch
-        from transformers import AutoModelForCausalLM, AutoTokenizer
 
-        model_id = self.config.model_id
-        print(f"\n  Loading {model_id}...")
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
-        model = AutoModelForCausalLM.from_pretrained(
-            model_id, torch_dtype=torch.bfloat16, device_map="auto",
-        )
-        model.eval()
+        print(f"\n  Loading {self.config.model_id}...")
+        model, tokenizer = load_model(self.config.model_id)
         self.tracker.enable_sklearn_autolog()
 
         # Per-item extraction with @tracked auto-caching

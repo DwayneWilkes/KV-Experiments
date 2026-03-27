@@ -30,10 +30,11 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import numpy as np
 import torch
 
+from kv_verify.models import MODEL_CACHE_DIR
 from kv_verify.types import FeatureVector
 
-# Default model cache directory (set by project convention)
-DEFAULT_MODEL_CACHE_DIR = "/mnt/d/dev/models"
+# Re-export for backward compatibility
+DEFAULT_MODEL_CACHE_DIR = str(MODEL_CACHE_DIR)
 
 
 @dataclass
