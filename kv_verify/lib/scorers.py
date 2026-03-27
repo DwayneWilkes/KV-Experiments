@@ -197,32 +197,43 @@ def is_minimal_pair_scorer(
 
     Checks:
     - Word count difference within max_word_diff
-    - Shared suffix (same question/object in both)
+    - Shared prefix OR suffix (deception shares suffix/question,
+      refusal/impossibility share prefix/verb)
     - Not identical
     """
     pos_words = positive.split()
     neg_words = negative.split()
     word_diff = abs(len(pos_words) - len(neg_words))
 
-    # Check for shared suffix (last N words match)
-    shared_suffix = False
+    # Check for shared prefix (first N words match — refusal, impossibility)
+    shared_prefix = False
     min_len = min(len(pos_words), len(neg_words))
+    if min_len >= 2:
+        for head_len in range(min_len, 1, -1):
+            if pos_words[:head_len] == neg_words[:head_len]:
+                shared_prefix = True
+                break
+
+    # Check for shared suffix (last N words match — deception)
+    shared_suffix = False
     if min_len >= 3:
-        # Check if last 3+ words match
         for tail_len in range(min_len, 2, -1):
             if pos_words[-tail_len:] == neg_words[-tail_len:]:
                 shared_suffix = True
                 break
 
+    has_shared_structure = shared_prefix or shared_suffix
+
     is_minimal = (
         word_diff <= max_word_diff
         and positive != negative
-        and shared_suffix
+        and has_shared_structure
     )
 
     return {
         "is_minimal": is_minimal,
         "word_diff": word_diff,
+        "shared_prefix": shared_prefix,
         "shared_suffix": shared_suffix,
         "pos_words": len(pos_words),
         "neg_words": len(neg_words),

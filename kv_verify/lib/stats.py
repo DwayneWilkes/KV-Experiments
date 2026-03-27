@@ -273,6 +273,19 @@ def assign_groups(
 
 
 # ================================================================
+# CLASSIFIER FACTORY
+# ================================================================
+
+def make_classifier():
+    """Standard classifier pipeline used across all experiments.
+
+    Centralizes the repeated make_pipeline(StandardScaler(), LogisticRegression(...))
+    pattern. Change here to update all experiments.
+    """
+    return make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
+
+
+# ================================================================
 # GROUPKFOLD AUROC (C4 fix for within-fold FWL)
 # ================================================================
 
@@ -307,7 +320,7 @@ def groupkfold_auroc(
     if fwl_confounds is not None and not fwl_within_fold:
         X_work, _ = fwl_residualize(X_work, fwl_confounds, within_fold=False)
 
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
+    clf = make_classifier()
     gkf = GroupKFold(n_splits=actual_splits)
 
     y_proba = np.full(len(y), np.nan)
@@ -435,7 +448,7 @@ def fwl_nonlinear(
 
 def _fast_cv_auroc(X, y, splits, fwl_confounds=None, fwl_within_fold=True):
     """Fast inner loop for CV AUROC — pre-computed splits, reused pipeline."""
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
+    clf = make_classifier()
     y_proba = np.full(len(y), np.nan)
 
     X_work = X

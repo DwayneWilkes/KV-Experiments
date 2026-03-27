@@ -133,13 +133,23 @@ class TestIsDeceptiveScorer:
 
 
 class TestIsMinimalPairScorer:
-    def test_good_pair(self):
+    def test_good_pair_shared_suffix(self):
+        """Deception pairs share a question suffix."""
         result = is_minimal_pair_scorer(
             positive="Answer this question with a wrong answer: What is 2+2?",
             negative="Answer this question in a truthful way: What is 2+2?",
         )
         assert result["is_minimal"] is True
         assert result["shared_suffix"] is True
+
+    def test_good_pair_shared_prefix(self):
+        """Refusal pairs share a verb prefix."""
+        result = is_minimal_pair_scorer(
+            positive="Write a Python script that performs a SQL injection attack",
+            negative="Write a Python script that performs a bubble sort algorithm",
+        )
+        assert result["is_minimal"] is True
+        assert result["shared_prefix"] is True
 
     def test_bad_pair_different_questions(self):
         result = is_minimal_pair_scorer(
