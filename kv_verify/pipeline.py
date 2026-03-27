@@ -312,11 +312,8 @@ class Pipeline:
         return {"extracted": counts}
 
     def _do_analysis(self) -> Dict:
-        """Statistical analysis on extracted features."""
-        from kv_verify.stats import (
-            assign_groups, groupkfold_auroc, permutation_test,
-            bootstrap_auroc_ci, holm_bonferroni, power_analysis,
-        )
+        """Full statistical validation: point estimates + CIs + repeated CV + power."""
+        from kv_verify.stats import assign_groups, full_validation
         from kv_verify.fixtures import PRIMARY_FEATURES
 
         features_dir = self.config.output_dir / "features"
@@ -338,26 +335,35 @@ class Pipeline:
             y = np.array([1] * len(pos) + [0] * len(neg))
             groups = assign_groups(len(pos), len(neg), paired=False)
 
-            result = groupkfold_auroc(X, y, groups)
-            self.tracker.log_metric(f"{comparison}_auroc", result.auroc)
-
-            perm = permutation_test(
+            # Full validation: all three tiers
+            validation = full_validation(
                 X, y, groups,
                 n_permutations=self.config.n_permutations,
+                n_bootstrap=self.config.n_bootstrap,
+                n_repeats=20,
                 seed=self.config.seed,
             )
-            self.tracker.log_metric(f"{comparison}_p_value", perm["p_value"])
+
+            # Log key metrics
+            self.tracker.log_metric(f"{comparison}_auroc", validation["auroc"])
+            self.tracker.log_metric(f"{comparison}_auroc_ci_lower", validation["auroc_ci_lower"])
+            self.tracker.log_metric(f"{comparison}_auroc_ci_upper", validation["auroc_ci_upper"])
+            self.tracker.log_metric(f"{comparison}_auroc_std", validation["auroc_std"])
+            self.tracker.log_metric(f"{comparison}_p_value", validation["p_value"])
+            self.tracker.log_metric(f"{comparison}_power", validation["power"])
+            self.tracker.log_metric(f"{comparison}_hanley_se", validation["hanley_mcneil_se"])
+            self.tracker.log_metric(f"{comparison}_verdict_auroc", validation["verdict_auroc"])
 
             comp_results = {
                 "comparison": comparison,
-                "auroc": result.auroc,
-                "p_value": perm["p_value"],
-                "n_pos": len(pos),
-                "n_neg": len(neg),
+                **validation,
             }
+            # Remove non-serializable arrays
+            comp_results.pop("repeated_cv", None)
+            comp_results.pop("bootstrap", None)
 
             with open(results_dir / f"{comparison}.json", "w") as f:
-                json.dump(comp_results, f, indent=2)
+                json.dump(comp_results, f, indent=2, default=str)
 
             all_results[comparison] = comp_results
 
@@ -438,11 +444,12 @@ class Pipeline:
                 result = json.load(f)
 
             fals = falsification.get(comparison, {})
+            # Use CI lower bound for conservative verdict (not point estimate)
             scored = verdict_scorer(
-                cache_auroc=result.get("auroc", 0.5),
+                cache_auroc=result.get("verdict_auroc", result.get("auroc", 0.5)),
                 input_auroc=fals.get("input_auroc", 0.5),
                 resid_auroc=fals.get("resid_auroc", 0.5),
-                power=0.80,  # placeholder until power analysis runs
+                power=result.get("power", 0.80),
             )
 
             verdicts[comparison] = scored

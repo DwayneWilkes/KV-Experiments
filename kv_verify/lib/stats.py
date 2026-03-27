@@ -804,3 +804,146 @@ def _find_required_n(
         else:
             hi = mid
     return hi
+
+
+# ================================================================
+# HANLEY-MCNEIL SE (analytical AUROC standard error)
+# ================================================================
+
+def hanley_mcneil_se(auroc: float, n_pos: int, n_neg: int) -> float:
+    """Analytical standard error for AUROC via Hanley & McNeil (1982).
+
+    SE = sqrt((A(1-A) + (n_pos-1)(Q1-A^2) + (n_neg-1)(Q2-A^2)) / (n_pos*n_neg))
+    where Q1 = A/(2-A), Q2 = 2A^2/(1+A).
+    """
+    A = float(np.clip(auroc, 0.001, 0.999))
+    Q1 = A / (2 - A)
+    Q2 = 2 * A ** 2 / (1 + A)
+    numerator = A * (1 - A) + (n_pos - 1) * (Q1 - A ** 2) + (n_neg - 1) * (Q2 - A ** 2)
+    se = math.sqrt(max(numerator, 0) / max(n_pos * n_neg, 1))
+    return float(se)
+
+
+# ================================================================
+# REPEATED CV (variance estimation)
+# ================================================================
+
+def repeated_cv_auroc(
+    X: np.ndarray,
+    y: np.ndarray,
+    groups: np.ndarray,
+    n_repeats: int = 20,
+    n_splits: int = 5,
+    seed: int = 42,
+    fwl_confounds: Optional[np.ndarray] = None,
+    fwl_within_fold: bool = True,
+) -> Dict:
+    """Run GroupKFold CV multiple times with shuffled group ordering.
+
+    Returns distribution of AUROCs for variance estimation.
+    Varoquaux (2018): single CV gives ±15-20% error at N=40.
+    Repeated CV estimates this variance directly.
+    """
+    rng = np.random.RandomState(seed)
+    aurocs = []
+
+    for rep in range(n_repeats):
+        # Shuffle samples within each group to get different fold assignments
+        # (GroupKFold is deterministic given group order, so we permute group IDs)
+        perm = rng.permutation(len(y))
+        X_shuf = X[perm]
+        y_shuf = y[perm]
+        groups_shuf = groups[perm]
+        Z_shuf = fwl_confounds[perm] if fwl_confounds is not None else None
+
+        result = groupkfold_auroc(
+            X_shuf, y_shuf, groups_shuf,
+            n_splits=n_splits,
+            fwl_confounds=Z_shuf,
+            fwl_within_fold=fwl_within_fold,
+        )
+        if not np.isnan(result.auroc):
+            aurocs.append(result.auroc)
+
+    if not aurocs:
+        return {"mean": 0.5, "std": 0.0, "ci_lower": 0.5, "ci_upper": 0.5, "aurocs": []}
+
+    aurocs_arr = np.array(aurocs)
+    return {
+        "mean": round(float(np.mean(aurocs_arr)), 4),
+        "std": round(float(np.std(aurocs_arr)), 4),
+        "ci_lower": round(float(np.percentile(aurocs_arr, 2.5)), 4),
+        "ci_upper": round(float(np.percentile(aurocs_arr, 97.5)), 4),
+        "n_repeats": len(aurocs),
+        "aurocs": [round(float(a), 4) for a in aurocs],
+    }
+
+
+# ================================================================
+# FULL VALIDATION (all tiers in one call)
+# ================================================================
+
+def full_validation(
+    X: np.ndarray,
+    y: np.ndarray,
+    groups: np.ndarray,
+    n_permutations: int = 10000,
+    n_bootstrap: int = 10000,
+    n_repeats: int = 20,
+    seed: int = 42,
+    fwl_confounds: Optional[np.ndarray] = None,
+    fwl_within_fold: bool = True,
+) -> Dict:
+    """Complete validation: point estimate + CIs + repeated CV + power.
+
+    Tier 1: AUROC point estimate + permutation p-value
+    Tier 2: BCa bootstrap CI + repeated CV + Hanley-McNeil SE
+    Tier 3: Power analysis
+
+    The verdict_auroc field uses the bootstrap CI lower bound for
+    conservative threshold comparison (not the point estimate).
+    """
+    n_pos = int(np.sum(y == 1))
+    n_neg = int(np.sum(y == 0))
+
+    # Tier 1: Point estimate
+    result = groupkfold_auroc(X, y, groups, fwl_confounds=fwl_confounds, fwl_within_fold=fwl_within_fold)
+    auroc = result.auroc
+
+    perm = permutation_test(X, y, groups, n_permutations=n_permutations, seed=seed,
+                            fwl_confounds=fwl_confounds, fwl_within_fold=fwl_within_fold)
+
+    # Tier 2: Uncertainty quantification
+    boot = bootstrap_auroc_ci(X, y, groups, n_bootstrap=n_bootstrap, seed=seed,
+                              fwl_confounds=fwl_confounds, fwl_within_fold=fwl_within_fold)
+
+    hm_se = hanley_mcneil_se(auroc, n_pos, n_neg)
+
+    repeated = repeated_cv_auroc(X, y, groups, n_repeats=n_repeats, seed=seed,
+                                 fwl_confounds=fwl_confounds, fwl_within_fold=fwl_within_fold)
+
+    # Tier 3: Power
+    pwr = power_analysis(n_per_group=min(n_pos, n_neg), observed_auroc=auroc)
+
+    # Conservative verdict value: use bootstrap CI lower bound
+    verdict_auroc = boot["ci_lower"]
+
+    return {
+        # Tier 1
+        "auroc": auroc,
+        "p_value": perm["p_value"],
+        "n_positive": n_pos,
+        "n_negative": n_neg,
+        # Tier 2
+        "auroc_ci_lower": boot["ci_lower"],
+        "auroc_ci_upper": boot["ci_upper"],
+        "auroc_std": repeated["std"],
+        "hanley_mcneil_se": hm_se,
+        "repeated_cv": repeated,
+        "bootstrap": boot,
+        # Tier 3
+        "power": pwr["achieved_power"],
+        "required_n": pwr["required_n"],
+        # For verdict thresholds: use CI lower bound (conservative)
+        "verdict_auroc": verdict_auroc,
+    }

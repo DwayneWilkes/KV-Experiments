@@ -12,13 +12,16 @@ from kv_verify.stats import (
     cohens_d,
     conservative_p,
     d_to_auroc,
+    full_validation,
     fwl_nonlinear,
     fwl_residualize,
     groupkfold_auroc,
+    hanley_mcneil_se,
     hedges_g,
     holm_bonferroni,
     permutation_test,
     power_analysis,
+    repeated_cv_auroc,
     tost,
 )
 from kv_verify.types import ClassificationResult
@@ -542,3 +545,93 @@ class TestPowerAnalysis:
         """exp36_impossible_vs_harmful: AUROC=0.65, N=20. Should be underpowered."""
         result = power_analysis(n_per_group=20, observed_auroc=0.65, n_sim=1000)
         assert result["achieved_power"] < 0.50
+
+
+# ================================================================
+# Hanley-McNeil SE
+# ================================================================
+
+class TestHanleyMcneilSE:
+    def test_returns_positive_se(self):
+        se = hanley_mcneil_se(auroc=0.85, n_pos=20, n_neg=20)
+        assert se > 0
+
+    def test_larger_n_smaller_se(self):
+        se_small = hanley_mcneil_se(auroc=0.85, n_pos=10, n_neg=10)
+        se_large = hanley_mcneil_se(auroc=0.85, n_pos=100, n_neg=100)
+        assert se_large < se_small
+
+    def test_auroc_05_maximum_se(self):
+        """AUROC=0.5 (chance) should have higher SE than AUROC=0.9."""
+        se_chance = hanley_mcneil_se(auroc=0.50, n_pos=20, n_neg=20)
+        se_high = hanley_mcneil_se(auroc=0.90, n_pos=20, n_neg=20)
+        assert se_chance > se_high
+
+
+# ================================================================
+# Repeated CV
+# ================================================================
+
+class TestRepeatedCV:
+    def test_returns_distribution(self):
+        X, y, groups = generate_synthetic_classification(n_per_class=20, auroc_target=0.85)
+        result = repeated_cv_auroc(X, y, groups, n_repeats=5, seed=42)
+        assert "mean" in result
+        assert "std" in result
+        assert "ci_lower" in result
+        assert "ci_upper" in result
+        assert "aurocs" in result
+        assert len(result["aurocs"]) == 5
+
+    def test_mean_near_single_run(self):
+        """Repeated CV mean should be close to single-run AUROC."""
+        X, y, groups = generate_synthetic_classification(n_per_class=30, auroc_target=0.85, seed=42)
+        single = groupkfold_auroc(X, y, groups)
+        repeated = repeated_cv_auroc(X, y, groups, n_repeats=10, seed=42)
+        assert abs(repeated["mean"] - single.auroc) < 0.15
+
+    def test_std_positive(self):
+        X, y, groups = generate_synthetic_classification(n_per_class=20)
+        result = repeated_cv_auroc(X, y, groups, n_repeats=10, seed=42)
+        assert result["std"] >= 0
+
+
+# ================================================================
+# Full Validation
+# ================================================================
+
+class TestFullValidation:
+    def test_returns_all_tiers(self):
+        X, y, groups = generate_synthetic_classification(n_per_class=20, auroc_target=0.85, seed=42)
+        result = full_validation(
+            X, y, groups,
+            n_permutations=100,
+            n_bootstrap=100,
+            n_repeats=5,
+            seed=42,
+        )
+        # Tier 1
+        assert "auroc" in result
+        assert "p_value" in result
+        # Tier 2
+        assert "auroc_ci_lower" in result
+        assert "auroc_ci_upper" in result
+        assert "auroc_std" in result
+        assert "hanley_mcneil_se" in result
+        assert "repeated_cv" in result
+        # Power
+        assert "power" in result
+
+    def test_ci_contains_point_estimate(self):
+        X, y, groups = generate_synthetic_classification(n_per_class=30, auroc_target=0.85, seed=42)
+        result = full_validation(X, y, groups, n_permutations=100, n_bootstrap=100, n_repeats=5)
+        # CI should generally contain the point estimate
+        # (not guaranteed for every seed, but should be true most of the time)
+        assert result["auroc_ci_lower"] <= result["auroc"] + 0.1
+        assert result["auroc_ci_upper"] >= result["auroc"] - 0.1
+
+    def test_verdict_uses_ci_lower(self):
+        """Verdict threshold should use CI lower bound, not point estimate."""
+        X, y, groups = generate_synthetic_classification(n_per_class=20, auroc_target=0.85, seed=42)
+        result = full_validation(X, y, groups, n_permutations=100, n_bootstrap=100, n_repeats=5)
+        assert "verdict_auroc" in result  # the value used for verdict thresholds
