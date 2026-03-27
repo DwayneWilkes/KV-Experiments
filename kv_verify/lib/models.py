@@ -74,22 +74,37 @@ def ensure_downloaded(name_or_id: str) -> Path:
     return Path(path)
 
 
+def _get_snapshot_path(name_or_id: str) -> Path:
+    """Get the local snapshot path for a downloaded model.
+
+    Uses the snapshot directory directly instead of the model ID,
+    avoiding HuggingFace Hub network calls for resolution.
+    """
+    model_id = _resolve_model_id(name_or_id)
+    cache_name = f"models--{model_id.replace('/', '--')}"
+    snapshots = MODEL_CACHE_DIR / cache_name / "snapshots"
+    if not snapshots.exists():
+        raise RuntimeError(f"No snapshots for {model_id} at {snapshots}")
+    return next(snapshots.iterdir())
+
+
 def load_tokenizer(name_or_id: str = "qwen"):
     """Load a tokenizer from local cache. No remote code execution.
 
-    Fast, CPU-only. Use for prompt validation and token counting.
+    Fast, CPU-only. Uses local snapshot path directly (no network).
     """
     _set_cache_dir()
-    model_id = _resolve_model_id(name_or_id)
 
     if not is_downloaded(name_or_id):
+        model_id = _resolve_model_id(name_or_id)
         raise RuntimeError(
             f"Model '{model_id}' not in local cache at {MODEL_CACHE_DIR}. "
             f"Run ensure_downloaded('{name_or_id}') first."
         )
 
+    local_path = str(_get_snapshot_path(name_or_id))
     from transformers import AutoTokenizer
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    tokenizer = AutoTokenizer.from_pretrained(local_path)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
     return tokenizer
@@ -98,12 +113,13 @@ def load_tokenizer(name_or_id: str = "qwen"):
 def load_model(name_or_id: str = "qwen", dtype=None):
     """Load model + tokenizer from local cache. No remote code execution.
 
-    Requires GPU. Returns (model, tokenizer).
+    Uses local snapshot path directly (no network calls).
+    Returns (model, tokenizer).
     """
     _set_cache_dir()
-    model_id = _resolve_model_id(name_or_id)
 
     if not is_downloaded(name_or_id):
+        model_id = _resolve_model_id(name_or_id)
         raise RuntimeError(
             f"Model '{model_id}' not in local cache at {MODEL_CACHE_DIR}. "
             f"Run ensure_downloaded('{name_or_id}') first."
@@ -115,12 +131,14 @@ def load_model(name_or_id: str = "qwen", dtype=None):
     if dtype is None:
         dtype = torch.bfloat16
 
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    local_path = str(_get_snapshot_path(name_or_id))
+
+    tokenizer = AutoTokenizer.from_pretrained(local_path)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
     model = AutoModelForCausalLM.from_pretrained(
-        model_id,
+        local_path,
         torch_dtype=dtype,
         device_map="auto",
     )
