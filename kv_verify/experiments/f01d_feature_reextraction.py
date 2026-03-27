@@ -57,7 +57,7 @@ def load_model(model_id="Qwen/Qwen2.5-7B-Instruct"):
 
     print(f"Loading {model_id}...")
     t0 = time.time()
-    tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
@@ -65,7 +65,6 @@ def load_model(model_id="Qwen/Qwen2.5-7B-Instruct"):
         model_id,
         torch_dtype=torch.bfloat16,
         device_map="auto",
-        trust_remote_code=True,
     )
     model.eval()
     elapsed = time.time() - t0

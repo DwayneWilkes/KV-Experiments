@@ -29,8 +29,7 @@ def tokenizer():
         # Try Qwen first (our target model)
         try:
             tok = AutoTokenizer.from_pretrained(
-                "Qwen/Qwen2.5-7B-Instruct", trust_remote_code=True
-            )
+                "Qwen/Qwen2.5-7B-Instruct"            )
         except Exception:
             # Fall back to GPT-2 tokenizer (always available, small download)
             tok = AutoTokenizer.from_pretrained("gpt2")
