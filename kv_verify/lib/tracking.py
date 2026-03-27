@@ -161,19 +161,27 @@ class ExperimentTracker:
     # Per-Item Caching
     # ================================================================
 
+    @staticmethod
+    def _sanitize_key(key: str) -> str:
+        """Sanitize a cache key to prevent path traversal."""
+        return key.replace("/", "_").replace("\\", "_").replace("..", "_")
+
     def log_item(self, key: str, data: Dict[str, Any]) -> None:
         """Log a per-item result to disk cache."""
-        cache_path = self.cache_dir / f"{key}.json"
+        safe_key = self._sanitize_key(key)
+        cache_path = self.cache_dir / f"{safe_key}.json"
         with open(cache_path, "w") as f:
             json.dump(data, f, indent=2, default=str)
 
     def is_cached(self, key: str) -> bool:
         """Check if an item is already cached."""
-        return (self.cache_dir / f"{key}.json").exists()
+        safe_key = self._sanitize_key(key)
+        return (self.cache_dir / f"{safe_key}.json").exists()
 
     def load_cached(self, key: str) -> Dict[str, Any]:
         """Load a cached item."""
-        cache_path = self.cache_dir / f"{key}.json"
+        safe_key = self._sanitize_key(key)
+        cache_path = self.cache_dir / f"{safe_key}.json"
         with open(cache_path) as f:
             return json.load(f)
 
