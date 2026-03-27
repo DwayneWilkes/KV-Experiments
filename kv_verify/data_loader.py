@@ -8,6 +8,7 @@ verified by inspecting the JSON schemas and matching against the
 aggregate results in corrected_evaluation.json.
 """
 
+import functools
 import json
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -24,8 +25,9 @@ def list_comparisons() -> List[str]:
     return [c["name"] for c in EXP47_COMPARISONS]
 
 
+@functools.lru_cache(maxsize=16)
 def _load_json(filename: str) -> dict:
-    """Load a hackathon result JSON file."""
+    """Load a hackathon result JSON file. Cached to avoid redundant reads."""
     path = HACKATHON_DIR / filename
     with open(path) as f:
         return json.load(f)

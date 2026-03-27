@@ -433,6 +433,37 @@ def fwl_nonlinear(
 # PERMUTATION TEST (M6 fix: group-level)
 # ================================================================
 
+def _fast_cv_auroc(X, y, splits, fwl_confounds=None, fwl_within_fold=True):
+    """Fast inner loop for CV AUROC — pre-computed splits, reused pipeline."""
+    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
+    y_proba = np.full(len(y), np.nan)
+
+    X_work = X
+    if fwl_confounds is not None and not fwl_within_fold:
+        X_work, _ = fwl_residualize(X, fwl_confounds, within_fold=False)
+
+    for train_idx, test_idx in splits:
+        X_train, X_test = X_work[train_idx], X_work[test_idx]
+        y_train = y[train_idx]
+
+        if fwl_confounds is not None and fwl_within_fold:
+            Z = fwl_confounds
+            X_train, _ = fwl_residualize(X[train_idx], Z[train_idx], within_fold=False)
+            reg = LinearRegression()
+            reg.fit(Z[train_idx], X[train_idx])
+            X_test = X[test_idx] - reg.predict(Z[test_idx])
+
+        if len(np.unique(y_train)) < 2:
+            continue
+        clf.fit(X_train, y_train)
+        y_proba[test_idx] = clf.predict_proba(X_test)[:, 1]
+
+    valid = ~np.isnan(y_proba)
+    if valid.sum() < 4 or len(np.unique(y[valid])) < 2:
+        return float("nan")
+    return float(roc_auc_score(y[valid], y_proba[valid]))
+
+
 def permutation_test(
     X: np.ndarray,
     y: np.ndarray,
@@ -449,49 +480,42 @@ def permutation_test(
     (Winkler et al. 2014), not individual labels. p-value uses
     Phipson & Smyth (2010) correction: (count + 1) / (n_perm + 1).
 
-    Adapted from 49_expanded_validation.py:685-711.
+    Optimized: pre-computes fold splits once (splits depend on groups,
+    not y). Pre-computes group membership indices. Reuses pipeline object.
     """
     rng = np.random.RandomState(seed)
 
+    # Pre-compute fold splits once (GroupKFold depends on groups, not y)
+    unique_groups = np.unique(groups)
+    n_groups = len(unique_groups)
+    n_splits = min(5, n_groups)
+    gkf = GroupKFold(n_splits=n_splits)
+    splits = list(gkf.split(X, y, groups))
+
     # Observed AUROC
-    observed = groupkfold_auroc(
-        X, y, groups,
-        fwl_confounds=fwl_confounds,
-        fwl_within_fold=fwl_within_fold,
-    )
-    observed_auroc = observed.auroc
+    observed_auroc = _fast_cv_auroc(X, y, splits, fwl_confounds, fwl_within_fold)
+
+    # Pre-compute group membership indices (avoid repeated boolean scans)
+    group_indices = {g: np.where(groups == g)[0] for g in unique_groups}
 
     null_dist = np.zeros(n_permutations)
 
     if group_level:
-        # Get unique groups and their labels (majority vote)
-        unique_groups = np.unique(groups)
         group_labels = np.array([
-            int(np.median(y[groups == g] > 0.5))
+            int(np.median(y[group_indices[g]] > 0.5))
             for g in unique_groups
         ])
 
         for i in range(n_permutations):
             perm_labels = rng.permutation(group_labels)
-            y_perm = np.zeros_like(y)
+            y_perm = np.empty_like(y)
             for gi, g in enumerate(unique_groups):
-                y_perm[groups == g] = perm_labels[gi]
-            result = groupkfold_auroc(
-                X, y_perm, groups,
-                fwl_confounds=fwl_confounds,
-                fwl_within_fold=fwl_within_fold,
-            )
-            null_dist[i] = result.auroc
+                y_perm[group_indices[g]] = perm_labels[gi]
+            null_dist[i] = _fast_cv_auroc(X, y_perm, splits, fwl_confounds, fwl_within_fold)
     else:
-        # Sample-level permutation (original, buggy mode for comparison)
         for i in range(n_permutations):
             y_perm = rng.permutation(y)
-            result = groupkfold_auroc(
-                X, y_perm, groups,
-                fwl_confounds=fwl_confounds,
-                fwl_within_fold=fwl_within_fold,
-            )
-            null_dist[i] = result.auroc
+            null_dist[i] = _fast_cv_auroc(X, y_perm, splits, fwl_confounds, fwl_within_fold)
 
     # Phipson & Smyth (2010): p = (count + 1) / (n_perm + 1)
     count_ge = np.sum(null_dist >= observed_auroc)
@@ -628,94 +652,70 @@ def bootstrap_auroc_ci(
 # POWER ANALYSIS
 # ================================================================
 
+def _analytical_power(n: int, d: float, alpha: float = 0.05) -> float:
+    """Analytical power for two-sample t-test via non-central t-distribution.
+
+    Replaces simulation (~80K LogReg fits) with exact computation.
+    Assumes equal-variance Gaussian, which is the model underlying
+    the AUROC-to-d conversion.
+    """
+    from scipy.stats import nct
+    df = 2 * n - 2
+    se = math.sqrt(2.0 / max(n, 2))
+    noncentrality = d / se
+    t_crit = float(sp_stats.t.ppf(1 - alpha / 2, df=df))
+    # Power = P(|T| > t_crit) under non-central t
+    power = 1.0 - nct.cdf(t_crit, df=df, nc=noncentrality) + nct.cdf(-t_crit, df=df, nc=noncentrality)
+    return float(np.clip(power, 0.0, 1.0))
+
+
 def power_analysis(
     n_per_group: int,
     observed_auroc: float,
     alpha: float = 0.05,
-    method: str = "simulation",
-    n_sim: int = 10000,
-    seed: int = 42,
+    **kwargs,
 ) -> Dict:
     """Compute achieved power for observed effect size.
 
-    Simulation method: generate n_sim null datasets at given N, compute AUROC
-    distribution under null, compute power as P(alternative > null_critical).
-
+    Uses analytical non-central t-distribution (not simulation).
     Cohen, J. (1988). Chapter 2.
 
     Returns dict with: achieved_power, min_detectable_auroc, required_n.
     """
-    rng = np.random.RandomState(seed)
-
     # Convert AUROC to Cohen's d
     observed_auroc_clipped = np.clip(observed_auroc, 0.501, 0.999)
     observed_d = math.sqrt(2) * float(norm.ppf(observed_auroc_clipped))
 
     n = n_per_group
 
-    # Simulate null distribution (d=0)
-    null_aurocs = np.zeros(n_sim)
-    for i in range(n_sim):
-        X_null = rng.randn(2 * n, 1)
-        y_null = np.array([1] * n + [0] * n)
-        clf = LogisticRegression(max_iter=1000, solver="lbfgs")
-        clf.fit(X_null, y_null)
-        proba = clf.predict_proba(X_null)[:, 1]
-        null_aurocs[i] = roc_auc_score(y_null, proba)
+    # Achieved power (analytical)
+    achieved_power = _analytical_power(n, observed_d, alpha)
 
-    null_critical = np.percentile(null_aurocs, 100 * (1 - alpha))
+    # Minimum detectable AUROC at 80% power (binary search, analytical)
+    min_detectable_auroc = _find_min_detectable_auroc(n, alpha)
 
-    # Simulate alternative distribution (d=observed_d)
-    alt_aurocs = np.zeros(n_sim)
-    for i in range(n_sim):
-        X_alt = rng.randn(2 * n, 1)
-        X_alt[:n] += observed_d
-        y_alt = np.array([1] * n + [0] * n)
-        clf = LogisticRegression(max_iter=1000, solver="lbfgs")
-        clf.fit(X_alt, y_alt)
-        proba = clf.predict_proba(X_alt)[:, 1]
-        alt_aurocs[i] = roc_auc_score(y_alt, proba)
-
-    achieved_power = float(np.mean(alt_aurocs > null_critical))
-
-    # Minimum detectable AUROC at 80% power (binary search)
-    min_detectable_auroc = _find_min_detectable_auroc(
-        n, alpha, null_critical, rng, n_sim=min(n_sim, 2000),
-    )
-
-    # Required N for 80% power at observed effect (binary search)
-    required_n = _find_required_n(
-        observed_d, alpha, target_power=0.80, rng=rng, n_sim=min(n_sim, 2000),
-    )
+    # Required N for 80% power at observed effect (binary search, analytical)
+    required_n = _find_required_n(observed_d, alpha)
 
     return {
         "achieved_power": achieved_power,
         "min_detectable_auroc": min_detectable_auroc,
         "required_n": required_n,
         "observed_d": float(observed_d),
-        "null_critical": float(null_critical),
+        "null_critical": float(sp_stats.t.ppf(1 - alpha / 2, df=2 * n - 2)),
     }
 
 
 def _find_min_detectable_auroc(
-    n: int, alpha: float, null_critical: float,
-    rng: np.random.RandomState, n_sim: int = 2000,
+    n: int, alpha: float,
     target_power: float = 0.80,
 ) -> float:
-    """Binary search for minimum AUROC detectable at target power."""
+    """Binary search for minimum AUROC detectable at target power (analytical)."""
     lo, hi = 0.51, 0.99
-    for _ in range(15):
+    for _ in range(30):
         mid = (lo + hi) / 2
         d = math.sqrt(2) * float(norm.ppf(mid))
-        alt = np.zeros(n_sim)
-        for i in range(n_sim):
-            X = rng.randn(2 * n, 1)
-            X[:n] += d
-            y = np.array([1] * n + [0] * n)
-            clf = LogisticRegression(max_iter=1000, solver="lbfgs")
-            clf.fit(X, y)
-            alt[i] = roc_auc_score(y, clf.predict_proba(X)[:, 1])
-        power = np.mean(alt > null_critical)
+        power = _analytical_power(n, d, alpha)
         if power < target_power:
             lo = mid
         else:
@@ -724,32 +724,15 @@ def _find_min_detectable_auroc(
 
 
 def _find_required_n(
-    d: float, alpha: float, target_power: float,
-    rng: np.random.RandomState, n_sim: int = 2000,
+    d: float, alpha: float, target_power: float = 0.80,
 ) -> int:
-    """Binary search for required N per group at target power."""
+    """Binary search for required N per group at target power (analytical)."""
+    if d <= 0.01:
+        return 9999
     lo, hi = 5, 500
-    for _ in range(15):
+    for _ in range(30):
         mid = (lo + hi) // 2
-        # Null distribution at this N
-        null = np.zeros(n_sim)
-        for i in range(n_sim):
-            X = rng.randn(2 * mid, 1)
-            y = np.array([1] * mid + [0] * mid)
-            clf = LogisticRegression(max_iter=1000, solver="lbfgs")
-            clf.fit(X, y)
-            null[i] = roc_auc_score(y, clf.predict_proba(X)[:, 1])
-        crit = np.percentile(null, 100 * (1 - alpha))
-        # Alt distribution
-        alt = np.zeros(n_sim)
-        for i in range(n_sim):
-            X = rng.randn(2 * mid, 1)
-            X[:mid] += d
-            y = np.array([1] * mid + [0] * mid)
-            clf = LogisticRegression(max_iter=1000, solver="lbfgs")
-            clf.fit(X, y)
-            alt[i] = roc_auc_score(y, clf.predict_proba(X)[:, 1])
-        power = np.mean(alt > crit)
+        power = _analytical_power(mid, d, alpha)
         if power < target_power:
             lo = mid + 1
         else:
