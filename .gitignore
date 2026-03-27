@@ -35,13 +35,6 @@ Thumbs.db
 *.log
 wandb/
 
-# MLflow (local tracking data, not research output)
-mlruns/
-mlflow.db
-
-# Agent worktree artifacts (leaked to repo root)
-reviews/fix-manual-timing/
-
 # Abliterated model weights (15GB+)
 results/abliterated_*/
 
@@ -72,8 +65,8 @@ docs/CASSIDY_EXECUTION_PLAN.md
 # Classifier metadata (feature importances, training counts)
 models/cricket_classifiers_meta.json
 
-# Claim review — restored for transparency (Dwayne's IATF audit)
-# claim-review/
+# Claim review (contains internal infrastructure references)
+claim-review/
 
 # Classifier training pipeline
 code/export_cricket_classifiers.py

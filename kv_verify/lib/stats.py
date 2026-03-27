@@ -286,6 +286,59 @@ def make_classifier():
 
 
 # ================================================================
+# SHARED AUROC UTILITIES (extracted from experiment DRY violations)
+# ================================================================
+
+def stratified_auroc(X, y, n_splits=5, seed=42):
+    """Quick AUROC via StratifiedKFold. For null experiments and baselines."""
+    from sklearn.model_selection import StratifiedKFold
+    clf = make_classifier()
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
+    y_proba = np.full(len(y), np.nan)
+    for train_idx, test_idx in skf.split(X, y):
+        if len(np.unique(y[train_idx])) < 2:
+            continue
+        clf.fit(X[train_idx], y[train_idx])
+        y_proba[test_idx] = clf.predict_proba(X[test_idx])[:, 1]
+    valid = ~np.isnan(y_proba)
+    if valid.sum() < 4 or len(np.unique(y[valid])) < 2:
+        return 0.5
+    return float(roc_auc_score(y[valid], y_proba[valid]))
+
+
+def loo_auroc(X, y):
+    """Leave-one-out AUROC for small samples."""
+    from sklearn.model_selection import LeaveOneOut
+    clf = make_classifier()
+    loo = LeaveOneOut()
+    y_proba = np.zeros(len(y))
+    for train_idx, test_idx in loo.split(X):
+        if len(np.unique(y[train_idx])) < 2:
+            y_proba[test_idx] = 0.5
+            continue
+        clf.fit(X[train_idx], y[train_idx])
+        y_proba[test_idx] = clf.predict_proba(X[test_idx])[:, 1]
+    return float(roc_auc_score(y, y_proba))
+
+
+def train_test_auroc(X_train, y_train, X_test, y_test):
+    """Train on one set, test on another. Return AUROC."""
+    clf = make_classifier()
+    if len(np.unique(y_train)) < 2 or len(np.unique(y_test)) < 2:
+        return 0.5
+    clf.fit(X_train, y_train)
+    y_proba = clf.predict_proba(X_test)[:, 1]
+    return float(roc_auc_score(y_test, y_proba))
+
+
+def extract_feature_matrix(items, feature_names=None):
+    """Extract feature matrix from a list of result items with 'features' dict."""
+    if feature_names is None:
+        feature_names = ["norm_per_token", "key_rank", "key_entropy"]
+    return np.array([[item["features"][f] for f in feature_names] for item in items])
+
+
+# ================================================================
 # GROUPKFOLD AUROC (C4 fix for within-fold FWL)
 # ================================================================
 
