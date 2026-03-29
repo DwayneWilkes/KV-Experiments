@@ -19,7 +19,6 @@ from kv_verify.experiments.f02_held_out_input_control import (
     PARADIGMS,
     _analyze_paradigm,
     _compute_input_length_stats,
-    _extract_features,
     _extract_input_lengths,
     _feature_correlations,
     _get_input_tokens,
@@ -31,7 +30,7 @@ from kv_verify.experiments.f02_held_out_input_control import (
     run_f02,
 )
 from kv_verify.fixtures import PRIMARY_FEATURES
-from kv_verify.stats import loo_auroc, train_test_auroc
+from kv_verify.stats import extract_feature_matrix, loo_auroc, train_test_auroc
 from kv_verify.types import Verdict
 
 
@@ -74,13 +73,13 @@ class TestExtractFeatures:
             {"features": {"norm_per_token": 1.0, "key_rank": 2.0, "key_entropy": 3.0}},
             {"features": {"norm_per_token": 4.0, "key_rank": 5.0, "key_entropy": 6.0}},
         ]
-        X = _extract_features(items)
+        X = extract_feature_matrix(items)
         assert X.shape == (2, 3)
         np.testing.assert_array_equal(X[0], [1.0, 2.0, 3.0])
 
     def test_dtype(self):
         items = [{"features": {"norm_per_token": 1, "key_rank": 2, "key_entropy": 3}}]
-        X = _extract_features(items)
+        X = extract_feature_matrix(items)
         assert X.dtype == np.float64
 
 
@@ -162,9 +161,10 @@ class TestLOOAuroc:
         assert auroc > 0.80
 
     def test_random_data_near_chance(self):
+        # LOO with n=20 is highly noisy. Use n=60 for stable chance-level result.
         rng = np.random.RandomState(42)
-        X = rng.randn(20, 2)
-        y = np.array([1] * 10 + [0] * 10)
+        X = rng.randn(60, 2)
+        y = np.array([1] * 30 + [0] * 30)
         auroc = loo_auroc(X, y)
         assert 0.2 < auroc < 0.8
 

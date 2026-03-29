@@ -110,11 +110,6 @@ def _get_word_count(item: dict, prompt_key: str) -> int:
     return len(prompt.split())
 
 
-def _extract_features(items: List[dict]) -> np.ndarray:
-    """Extract PRIMARY_FEATURES matrix from a list of items."""
-    return extract_feature_matrix(items, PRIMARY_FEATURES)
-
-
 def _extract_input_lengths(items: List[dict]) -> np.ndarray:
     """Extract input token counts as a (n, 1) array."""
     return np.array([_get_input_tokens(r) for r in items]).reshape(-1, 1)
@@ -262,13 +257,13 @@ def _analyze_paradigm(paradigm: str) -> Dict[str, Any]:
     test_pos, test_neg = _load_test_data(paradigm)
 
     # Feature matrices
-    X_train_pos = _extract_features(train_pos)
-    X_train_neg = _extract_features(train_neg)
+    X_train_pos = extract_feature_matrix(train_pos)
+    X_train_neg = extract_feature_matrix(train_neg)
     X_train = np.vstack([X_train_pos, X_train_neg])
     y_train = np.array([1] * len(train_pos) + [0] * len(train_neg))
 
-    X_test_pos = _extract_features(test_pos)
-    X_test_neg = _extract_features(test_neg)
+    X_test_pos = extract_feature_matrix(test_pos)
+    X_test_neg = extract_feature_matrix(test_neg)
     X_test = np.vstack([X_test_pos, X_test_neg])
     y_test = np.array([1] * len(test_pos) + [0] * len(test_neg))
 

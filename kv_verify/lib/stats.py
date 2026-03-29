@@ -276,22 +276,28 @@ def assign_groups(
 # CLASSIFIER FACTORY
 # ================================================================
 
-def make_classifier():
+def make_classifier(max_iter=None, solver=None):
     """Standard classifier pipeline used across all experiments.
 
     Centralizes the repeated make_pipeline(StandardScaler(), LogisticRegression(...))
-    pattern. Change here to update all experiments.
+    pattern. Defaults come from constants.py. Pass explicit values to override.
     """
-    return make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
+    from kv_verify.constants import LOGREG_MAX_ITER, LOGREG_SOLVER
+    max_iter = max_iter or LOGREG_MAX_ITER
+    solver = solver or LOGREG_SOLVER
+    return make_pipeline(StandardScaler(), LogisticRegression(max_iter=max_iter, solver=solver))
 
 
 # ================================================================
 # SHARED AUROC UTILITIES (extracted from experiment DRY violations)
 # ================================================================
 
-def stratified_auroc(X, y, n_splits=5, seed=42):
+def stratified_auroc(X, y, n_splits=None, seed=None):
     """Quick AUROC via StratifiedKFold. For null experiments and baselines."""
     from sklearn.model_selection import StratifiedKFold
+    from kv_verify.constants import DEFAULT_SEED, N_SPLITS
+    n_splits = n_splits or N_SPLITS
+    seed = seed or DEFAULT_SEED
     clf = make_classifier()
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=seed)
     y_proba = np.full(len(y), np.nan)
@@ -534,9 +540,9 @@ def permutation_test(
     X: np.ndarray,
     y: np.ndarray,
     groups: np.ndarray,
-    n_permutations: int = 10000,
+    n_permutations: int = None,
     group_level: bool = True,
-    seed: int = 42,
+    seed: int = None,
     fwl_confounds: Optional[np.ndarray] = None,
     fwl_within_fold: bool = True,
 ) -> Dict:
@@ -549,6 +555,9 @@ def permutation_test(
     Optimized: pre-computes fold splits once (splits depend on groups,
     not y). Pre-computes group membership indices. Reuses pipeline object.
     """
+    from kv_verify.constants import DEFAULT_SEED, N_PERMUTATIONS
+    n_permutations = n_permutations or N_PERMUTATIONS
+    seed = seed or DEFAULT_SEED
     rng = np.random.RandomState(seed)
 
     # Pre-compute fold splits once (GroupKFold depends on groups, not y)
@@ -605,10 +614,10 @@ def bootstrap_auroc_ci(
     X: np.ndarray,
     y: np.ndarray,
     groups: np.ndarray,
-    n_bootstrap: int = 10000,
+    n_bootstrap: int = None,
     method: str = "bca",
-    ci: float = 0.95,
-    seed: int = 42,
+    ci: float = None,
+    seed: int = None,
     fwl_confounds: Optional[np.ndarray] = None,
     fwl_within_fold: bool = True,
 ) -> Dict:
@@ -619,6 +628,10 @@ def bootstrap_auroc_ci(
 
     10K resamples (was 1K in original). BCa method (was percentile).
     """
+    from kv_verify.constants import CI_LEVEL, DEFAULT_SEED, N_BOOTSTRAP
+    n_bootstrap = n_bootstrap or N_BOOTSTRAP
+    ci = ci or CI_LEVEL
+    seed = seed or DEFAULT_SEED
     rng = np.random.RandomState(seed)
 
     # Observed AUROC
@@ -832,9 +845,9 @@ def repeated_cv_auroc(
     X: np.ndarray,
     y: np.ndarray,
     groups: np.ndarray,
-    n_repeats: int = 20,
-    n_splits: int = 5,
-    seed: int = 42,
+    n_repeats: int = None,
+    n_splits: int = None,
+    seed: int = None,
     fwl_confounds: Optional[np.ndarray] = None,
     fwl_within_fold: bool = True,
 ) -> Dict:
@@ -844,6 +857,10 @@ def repeated_cv_auroc(
     Varoquaux (2018): single CV gives ±15-20% error at N=40.
     Repeated CV estimates this variance directly.
     """
+    from kv_verify.constants import DEFAULT_SEED, N_REPEATED_CV, N_SPLITS
+    n_repeats = n_repeats or N_REPEATED_CV
+    n_splits = n_splits or N_SPLITS
+    seed = seed or DEFAULT_SEED
     rng = np.random.RandomState(seed)
     aurocs = []
 

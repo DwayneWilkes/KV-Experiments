@@ -33,9 +33,10 @@ import numpy as np
 from scipy.stats import mannwhitneyu, pearsonr
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import LeaveOneOut
 
 from kv_verify.fixtures import PRIMARY_FEATURES
-from kv_verify.stats import extract_feature_matrix, loo_auroc, train_test_auroc
+from kv_verify.stats import extract_feature_matrix, loo_auroc, make_classifier, train_test_auroc
 from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
@@ -56,11 +57,6 @@ def _load_49c_data() -> dict:
         return json.load(f)
 
 
-def _extract_features(items: List[dict], feature_names: List[str]) -> np.ndarray:
-    """Extract feature matrix from a list of items."""
-    return extract_feature_matrix(items, feature_names)
-
-
 def _extract_input_tokens(items: List[dict]) -> np.ndarray:
     """Compute input token count as n_tokens - n_generated."""
     return np.array([
@@ -78,14 +74,6 @@ def _safe_auroc(y_true: np.ndarray, y_score: np.ndarray) -> float:
     return float(roc_auc_score(y_true, y_score))
 
 
-def _cross_model_auroc(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-) -> float:
-    """Train on model A, test on model B."""
-    return train_test_auroc(X_train, y_train, X_test, y_test)
 
 
 def _residualize_cross_model(
@@ -160,8 +148,8 @@ def run_f03(
             pos_items = mdata[task]
             neg_items = mdata["benign"]
 
-            X_pos = _extract_features(pos_items, PRIMARY_FEATURES)
-            X_neg = _extract_features(neg_items, PRIMARY_FEATURES)
+            X_pos = extract_feature_matrix(pos_items, PRIMARY_FEATURES)
+            X_neg = extract_feature_matrix(neg_items, PRIMARY_FEATURES)
             X_all = np.vstack([X_pos, X_neg])
             y = np.array([1] * len(X_pos) + [0] * len(X_neg))
 
@@ -180,7 +168,7 @@ def run_f03(
 
             # Residualized AUROC (within-fold residualization)
             loo = LeaveOneOut()
-            clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000))
+            clf = make_classifier()
             y_proba_resid = np.zeros(len(y))
             for train_idx, test_idx in loo.split(X_all):
                 X_tr = X_all[train_idx].copy()
@@ -238,8 +226,8 @@ def run_f03(
                 # Training data from model A
                 train_pos = pmd[train_model][task]
                 train_neg = pmd[train_model]["benign"]
-                X_train_pos = _extract_features(train_pos, PRIMARY_FEATURES)
-                X_train_neg = _extract_features(train_neg, PRIMARY_FEATURES)
+                X_train_pos = extract_feature_matrix(train_pos, PRIMARY_FEATURES)
+                X_train_neg = extract_feature_matrix(train_neg, PRIMARY_FEATURES)
                 X_train = np.vstack([X_train_pos, X_train_neg])
                 y_train = np.array([1] * len(X_train_pos) + [0] * len(X_train_neg))
                 input_train = np.concatenate([
@@ -250,8 +238,8 @@ def run_f03(
                 # Test data from model B
                 test_pos = pmd[test_model][task]
                 test_neg = pmd[test_model]["benign"]
-                X_test_pos = _extract_features(test_pos, PRIMARY_FEATURES)
-                X_test_neg = _extract_features(test_neg, PRIMARY_FEATURES)
+                X_test_pos = extract_feature_matrix(test_pos, PRIMARY_FEATURES)
+                X_test_neg = extract_feature_matrix(test_neg, PRIMARY_FEATURES)
                 X_test = np.vstack([X_test_pos, X_test_neg])
                 y_test = np.array([1] * len(X_test_pos) + [0] * len(X_test_neg))
                 input_test = np.concatenate([
@@ -260,10 +248,10 @@ def run_f03(
                 ])
 
                 # 1. Raw cross-model AUROC
-                raw_auroc = _cross_model_auroc(X_train, y_train, X_test, y_test)
+                raw_auroc = train_test_auroc(X_train, y_train, X_test, y_test)
 
                 # 2. Input-only cross-model AUROC
-                input_only_auroc = _cross_model_auroc(
+                input_only_auroc = train_test_auroc(
                     input_train.reshape(-1, 1), y_train,
                     input_test.reshape(-1, 1), y_test,
                 )
@@ -272,7 +260,7 @@ def run_f03(
                 X_train_resid, X_test_resid = _residualize_cross_model(
                     X_train, input_train, X_test, input_test,
                 )
-                resid_auroc = _cross_model_auroc(
+                resid_auroc = train_test_auroc(
                     X_train_resid, y_train, X_test_resid, y_test,
                 )
 

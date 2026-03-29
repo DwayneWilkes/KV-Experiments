@@ -13,8 +13,6 @@ import pytest
 from kv_verify.experiments.f03_cross_model_input_control import (
     MODEL_SHORT_NAMES,
     TASKS,
-    _cross_model_auroc,
-    _extract_features,
     _extract_input_tokens,
     _load_49c_data,
     _residualize_cross_model,
@@ -22,7 +20,7 @@ from kv_verify.experiments.f03_cross_model_input_control import (
     run_f03,
 )
 from kv_verify.fixtures import PRIMARY_FEATURES
-from kv_verify.stats import loo_auroc
+from kv_verify.stats import extract_feature_matrix, loo_auroc, train_test_auroc
 from kv_verify.types import Severity, Verdict
 
 
@@ -49,7 +47,7 @@ class TestDataLoading:
     def test_extract_features_shape(self):
         data = _load_49c_data()
         items = data["per_model_data"]["Qwen2.5-7B-Instruct"]["refusal"]
-        X = _extract_features(items, PRIMARY_FEATURES)
+        X = extract_feature_matrix(items, PRIMARY_FEATURES)
         assert X.shape == (15, 3)
         assert not np.any(np.isnan(X))
 
@@ -106,7 +104,7 @@ class TestStatisticalHelpers:
         y_train = np.array([0] * 15 + [1] * 15)
         X_test = np.vstack([rng.randn(15, 3) - 2, rng.randn(15, 3) + 2])
         y_test = np.array([0] * 15 + [1] * 15)
-        auroc = _cross_model_auroc(X_train, y_train, X_test, y_test)
+        auroc = train_test_auroc(X_train, y_train, X_test, y_test)
         assert auroc > 0.85
 
     def test_residualize_cross_model_shape(self):

@@ -253,6 +253,11 @@ def main():
     # Load model
     model, tokenizer = load_model()
 
+    if torch.cuda.is_available():
+        props = torch.cuda.get_device_properties(0)
+        print(f"GPU: {props.name}, VRAM: {props.total_mem / 1e9:.1f}GB, "
+              f"Allocated: {torch.cuda.memory_allocated() / 1e9:.1f}GB")
+
     # Extract features for each item
     t0_total = time.time()
     for i, item in enumerate(items):
