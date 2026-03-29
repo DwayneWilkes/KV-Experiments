@@ -37,6 +37,10 @@ import numpy as np
 from scipy.stats import mannwhitneyu, pearsonr, ttest_ind
 from sklearn.linear_model import LinearRegression
 
+from kv_verify.constants import (
+    ALPHA, AUROC_FWL_PRESERVE, AUROC_INPUT_CONFOUND, AUROC_SAME_CONDITION,
+    DEFAULT_SEED, LOGREG_MAX_ITER, LOGREG_SOLVER, N_BOOTSTRAP_F02,
+)
 from kv_verify.data_loader import _load_json
 from kv_verify.fixtures import PRIMARY_FEATURES
 from kv_verify.stats import (
@@ -51,7 +55,7 @@ from kv_verify.types import ClaimVerification, Severity, Verdict
 # ================================================================
 
 HACKATHON_DIR = Path(__file__).resolve().parent.parent.parent / "results" / "hackathon"
-SEED = 42
+SEED = DEFAULT_SEED
 
 # Transfer paradigm mapping: which training data and conditions go with
 # which held-out test conditions.
@@ -316,7 +320,7 @@ def _analyze_paradigm(paradigm: str) -> Dict[str, Any]:
 
     # LOO residualized within held-out
     loo = LeaveOneOut()
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
+    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=LOGREG_MAX_ITER, solver=LOGREG_SOLVER))
     y_proba_resid_loo = np.zeros(len(y_test))
     for train_idx, test_idx in loo.split(X_test):
         X_tr = X_test[train_idx].copy()
@@ -343,7 +347,7 @@ def _analyze_paradigm(paradigm: str) -> Dict[str, Any]:
     # Bootstrap CI for the AUROC drop
     rng = np.random.RandomState(SEED)
     auroc_drop = baseline_auroc - residualized_auroc
-    n_boot = 2000
+    n_boot = N_BOOTSTRAP_F02
     boot_drops = np.zeros(n_boot)
     n_test = len(y_test)
     for b in range(n_boot):
@@ -354,13 +358,13 @@ def _analyze_paradigm(paradigm: str) -> Dict[str, Any]:
         try:
             base_b = roc_auc_score(
                 y_test[idx],
-                make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
+                make_pipeline(StandardScaler(), LogisticRegression(max_iter=LOGREG_MAX_ITER, solver=LOGREG_SOLVER))
                 .fit(X_train, y_train)
                 .predict_proba(X_test[idx])[:, 1],
             )
             resid_b = roc_auc_score(
                 y_test[idx],
-                make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
+                make_pipeline(StandardScaler(), LogisticRegression(max_iter=LOGREG_MAX_ITER, solver=LOGREG_SOLVER))
                 .fit(X_train_resid, y_train)
                 .predict_proba(X_test_resid[idx])[:, 1],
             )
@@ -414,11 +418,11 @@ def _paradigm_verdict(result: Dict[str, Any]) -> Tuple[Verdict, str]:
     # Confound present: significant input-length difference AND
     # input-only classification above chance
     length_confounded = (
-        test_stats["welch_t_p_value"] < 0.05 and
-        input_only > 0.70
+        test_stats["welch_t_p_value"] < ALPHA and
+        input_only > AUROC_INPUT_CONFOUND
     )
 
-    if length_confounded and residualized < 0.60:
+    if length_confounded and residualized < AUROC_FWL_PRESERVE:
         verdict = Verdict.FALSIFIED
         evidence = (
             f"{paradigm}: Held-out transfer is an input-length artifact. "
@@ -428,7 +432,7 @@ def _paradigm_verdict(result: Dict[str, Any]) -> Tuple[Verdict, str]:
             f"Baseline transfer AUROC={baseline:.3f} drops to "
             f"{residualized:.3f} after residualization (drop={drop:.3f})."
         )
-    elif residualized > 0.65:
+    elif residualized > AUROC_SAME_CONDITION:
         verdict = Verdict.CONFIRMED
         evidence = (
             f"{paradigm}: Transfer signal survives input-length control. "
@@ -474,7 +478,7 @@ def run_f02(
 
     tracker.log_params(
         experiment="F02", finding="F02", seed=SEED,
-        n_paradigms=3, bootstrap_n=2000,
+        n_paradigms=3, bootstrap_n=N_BOOTSTRAP_F02,
     )
     tracker.set_tag("experiment", "F02")
     tracker.set_tag("finding", "F02")
@@ -493,7 +497,7 @@ def run_f02(
         )
 
     # Holm-Bonferroni correction on input-length p-values
-    corrected = holm_bonferroni(p_values_for_correction, alpha=0.05)
+    corrected = holm_bonferroni(p_values_for_correction, alpha=ALPHA)
     for i, paradigm in enumerate(["deception", "refusal", "impossibility"]):
         paradigm_data[paradigm]["test_length_stats"]["welch_t_p_corrected"] = (
             corrected[i]["corrected_p"]
@@ -680,7 +684,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--seed",
         type=int,
-        default=42,
+        default=DEFAULT_SEED,
         help="Random seed (default: 42)",
     )
     args = parser.parse_args()

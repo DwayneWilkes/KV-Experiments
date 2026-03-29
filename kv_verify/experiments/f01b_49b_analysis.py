@@ -27,6 +27,7 @@ from sklearn.model_selection import LeaveOneOut
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+from kv_verify.constants import LOGREG_MAX_ITER
 from kv_verify.fixtures import PRIMARY_FEATURES
 from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
@@ -83,7 +84,7 @@ def run_f01b_49b(
 
     # Test 1: input-only classification
     loo = LeaveOneOut()
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000))
+    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=LOGREG_MAX_ITER))
     y_proba_input = np.zeros(20)
     for train_idx, test_idx in loo.split(input_all):
         clf.fit(input_all[train_idx], y[train_idx])

@@ -13,6 +13,7 @@ Spec: verification-pipeline/experiments/V04-holm-bonferroni.md
 from pathlib import Path
 from typing import List, Optional
 
+from kv_verify.constants import ALPHA
 from kv_verify.fixtures import EXP47_COMPARISONS
 from kv_verify.stats import holm_bonferroni
 from kv_verify.tracking import ExperimentTracker
@@ -39,7 +40,7 @@ def run_v04(
             output_dir=output_dir, experiment_name="V04-holm-bonferroni",
         )
 
-    tracker.log_params(experiment="V04", finding="C5", alpha=0.05, n_comparisons=10)
+    tracker.log_params(experiment="V04", finding="C5", alpha=ALPHA, n_comparisons=10)
     tracker.set_tag("experiment", "V04")
     tracker.set_tag("finding", "C5")
 
@@ -48,12 +49,12 @@ def run_v04(
     names = [c["name"] for c in EXP47_COMPARISONS]
 
     # Apply Holm-Bonferroni
-    corrected = holm_bonferroni(p_values, alpha=0.05)
+    corrected = holm_bonferroni(p_values, alpha=ALPHA)
 
     # Build per-comparison correction records
     corrections: List[dict] = []
     for i, c in enumerate(corrected):
-        was_sig = p_values[i] < 0.05
+        was_sig = p_values[i] < ALPHA
         is_sig = c["reject_null"]
         corrections.append({
             "name": names[i],
@@ -66,7 +67,7 @@ def run_v04(
         })
 
     # Count significance changes
-    n_sig_raw = sum(1 for p in p_values if p < 0.05)
+    n_sig_raw = sum(1 for p in p_values if p < ALPHA)
     n_sig_corrected = sum(1 for c in corrected if c["reject_null"])
     flipped = [c for c in corrections if c["flipped"]]
     flipped_names = [c["name"] for c in flipped]

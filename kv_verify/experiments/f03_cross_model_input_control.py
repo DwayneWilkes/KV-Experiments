@@ -35,6 +35,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import LeaveOneOut
 
+from kv_verify.constants import AUROC_FWL_COLLAPSE, AUROC_INPUT_CONFOUND
 from kv_verify.fixtures import PRIMARY_FEATURES
 from kv_verify.stats import extract_feature_matrix, loo_auroc, make_classifier, train_test_auroc
 from kv_verify.tracking import ExperimentTracker
@@ -303,15 +304,15 @@ def run_f03(
     within_resid = [v["resid_auroc"] for v in within_model_results.values()]
     within_input = [v["input_only_auroc"] for v in within_model_results.values()]
 
-    # Count how many cross-model pairs have input_only > 0.70
-    n_input_confounded = sum(1 for v in cross_model_results.values() if v["input_only_auroc"] > 0.70)
+    # Count how many cross-model pairs have input_only > AUROC_INPUT_CONFOUND
+    n_input_confounded = sum(1 for v in cross_model_results.values() if v["input_only_auroc"] > AUROC_INPUT_CONFOUND)
     n_cross_total = len(cross_model_results)
 
     # Count how many cross-model pairs lose >0.10 AUROC after residualization
     n_degraded = sum(1 for v in cross_model_results.values() if v["auroc_drop"] > 0.10)
 
-    # Count how many within-model results survive residualization (resid > 0.70)
-    n_within_survive = sum(1 for v in within_model_results.values() if v["resid_auroc"] > 0.70)
+    # Count how many within-model results survive residualization (resid > AUROC_INPUT_CONFOUND)
+    n_within_survive = sum(1 for v in within_model_results.values() if v["resid_auroc"] > AUROC_INPUT_CONFOUND)
     n_within_total = len(within_model_results)
 
     # ------------------------------------------------------------------
@@ -319,14 +320,14 @@ def run_f03(
     # ------------------------------------------------------------------
     # Cross-model transfer is the claim being tested.
     # Pre-registered logic:
-    #   - If mean cross-model input_only AUROC > 0.70: input structure drives transfer
+    #   - If mean cross-model input_only AUROC > AUROC_INPUT_CONFOUND: input structure drives transfer
     #   - If mean cross-model resid AUROC drops below 0.55: transfer is confounded
-    #   - If mean cross-model resid AUROC holds > 0.70: genuine geometry
+    #   - If mean cross-model resid AUROC holds > AUROC_INPUT_CONFOUND: genuine geometry
     mean_cross_raw = float(np.mean(cross_raw))
     mean_cross_resid = float(np.mean(cross_resid))
     mean_cross_input = float(np.mean(cross_input))
 
-    if mean_cross_input > 0.70 and mean_cross_resid < 0.55:
+    if mean_cross_input > AUROC_INPUT_CONFOUND and mean_cross_resid < AUROC_FWL_COLLAPSE:
         verdict = Verdict.FALSIFIED
         evidence = (
             f"Cross-model transfer is an input-length artifact. "
@@ -334,14 +335,14 @@ def run_f03(
             f"After residualization, mean AUROC drops from {mean_cross_raw:.3f} to "
             f"{mean_cross_resid:.3f}. The 'universal geometry' is universal prompt structure."
         )
-    elif mean_cross_resid > 0.70:
+    elif mean_cross_resid > AUROC_INPUT_CONFOUND:
         verdict = Verdict.CONFIRMED
         evidence = (
             f"Cross-model transfer survives input-length control. "
             f"Mean raw AUROC={mean_cross_raw:.3f}, residualized={mean_cross_resid:.3f}. "
             f"Genuine geometric signal transfers across models."
         )
-    elif mean_cross_raw < 0.55:
+    elif mean_cross_raw < AUROC_FWL_COLLAPSE:
         verdict = Verdict.WEAKENED
         evidence = (
             f"Cross-model transfer was already near chance before input control. "

@@ -26,6 +26,7 @@ from typing import Optional
 
 import numpy as np
 
+from kv_verify.constants import ALPHA, AUROC_FWL_COLLAPSE, AUROC_FWL_PRESERVE, AUROC_GEOMETRY_ADVANTAGE
 from kv_verify.data_loader import load_comparison_data
 from kv_verify.stats import assign_groups, groupkfold_auroc
 from kv_verify.tracking import ExperimentTracker
@@ -52,7 +53,7 @@ def run_v07(
             output_dir=output_dir, experiment_name="V07-sycophancy",
         )
 
-    tracker.log_params(experiment="V07", finding="M2", alpha=0.05)
+    tracker.log_params(experiment="V07", finding="M2", alpha=ALPHA)
     tracker.set_tag("experiment", "V07")
     tracker.set_tag("finding", "M2")
 
@@ -103,9 +104,9 @@ def run_v07(
     # ---- Verdict per pre-registered criteria ----
     if length_only_auroc >= feature_auroc:
         verdict = Verdict.FALSIFIED
-    elif fwl_both_auroc < 0.55:
+    elif fwl_both_auroc < AUROC_FWL_COLLAPSE:
         verdict = Verdict.FALSIFIED
-    elif feature_auroc > length_only_auroc + 0.05 and fwl_both_auroc > 0.60:
+    elif feature_auroc > length_only_auroc + AUROC_GEOMETRY_ADVANTAGE and fwl_both_auroc > AUROC_FWL_PRESERVE:
         verdict = Verdict.CONFIRMED
     else:
         verdict = Verdict.WEAKENED

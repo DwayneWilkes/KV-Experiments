@@ -17,6 +17,10 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
+from kv_verify.constants import (
+    AUROC_GEOMETRY_ADVANTAGE, AUROC_INPUT_CONFOUND,
+    AUROC_SAME_CONDITION, DEFAULT_SEED, F01A_N_REPEATS,
+)
 from kv_verify.data_loader import _load_json
 from kv_verify.fixtures import PRIMARY_FEATURES
 from kv_verify.stats import stratified_auroc
@@ -26,7 +30,7 @@ from kv_verify.types import ClaimVerification, Severity, Verdict
 
 def run_f01a(
     output_dir: Path,
-    n_repeats: int = 100,
+    n_repeats: int = F01A_N_REPEATS,
     tracker: Optional[ExperimentTracker] = None,
 ) -> ClaimVerification:
     """Null experiment: classify within the same condition.
@@ -69,7 +73,7 @@ def run_f01a(
         X = np.array([[r["features"][f] for f in PRIMARY_FEATURES] for r in items])
         condition_pools[f"exp36_{cond}"] = X
 
-    rng = np.random.RandomState(42)
+    rng = np.random.RandomState(DEFAULT_SEED)
     null_results = {}
 
     for pool_name, X_pool in condition_pools.items():
@@ -98,7 +102,7 @@ def run_f01a(
 
     # Check if any pool has mean null AUROC > 0.65
     max_null = max(r["mean_auroc"] for r in null_results.values())
-    fatal = max_null > 0.65
+    fatal = max_null > AUROC_SAME_CONDITION
     worst_pool = max(null_results, key=lambda k: null_results[k]["mean_auroc"])
 
     if fatal:
@@ -184,7 +188,7 @@ def run_f01b(
             output_dir=output_dir, experiment_name="F01b-input",
         )
 
-    tracker.log_params(experiment="F01b", finding="F01b", threshold=0.70)
+    tracker.log_params(experiment="F01b", finding="F01b", threshold=AUROC_INPUT_CONFOUND)
     tracker.set_tag("experiment", "F01b")
     tracker.set_tag("finding", "F01b")
 
@@ -232,7 +236,7 @@ def run_f01b(
             "n_neg": len(neg_items),
             "mean_pos_words": float(np.mean(X_pos[:, 0])),
             "mean_neg_words": float(np.mean(X_neg[:, 0])),
-            "confounded": auroc > 0.70,
+            "confounded": auroc > AUROC_INPUT_CONFOUND,
         }
 
     # Check for input confounds
@@ -319,7 +323,7 @@ def run_f01c(
             output_dir=output_dir, experiment_name="F01c-format",
         )
 
-    tracker.log_params(experiment="F01c", finding="F01c", threshold=0.05)
+    tracker.log_params(experiment="F01c", finding="F01c", threshold=AUROC_GEOMETRY_ADVANTAGE)
     tracker.set_tag("experiment", "F01c")
     tracker.set_tag("finding", "F01c")
 
@@ -374,11 +378,11 @@ def run_f01c(
             "format_auroc": float(format_auroc),
             "cache_auroc": float(cache_auroc),
             "delta": float(cache_auroc - format_auroc),
-            "format_confound": format_auroc >= cache_auroc - 0.05,
+            "format_confound": format_auroc >= cache_auroc - AUROC_GEOMETRY_ADVANTAGE,
         }
 
     confounded = [name for name, r in format_results.items() if r["format_confound"]]
-    any_geometry_wins = any(r["delta"] > 0.10 for r in format_results.values())
+    any_geometry_wins = any(r["delta"] > AUROC_GEOMETRY_ADVANTAGE for r in format_results.values())
 
     if len(confounded) == len(format_results):
         verdict = Verdict.FALSIFIED

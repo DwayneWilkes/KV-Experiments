@@ -37,6 +37,7 @@ import numpy as np
 import torch
 from scipy.stats import pearsonr
 
+from kv_verify.constants import MAX_NEW_TOKENS
 from kv_verify.fixtures import PRIMARY_FEATURES
 from kv_verify.lib.models import load_model
 from kv_verify.stats import assign_groups, groupkfold_auroc
@@ -50,7 +51,7 @@ CACHE_DIR = OUTPUT_DIR / "cache"
 # Feature Extraction (corrected code)
 # ================================================================
 
-def extract_features(model, tokenizer, prompt, system_prompt, max_new_tokens=200):
+def extract_features(model, tokenizer, prompt, system_prompt, max_new_tokens=MAX_NEW_TOKENS):
     """Extract KV-cache features with ALL bug fixes applied.
 
     Corrections vs original codebase:
@@ -456,7 +457,8 @@ def main():
         abs(v["delta"]) for v in classification_results.values()
     ) if classification_results else 0
 
-    if min_r > 0.99 and max_auroc_delta < 0.05:
+    from kv_verify.constants import AUROC_DELTA
+    if min_r > 0.99 and max_auroc_delta < AUROC_DELTA:
         verdict = "CONFIRMED"
         evidence = (
             f"Features match stored values (min r={min_r:.4f}). "
