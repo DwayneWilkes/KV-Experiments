@@ -70,3 +70,5 @@ claim-review/
 
 # Classifier training pipeline
 code/export_cricket_classifiers.py
+mlflow.db
+mlruns/
