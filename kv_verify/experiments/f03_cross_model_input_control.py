@@ -31,13 +31,11 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.stats import mannwhitneyu, pearsonr
-from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import LeaveOneOut
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 
 from kv_verify.fixtures import PRIMARY_FEATURES
+from kv_verify.stats import extract_feature_matrix, loo_auroc, train_test_auroc
 from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
@@ -60,10 +58,7 @@ def _load_49c_data() -> dict:
 
 def _extract_features(items: List[dict], feature_names: List[str]) -> np.ndarray:
     """Extract feature matrix from a list of items."""
-    return np.array([
-        [item["features"][f] for f in feature_names]
-        for item in items
-    ])
+    return extract_feature_matrix(items, feature_names)
 
 
 def _extract_input_tokens(items: List[dict]) -> np.ndarray:
@@ -83,33 +78,14 @@ def _safe_auroc(y_true: np.ndarray, y_score: np.ndarray) -> float:
     return float(roc_auc_score(y_true, y_score))
 
 
-def _loo_auroc(X: np.ndarray, y: np.ndarray) -> float:
-    """Leave-one-out AUROC for small samples."""
-    loo = LeaveOneOut()
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000))
-    y_proba = np.zeros(len(y))
-    for train_idx, test_idx in loo.split(X):
-        if len(np.unique(y[train_idx])) < 2:
-            y_proba[test_idx] = 0.5
-            continue
-        clf.fit(X[train_idx], y[train_idx])
-        y_proba[test_idx] = clf.predict_proba(X[test_idx])[:, 1]
-    return _safe_auroc(y, y_proba)
-
-
 def _cross_model_auroc(
     X_train: np.ndarray,
     y_train: np.ndarray,
     X_test: np.ndarray,
     y_test: np.ndarray,
 ) -> float:
-    """Train on model A, test on model B. StandardScaler + LogisticRegression."""
-    if len(np.unique(y_train)) < 2 or len(np.unique(y_test)) < 2:
-        return 0.5
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000))
-    clf.fit(X_train, y_train)
-    y_proba = clf.predict_proba(X_test)[:, 1]
-    return _safe_auroc(y_test, y_proba)
+    """Train on model A, test on model B."""
+    return train_test_auroc(X_train, y_train, X_test, y_test)
 
 
 def _residualize_cross_model(
@@ -197,10 +173,10 @@ def run_f03(
             u_stat, u_p = mannwhitneyu(input_pos, input_neg, alternative="two-sided")
 
             # Raw within-model AUROC (LOO)
-            raw_auroc = _loo_auroc(X_all, y)
+            raw_auroc = loo_auroc(X_all, y)
 
             # Input-only AUROC
-            input_only_auroc = _loo_auroc(input_all.reshape(-1, 1), y)
+            input_only_auroc = loo_auroc(input_all.reshape(-1, 1), y)
 
             # Residualized AUROC (within-fold residualization)
             loo = LeaveOneOut()

@@ -30,7 +30,6 @@ so interrupted runs resume from where they left off.
 
 import hashlib
 import json
-import sys
 import time
 from pathlib import Path
 
@@ -38,44 +37,13 @@ import numpy as np
 import torch
 from scipy.stats import pearsonr
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-
 from kv_verify.fixtures import PRIMARY_FEATURES
+from kv_verify.lib.models import load_model
 from kv_verify.stats import assign_groups, groupkfold_auroc
 
 HACKATHON_DIR = Path(__file__).resolve().parent.parent.parent / "results" / "hackathon"
 OUTPUT_DIR = Path(__file__).resolve().parent / "output" / "f01d_reextraction"
 CACHE_DIR = OUTPUT_DIR / "cache"
-
-
-# ================================================================
-# Model Loading
-# ================================================================
-
-def load_model(model_id="Qwen/Qwen2.5-7B-Instruct"):
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-
-    print(f"Loading {model_id}...")
-    t0 = time.time()
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id,
-        torch_dtype=torch.bfloat16,
-        device_map="auto",
-    )
-    model.eval()
-    elapsed = time.time() - t0
-    print(f"Loaded in {elapsed:.1f}s")
-
-    if torch.cuda.is_available():
-        props = torch.cuda.get_device_properties(0)
-        print(f"GPU: {props.name}, VRAM: {props.total_mem / 1e9:.1f}GB, "
-              f"Allocated: {torch.cuda.memory_allocated() / 1e9:.1f}GB")
-
-    return model, tokenizer
 
 
 # ================================================================

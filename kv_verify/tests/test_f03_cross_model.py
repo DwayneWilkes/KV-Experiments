@@ -17,12 +17,12 @@ from kv_verify.experiments.f03_cross_model_input_control import (
     _extract_features,
     _extract_input_tokens,
     _load_49c_data,
-    _loo_auroc,
     _residualize_cross_model,
     _safe_auroc,
     run_f03,
 )
 from kv_verify.fixtures import PRIMARY_FEATURES
+from kv_verify.stats import loo_auroc
 from kv_verify.types import Severity, Verdict
 
 
@@ -88,7 +88,7 @@ class TestStatisticalHelpers:
         rng = np.random.RandomState(42)
         X = np.vstack([rng.randn(15, 3) - 2, rng.randn(15, 3) + 2])
         y = np.array([0] * 15 + [1] * 15)
-        auroc = _loo_auroc(X, y)
+        auroc = loo_auroc(X, y)
         # Well-separated data should have high AUROC
         assert auroc > 0.90
 
@@ -96,7 +96,7 @@ class TestStatisticalHelpers:
         rng = np.random.RandomState(42)
         X = rng.randn(30, 3)
         y = np.array([0] * 15 + [1] * 15)
-        auroc = _loo_auroc(X, y)
+        auroc = loo_auroc(X, y)
         # Random data should be near chance
         assert 0.2 < auroc < 0.8
 

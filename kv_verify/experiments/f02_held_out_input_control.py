@@ -35,15 +35,14 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.stats import mannwhitneyu, pearsonr, ttest_ind
-from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import LeaveOneOut
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
 
 from kv_verify.data_loader import _load_json
 from kv_verify.fixtures import PRIMARY_FEATURES
-from kv_verify.stats import cohens_d, hedges_g, holm_bonferroni
+from kv_verify.stats import (
+    cohens_d, hedges_g, holm_bonferroni,
+    extract_feature_matrix, loo_auroc, train_test_auroc,
+)
 from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
@@ -113,10 +112,7 @@ def _get_word_count(item: dict, prompt_key: str) -> int:
 
 def _extract_features(items: List[dict]) -> np.ndarray:
     """Extract PRIMARY_FEATURES matrix from a list of items."""
-    return np.array([
-        [float(r["features"][f]) for f in PRIMARY_FEATURES]
-        for r in items
-    ])
+    return extract_feature_matrix(items, PRIMARY_FEATURES)
 
 
 def _extract_input_lengths(items: List[dict]) -> np.ndarray:
@@ -204,44 +200,6 @@ def _compute_input_length_stats(
 # ================================================================
 # CORE ANALYSIS: TRANSFER CLASSIFICATION
 # ================================================================
-
-def _loo_auroc(X: np.ndarray, y: np.ndarray) -> float:
-    """LOO cross-validated AUROC for small samples."""
-    loo = LeaveOneOut()
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
-    y_proba = np.zeros(len(y))
-
-    for train_idx, test_idx in loo.split(X):
-        if len(np.unique(y[train_idx])) < 2:
-            y_proba[test_idx] = 0.5
-            continue
-        clf.fit(X[train_idx], y[train_idx])
-        y_proba[test_idx] = clf.predict_proba(X[test_idx])[:, 1]
-
-    if len(np.unique(y)) < 2:
-        return 0.5
-    return float(roc_auc_score(y, y_proba))
-
-
-def _train_test_auroc(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-) -> float:
-    """Train on X_train, predict on X_test, return AUROC."""
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
-
-    if len(np.unique(y_train)) < 2:
-        return 0.5
-
-    clf.fit(X_train, y_train)
-    y_proba = clf.predict_proba(X_test)[:, 1]
-
-    if len(np.unique(y_test)) < 2:
-        return 0.5
-
-    return float(roc_auc_score(y_test, y_proba))
 
 
 def _residualize_train_test(
@@ -340,26 +298,26 @@ def _analyze_paradigm(paradigm: str) -> Dict[str, Any]:
     # training data. This is favorable to the paper's claim: more training
     # data gives a better classifier, so signal collapse despite more data
     # is a STRONGER falsification.
-    baseline_auroc = _train_test_auroc(X_train, y_train, X_test, y_test)
+    baseline_auroc = train_test_auroc(X_train, y_train, X_test, y_test)
 
     # Step 3: Input-only classification on held-out
     # LOO on the held-out set using only input token count
-    input_only_auroc_heldout = _loo_auroc(Z_test, y_test)
+    input_only_auroc_heldout = loo_auroc(Z_test, y_test)
 
     # Also train input-only on training data, test on held-out
-    input_only_transfer = _train_test_auroc(Z_train, y_train, Z_test, y_test)
+    input_only_transfer = train_test_auroc(Z_train, y_train, Z_test, y_test)
 
     # Step 4: Residualized transfer AUROC
     # Fit residualization on training data, apply to both train and test
     X_train_resid, X_test_resid, r_squared = _residualize_train_test(
         X_train, Z_train, X_test, Z_test,
     )
-    residualized_auroc = _train_test_auroc(
+    residualized_auroc = train_test_auroc(
         X_train_resid, y_train, X_test_resid, y_test,
     )
 
     # Step 5: Within-heldout LOO classification (both original and residualized)
-    within_heldout_auroc = _loo_auroc(X_test, y_test)
+    within_heldout_auroc = loo_auroc(X_test, y_test)
 
     # LOO residualized within held-out
     loo = LeaveOneOut()

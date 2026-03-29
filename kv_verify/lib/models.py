@@ -139,7 +139,7 @@ def load_model(name_or_id: str = "qwen", dtype=None):
 
     model = AutoModelForCausalLM.from_pretrained(
         local_path,
-        torch_dtype=dtype,
+        dtype=dtype,
         device_map="auto",
     )
     model.eval()

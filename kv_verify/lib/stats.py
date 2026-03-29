@@ -335,7 +335,7 @@ def extract_feature_matrix(items, feature_names=None):
     """Extract feature matrix from a list of result items with 'features' dict."""
     if feature_names is None:
         feature_names = ["norm_per_token", "key_rank", "key_entropy"]
-    return np.array([[item["features"][f] for f in feature_names] for item in items])
+    return np.array([[float(item["features"][f]) for f in feature_names] for item in items])
 
 
 # ================================================================

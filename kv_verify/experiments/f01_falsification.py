@@ -16,36 +16,12 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import GroupKFold, StratifiedKFold
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import make_pipeline
 
-from kv_verify.data_loader import load_comparison_data, list_comparisons, _load_json
-from kv_verify.fixtures import EXP47_COMPARISONS, PRIMARY_FEATURES
+from kv_verify.data_loader import _load_json
+from kv_verify.fixtures import PRIMARY_FEATURES
+from kv_verify.stats import stratified_auroc
 from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
-
-
-# ================================================================
-# F01a: Null Experiment
-# ================================================================
-
-def _stratified_auroc(X, y, n_splits=5):
-    """Quick AUROC via StratifiedKFold (no group structure)."""
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
-    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-    y_proba = np.full(len(y), np.nan)
-    for train_idx, test_idx in skf.split(X, y):
-        if len(np.unique(y[train_idx])) < 2:
-            continue
-        clf.fit(X[train_idx], y[train_idx])
-        y_proba[test_idx] = clf.predict_proba(X[test_idx])[:, 1]
-    valid = ~np.isnan(y_proba)
-    if valid.sum() < 4 or len(np.unique(y[valid])) < 2:
-        return 0.5
-    return float(roc_auc_score(y[valid], y_proba[valid]))
 
 
 def run_f01a(
@@ -108,7 +84,7 @@ def run_f01a(
             X_a, X_b = X_pool[perm[:half]], X_pool[perm[half:2 * half]]
             X = np.vstack([X_a, X_b])
             y = np.array([1] * len(X_a) + [0] * len(X_b))
-            auroc = _stratified_auroc(X, y, n_splits=min(5, half))
+            auroc = stratified_auroc(X, y, n_splits=min(5, half))
             aurocs.append(auroc)
 
         null_results[pool_name] = {
@@ -248,7 +224,7 @@ def run_f01b(
         X = np.vstack([X_pos, X_neg])
         y = np.array([1] * len(X_pos) + [0] * len(X_neg))
 
-        auroc = _stratified_auroc(X, y)
+        auroc = stratified_auroc(X, y)
 
         input_confound_results[comp_name] = {
             "input_only_auroc": float(auroc),
@@ -391,8 +367,8 @@ def run_f01c(
 
         y = np.array([1] * len(pos_items) + [0] * len(neg_items))
 
-        format_auroc = _stratified_auroc(X_format, y)
-        cache_auroc = _stratified_auroc(X_cache, y)
+        format_auroc = stratified_auroc(X_format, y)
+        cache_auroc = stratified_auroc(X_cache, y)
 
         format_results[comp_name] = {
             "format_auroc": float(format_auroc),
