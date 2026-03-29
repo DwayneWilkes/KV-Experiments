@@ -18,6 +18,7 @@ Spec: verification-pipeline/experiments/V10-power-analysis.md
 from pathlib import Path
 from typing import List, Optional
 
+from kv_verify.constants import ALPHA, POWER_ADEQUATE, POWER_N_SIM, POWER_UNDERPOWERED
 from kv_verify.fixtures import EXP47_COMPARISONS
 from kv_verify.stats import power_analysis
 from kv_verify.tracking import ExperimentTracker
@@ -26,7 +27,7 @@ from kv_verify.types import ClaimVerification, Severity, Verdict
 
 def run_v10(
     output_dir: Path,
-    n_sim: int = 10000,
+    n_sim: int = POWER_N_SIM,
     tracker: Optional[ExperimentTracker] = None,
 ) -> ClaimVerification:
     """Compute achieved power for all 10 Exp 47 comparisons.
@@ -62,7 +63,7 @@ def run_v10(
         name = comp["name"]
         auroc = comp["auroc"]
         n_per_group = min(comp["n_pos"], comp["n_neg"])
-        was_significant = comp["p_value"] < 0.05
+        was_significant = comp["p_value"] < ALPHA
 
         result = power_analysis(
             n_per_group=n_per_group,
@@ -82,7 +83,7 @@ def run_v10(
         }
         power_table.append(entry)
 
-        if was_significant and result["achieved_power"] < 0.50:
+        if was_significant and result["achieved_power"] < POWER_UNDERPOWERED:
             underpowered.append(name)
 
     # Verdict per pre-registered criteria
@@ -92,7 +93,7 @@ def run_v10(
     else:
         # Check if all significant results have power > 0.80
         all_adequate = all(
-            e["achieved_power"] > 0.80
+            e["achieved_power"] > POWER_ADEQUATE
             for e in power_table
             if e["was_significant"]
         )
@@ -102,7 +103,7 @@ def run_v10(
     sig_count = sum(1 for e in power_table if e["was_significant"])
     adequate_count = sum(
         1 for e in power_table
-        if e["was_significant"] and e["achieved_power"] > 0.80
+        if e["was_significant"] and e["achieved_power"] > POWER_ADEQUATE
     )
 
     evidence_parts = [

@@ -31,13 +31,13 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.stats import mannwhitneyu, pearsonr
-from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.linear_model import LinearRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import LeaveOneOut
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 
+from kv_verify.constants import AUROC_FWL_COLLAPSE, AUROC_INPUT_CONFOUND
 from kv_verify.fixtures import PRIMARY_FEATURES
+from kv_verify.stats import extract_feature_matrix, loo_auroc, make_classifier, train_test_auroc
 from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
@@ -58,14 +58,6 @@ def _load_49c_data() -> dict:
         return json.load(f)
 
 
-def _extract_features(items: List[dict], feature_names: List[str]) -> np.ndarray:
-    """Extract feature matrix from a list of items."""
-    return np.array([
-        [item["features"][f] for f in feature_names]
-        for item in items
-    ])
-
-
 def _extract_input_tokens(items: List[dict]) -> np.ndarray:
     """Compute input token count as n_tokens - n_generated."""
     return np.array([
@@ -83,33 +75,6 @@ def _safe_auroc(y_true: np.ndarray, y_score: np.ndarray) -> float:
     return float(roc_auc_score(y_true, y_score))
 
 
-def _loo_auroc(X: np.ndarray, y: np.ndarray) -> float:
-    """Leave-one-out AUROC for small samples."""
-    loo = LeaveOneOut()
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000))
-    y_proba = np.zeros(len(y))
-    for train_idx, test_idx in loo.split(X):
-        if len(np.unique(y[train_idx])) < 2:
-            y_proba[test_idx] = 0.5
-            continue
-        clf.fit(X[train_idx], y[train_idx])
-        y_proba[test_idx] = clf.predict_proba(X[test_idx])[:, 1]
-    return _safe_auroc(y, y_proba)
-
-
-def _cross_model_auroc(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-) -> float:
-    """Train on model A, test on model B. StandardScaler + LogisticRegression."""
-    if len(np.unique(y_train)) < 2 or len(np.unique(y_test)) < 2:
-        return 0.5
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000))
-    clf.fit(X_train, y_train)
-    y_proba = clf.predict_proba(X_test)[:, 1]
-    return _safe_auroc(y_test, y_proba)
 
 
 def _residualize_cross_model(
@@ -184,8 +149,8 @@ def run_f03(
             pos_items = mdata[task]
             neg_items = mdata["benign"]
 
-            X_pos = _extract_features(pos_items, PRIMARY_FEATURES)
-            X_neg = _extract_features(neg_items, PRIMARY_FEATURES)
+            X_pos = extract_feature_matrix(pos_items, PRIMARY_FEATURES)
+            X_neg = extract_feature_matrix(neg_items, PRIMARY_FEATURES)
             X_all = np.vstack([X_pos, X_neg])
             y = np.array([1] * len(X_pos) + [0] * len(X_neg))
 
@@ -197,14 +162,14 @@ def run_f03(
             u_stat, u_p = mannwhitneyu(input_pos, input_neg, alternative="two-sided")
 
             # Raw within-model AUROC (LOO)
-            raw_auroc = _loo_auroc(X_all, y)
+            raw_auroc = loo_auroc(X_all, y)
 
             # Input-only AUROC
-            input_only_auroc = _loo_auroc(input_all.reshape(-1, 1), y)
+            input_only_auroc = loo_auroc(input_all.reshape(-1, 1), y)
 
             # Residualized AUROC (within-fold residualization)
             loo = LeaveOneOut()
-            clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000))
+            clf = make_classifier()
             y_proba_resid = np.zeros(len(y))
             for train_idx, test_idx in loo.split(X_all):
                 X_tr = X_all[train_idx].copy()
@@ -262,8 +227,8 @@ def run_f03(
                 # Training data from model A
                 train_pos = pmd[train_model][task]
                 train_neg = pmd[train_model]["benign"]
-                X_train_pos = _extract_features(train_pos, PRIMARY_FEATURES)
-                X_train_neg = _extract_features(train_neg, PRIMARY_FEATURES)
+                X_train_pos = extract_feature_matrix(train_pos, PRIMARY_FEATURES)
+                X_train_neg = extract_feature_matrix(train_neg, PRIMARY_FEATURES)
                 X_train = np.vstack([X_train_pos, X_train_neg])
                 y_train = np.array([1] * len(X_train_pos) + [0] * len(X_train_neg))
                 input_train = np.concatenate([
@@ -274,8 +239,8 @@ def run_f03(
                 # Test data from model B
                 test_pos = pmd[test_model][task]
                 test_neg = pmd[test_model]["benign"]
-                X_test_pos = _extract_features(test_pos, PRIMARY_FEATURES)
-                X_test_neg = _extract_features(test_neg, PRIMARY_FEATURES)
+                X_test_pos = extract_feature_matrix(test_pos, PRIMARY_FEATURES)
+                X_test_neg = extract_feature_matrix(test_neg, PRIMARY_FEATURES)
                 X_test = np.vstack([X_test_pos, X_test_neg])
                 y_test = np.array([1] * len(X_test_pos) + [0] * len(X_test_neg))
                 input_test = np.concatenate([
@@ -284,10 +249,10 @@ def run_f03(
                 ])
 
                 # 1. Raw cross-model AUROC
-                raw_auroc = _cross_model_auroc(X_train, y_train, X_test, y_test)
+                raw_auroc = train_test_auroc(X_train, y_train, X_test, y_test)
 
                 # 2. Input-only cross-model AUROC
-                input_only_auroc = _cross_model_auroc(
+                input_only_auroc = train_test_auroc(
                     input_train.reshape(-1, 1), y_train,
                     input_test.reshape(-1, 1), y_test,
                 )
@@ -296,7 +261,7 @@ def run_f03(
                 X_train_resid, X_test_resid = _residualize_cross_model(
                     X_train, input_train, X_test, input_test,
                 )
-                resid_auroc = _cross_model_auroc(
+                resid_auroc = train_test_auroc(
                     X_train_resid, y_train, X_test_resid, y_test,
                 )
 
@@ -339,15 +304,15 @@ def run_f03(
     within_resid = [v["resid_auroc"] for v in within_model_results.values()]
     within_input = [v["input_only_auroc"] for v in within_model_results.values()]
 
-    # Count how many cross-model pairs have input_only > 0.70
-    n_input_confounded = sum(1 for v in cross_model_results.values() if v["input_only_auroc"] > 0.70)
+    # Count how many cross-model pairs have input_only > AUROC_INPUT_CONFOUND
+    n_input_confounded = sum(1 for v in cross_model_results.values() if v["input_only_auroc"] > AUROC_INPUT_CONFOUND)
     n_cross_total = len(cross_model_results)
 
     # Count how many cross-model pairs lose >0.10 AUROC after residualization
     n_degraded = sum(1 for v in cross_model_results.values() if v["auroc_drop"] > 0.10)
 
-    # Count how many within-model results survive residualization (resid > 0.70)
-    n_within_survive = sum(1 for v in within_model_results.values() if v["resid_auroc"] > 0.70)
+    # Count how many within-model results survive residualization (resid > AUROC_INPUT_CONFOUND)
+    n_within_survive = sum(1 for v in within_model_results.values() if v["resid_auroc"] > AUROC_INPUT_CONFOUND)
     n_within_total = len(within_model_results)
 
     # ------------------------------------------------------------------
@@ -355,14 +320,14 @@ def run_f03(
     # ------------------------------------------------------------------
     # Cross-model transfer is the claim being tested.
     # Pre-registered logic:
-    #   - If mean cross-model input_only AUROC > 0.70: input structure drives transfer
+    #   - If mean cross-model input_only AUROC > AUROC_INPUT_CONFOUND: input structure drives transfer
     #   - If mean cross-model resid AUROC drops below 0.55: transfer is confounded
-    #   - If mean cross-model resid AUROC holds > 0.70: genuine geometry
+    #   - If mean cross-model resid AUROC holds > AUROC_INPUT_CONFOUND: genuine geometry
     mean_cross_raw = float(np.mean(cross_raw))
     mean_cross_resid = float(np.mean(cross_resid))
     mean_cross_input = float(np.mean(cross_input))
 
-    if mean_cross_input > 0.70 and mean_cross_resid < 0.55:
+    if mean_cross_input > AUROC_INPUT_CONFOUND and mean_cross_resid < AUROC_FWL_COLLAPSE:
         verdict = Verdict.FALSIFIED
         evidence = (
             f"Cross-model transfer is an input-length artifact. "
@@ -370,14 +335,14 @@ def run_f03(
             f"After residualization, mean AUROC drops from {mean_cross_raw:.3f} to "
             f"{mean_cross_resid:.3f}. The 'universal geometry' is universal prompt structure."
         )
-    elif mean_cross_resid > 0.70:
+    elif mean_cross_resid > AUROC_INPUT_CONFOUND:
         verdict = Verdict.CONFIRMED
         evidence = (
             f"Cross-model transfer survives input-length control. "
             f"Mean raw AUROC={mean_cross_raw:.3f}, residualized={mean_cross_resid:.3f}. "
             f"Genuine geometric signal transfers across models."
         )
-    elif mean_cross_raw < 0.55:
+    elif mean_cross_raw < AUROC_FWL_COLLAPSE:
         verdict = Verdict.WEAKENED
         evidence = (
             f"Cross-model transfer was already near chance before input control. "

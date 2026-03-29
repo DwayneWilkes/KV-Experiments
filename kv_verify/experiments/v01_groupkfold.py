@@ -35,6 +35,7 @@ from typing import List, Optional
 
 import numpy as np
 
+from kv_verify.constants import ALPHA, AUROC_CONFIRMATION_TOLERANCE, AUROC_DELTA, DEFAULT_SEED, N_PERMUTATIONS
 from kv_verify.data_loader import load_comparison_data
 from kv_verify.fixtures import EXP47_COMPARISONS
 from kv_verify.stats import assign_groups, groupkfold_auroc, holm_bonferroni, permutation_test
@@ -42,9 +43,8 @@ from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
 
-# Pre-registered thresholds (V01-design.md)
-AUROC_DELTA_WEAKENED = 0.05
-ALPHA = 0.05
+# Pre-registered thresholds (V01-design.md), sourced from constants
+AUROC_DELTA_WEAKENED = AUROC_DELTA
 
 
 def _make_buggy_groups(n_pos: int, n_neg: int) -> np.ndarray:
@@ -62,7 +62,7 @@ def _make_buggy_groups(n_pos: int, n_neg: int) -> np.ndarray:
 
 def run_v01(
     output_dir: Path,
-    n_permutations: int = 10000,
+    n_permutations: int = N_PERMUTATIONS,
     tracker: Optional[ExperimentTracker] = None,
 ) -> List[ClaimVerification]:
     """Run GroupKFold bug detection on all 10 Exp 47 comparisons.
@@ -94,7 +94,7 @@ def run_v01(
     tracker.log_params(
         experiment="V01", finding="C2",
         n_permutations=n_permutations, alpha=ALPHA,
-        auroc_delta_threshold=AUROC_DELTA_WEAKENED, seed=42,
+        auroc_delta_threshold=AUROC_DELTA_WEAKENED, seed=DEFAULT_SEED,
         n_comparisons=len(EXP47_COMPARISONS),
     )
     tracker.set_tag("experiment", "V01")
@@ -125,7 +125,7 @@ def run_v01(
             X, y, groups_buggy,
             n_permutations=n_permutations,
             group_level=False,  # original behavior: sample-level
-            seed=42,
+            seed=DEFAULT_SEED,
         )
         p_buggy = perm_buggy["p_value"]
 
@@ -144,7 +144,7 @@ def run_v01(
             X, y, groups_fixed,
             n_permutations=n_permutations,
             group_level=True,  # corrected behavior: group-level
-            seed=42,
+            seed=DEFAULT_SEED,
         )
         p_fixed = perm_fixed["p_value"]
         fixed_p_values.append(p_fixed)
@@ -207,7 +207,7 @@ def run_v01(
             f"delta={delta:+.4f}.",
         ]
         if abs(delta) > AUROC_DELTA_WEAKENED:
-            parts.append(f"Delta exceeds 0.05 threshold.")
+            parts.append(f"Delta exceeds {AUROC_DELTA_WEAKENED} threshold.")
         if flipped:
             direction = "gained" if rec["sig_fixed"] else "lost"
             parts.append(f"Significance {direction} after fix.")
@@ -288,7 +288,7 @@ def run_v01(
             "n_permutations": n_permutations,
             "alpha": ALPHA,
             "auroc_delta_threshold": AUROC_DELTA_WEAKENED,
-            "seed": 42,
+            "seed": DEFAULT_SEED,
         },
         "comparisons": [_convert_record(rec) for rec in comparison_records],
     })

@@ -23,6 +23,7 @@ from typing import Dict, List, Optional
 
 import numpy as np
 
+from kv_verify.constants import AUROC_DELTA, AUROC_FWL_COLLAPSE, AUROC_FWL_PRESERVE, FWL_COLLAPSE_COUNT
 from kv_verify.data_loader import load_comparison_data
 from kv_verify.fixtures import EXP47_COMPARISONS
 from kv_verify.stats import (
@@ -43,11 +44,11 @@ EXCLUDED_COMPARISONS = {
     "exp32_jailbreak_vs_refusal",  # Already non-significant
 }
 
-# Thresholds (pre-registered, do NOT adjust)
-LEAKAGE_THRESHOLD = 0.05       # AUROC delta for leakage detection
-COLLAPSE_AUROC = 0.55          # Below this = collapsed
-PRESERVE_AUROC = 0.60          # Above this = preserved
-COLLAPSE_COUNT_THRESHOLD = 3   # 3+ collapsed = FALSIFIED
+# Thresholds (pre-registered, do NOT adjust) — sourced from constants
+LEAKAGE_THRESHOLD = AUROC_DELTA
+COLLAPSE_AUROC = AUROC_FWL_COLLAPSE
+PRESERVE_AUROC = AUROC_FWL_PRESERVE
+COLLAPSE_COUNT_THRESHOLD = FWL_COLLAPSE_COUNT
 
 
 def _run_comparison(

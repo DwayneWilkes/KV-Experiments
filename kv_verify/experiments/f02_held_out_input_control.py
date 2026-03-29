@@ -35,15 +35,18 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 from scipy.stats import mannwhitneyu, pearsonr, ttest_ind
-from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import LeaveOneOut
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
 
+from kv_verify.constants import (
+    ALPHA, AUROC_FWL_PRESERVE, AUROC_INPUT_CONFOUND, AUROC_SAME_CONDITION,
+    DEFAULT_SEED, LOGREG_MAX_ITER, LOGREG_SOLVER, N_BOOTSTRAP_F02,
+)
 from kv_verify.data_loader import _load_json
 from kv_verify.fixtures import PRIMARY_FEATURES
-from kv_verify.stats import cohens_d, hedges_g, holm_bonferroni
+from kv_verify.stats import (
+    cohens_d, hedges_g, holm_bonferroni,
+    extract_feature_matrix, loo_auroc, train_test_auroc,
+)
 from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
@@ -52,7 +55,7 @@ from kv_verify.types import ClaimVerification, Severity, Verdict
 # ================================================================
 
 HACKATHON_DIR = Path(__file__).resolve().parent.parent.parent / "results" / "hackathon"
-SEED = 42
+SEED = DEFAULT_SEED
 
 # Transfer paradigm mapping: which training data and conditions go with
 # which held-out test conditions.
@@ -109,14 +112,6 @@ def _get_word_count(item: dict, prompt_key: str) -> int:
     """Count words in the prompt text."""
     prompt = item.get(prompt_key, item.get("prompt", ""))
     return len(prompt.split())
-
-
-def _extract_features(items: List[dict]) -> np.ndarray:
-    """Extract PRIMARY_FEATURES matrix from a list of items."""
-    return np.array([
-        [float(r["features"][f]) for f in PRIMARY_FEATURES]
-        for r in items
-    ])
 
 
 def _extract_input_lengths(items: List[dict]) -> np.ndarray:
@@ -205,44 +200,6 @@ def _compute_input_length_stats(
 # CORE ANALYSIS: TRANSFER CLASSIFICATION
 # ================================================================
 
-def _loo_auroc(X: np.ndarray, y: np.ndarray) -> float:
-    """LOO cross-validated AUROC for small samples."""
-    loo = LeaveOneOut()
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
-    y_proba = np.zeros(len(y))
-
-    for train_idx, test_idx in loo.split(X):
-        if len(np.unique(y[train_idx])) < 2:
-            y_proba[test_idx] = 0.5
-            continue
-        clf.fit(X[train_idx], y[train_idx])
-        y_proba[test_idx] = clf.predict_proba(X[test_idx])[:, 1]
-
-    if len(np.unique(y)) < 2:
-        return 0.5
-    return float(roc_auc_score(y, y_proba))
-
-
-def _train_test_auroc(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-) -> float:
-    """Train on X_train, predict on X_test, return AUROC."""
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
-
-    if len(np.unique(y_train)) < 2:
-        return 0.5
-
-    clf.fit(X_train, y_train)
-    y_proba = clf.predict_proba(X_test)[:, 1]
-
-    if len(np.unique(y_test)) < 2:
-        return 0.5
-
-    return float(roc_auc_score(y_test, y_proba))
-
 
 def _residualize_train_test(
     X_train: np.ndarray,
@@ -304,13 +261,13 @@ def _analyze_paradigm(paradigm: str) -> Dict[str, Any]:
     test_pos, test_neg = _load_test_data(paradigm)
 
     # Feature matrices
-    X_train_pos = _extract_features(train_pos)
-    X_train_neg = _extract_features(train_neg)
+    X_train_pos = extract_feature_matrix(train_pos)
+    X_train_neg = extract_feature_matrix(train_neg)
     X_train = np.vstack([X_train_pos, X_train_neg])
     y_train = np.array([1] * len(train_pos) + [0] * len(train_neg))
 
-    X_test_pos = _extract_features(test_pos)
-    X_test_neg = _extract_features(test_neg)
+    X_test_pos = extract_feature_matrix(test_pos)
+    X_test_neg = extract_feature_matrix(test_neg)
     X_test = np.vstack([X_test_pos, X_test_neg])
     y_test = np.array([1] * len(test_pos) + [0] * len(test_neg))
 
@@ -340,30 +297,30 @@ def _analyze_paradigm(paradigm: str) -> Dict[str, Any]:
     # training data. This is favorable to the paper's claim: more training
     # data gives a better classifier, so signal collapse despite more data
     # is a STRONGER falsification.
-    baseline_auroc = _train_test_auroc(X_train, y_train, X_test, y_test)
+    baseline_auroc = train_test_auroc(X_train, y_train, X_test, y_test)
 
     # Step 3: Input-only classification on held-out
     # LOO on the held-out set using only input token count
-    input_only_auroc_heldout = _loo_auroc(Z_test, y_test)
+    input_only_auroc_heldout = loo_auroc(Z_test, y_test)
 
     # Also train input-only on training data, test on held-out
-    input_only_transfer = _train_test_auroc(Z_train, y_train, Z_test, y_test)
+    input_only_transfer = train_test_auroc(Z_train, y_train, Z_test, y_test)
 
     # Step 4: Residualized transfer AUROC
     # Fit residualization on training data, apply to both train and test
     X_train_resid, X_test_resid, r_squared = _residualize_train_test(
         X_train, Z_train, X_test, Z_test,
     )
-    residualized_auroc = _train_test_auroc(
+    residualized_auroc = train_test_auroc(
         X_train_resid, y_train, X_test_resid, y_test,
     )
 
     # Step 5: Within-heldout LOO classification (both original and residualized)
-    within_heldout_auroc = _loo_auroc(X_test, y_test)
+    within_heldout_auroc = loo_auroc(X_test, y_test)
 
     # LOO residualized within held-out
     loo = LeaveOneOut()
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
+    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=LOGREG_MAX_ITER, solver=LOGREG_SOLVER))
     y_proba_resid_loo = np.zeros(len(y_test))
     for train_idx, test_idx in loo.split(X_test):
         X_tr = X_test[train_idx].copy()
@@ -390,7 +347,7 @@ def _analyze_paradigm(paradigm: str) -> Dict[str, Any]:
     # Bootstrap CI for the AUROC drop
     rng = np.random.RandomState(SEED)
     auroc_drop = baseline_auroc - residualized_auroc
-    n_boot = 2000
+    n_boot = N_BOOTSTRAP_F02
     boot_drops = np.zeros(n_boot)
     n_test = len(y_test)
     for b in range(n_boot):
@@ -401,13 +358,13 @@ def _analyze_paradigm(paradigm: str) -> Dict[str, Any]:
         try:
             base_b = roc_auc_score(
                 y_test[idx],
-                make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
+                make_pipeline(StandardScaler(), LogisticRegression(max_iter=LOGREG_MAX_ITER, solver=LOGREG_SOLVER))
                 .fit(X_train, y_train)
                 .predict_proba(X_test[idx])[:, 1],
             )
             resid_b = roc_auc_score(
                 y_test[idx],
-                make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
+                make_pipeline(StandardScaler(), LogisticRegression(max_iter=LOGREG_MAX_ITER, solver=LOGREG_SOLVER))
                 .fit(X_train_resid, y_train)
                 .predict_proba(X_test_resid[idx])[:, 1],
             )
@@ -461,11 +418,11 @@ def _paradigm_verdict(result: Dict[str, Any]) -> Tuple[Verdict, str]:
     # Confound present: significant input-length difference AND
     # input-only classification above chance
     length_confounded = (
-        test_stats["welch_t_p_value"] < 0.05 and
-        input_only > 0.70
+        test_stats["welch_t_p_value"] < ALPHA and
+        input_only > AUROC_INPUT_CONFOUND
     )
 
-    if length_confounded and residualized < 0.60:
+    if length_confounded and residualized < AUROC_FWL_PRESERVE:
         verdict = Verdict.FALSIFIED
         evidence = (
             f"{paradigm}: Held-out transfer is an input-length artifact. "
@@ -475,7 +432,7 @@ def _paradigm_verdict(result: Dict[str, Any]) -> Tuple[Verdict, str]:
             f"Baseline transfer AUROC={baseline:.3f} drops to "
             f"{residualized:.3f} after residualization (drop={drop:.3f})."
         )
-    elif residualized > 0.65:
+    elif residualized > AUROC_SAME_CONDITION:
         verdict = Verdict.CONFIRMED
         evidence = (
             f"{paradigm}: Transfer signal survives input-length control. "
@@ -521,7 +478,7 @@ def run_f02(
 
     tracker.log_params(
         experiment="F02", finding="F02", seed=SEED,
-        n_paradigms=3, bootstrap_n=2000,
+        n_paradigms=3, bootstrap_n=N_BOOTSTRAP_F02,
     )
     tracker.set_tag("experiment", "F02")
     tracker.set_tag("finding", "F02")
@@ -540,7 +497,7 @@ def run_f02(
         )
 
     # Holm-Bonferroni correction on input-length p-values
-    corrected = holm_bonferroni(p_values_for_correction, alpha=0.05)
+    corrected = holm_bonferroni(p_values_for_correction, alpha=ALPHA)
     for i, paradigm in enumerate(["deception", "refusal", "impossibility"]):
         paradigm_data[paradigm]["test_length_stats"]["welch_t_p_corrected"] = (
             corrected[i]["corrected_p"]
@@ -727,7 +684,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--seed",
         type=int,
-        default=42,
+        default=DEFAULT_SEED,
         help="Random seed (default: 42)",
     )
     args = parser.parse_args()

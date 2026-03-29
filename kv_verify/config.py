@@ -10,27 +10,33 @@ from typing import List, Optional
 
 import yaml
 
+from kv_verify.constants import (
+    DEFAULT_SEED, MAX_NEW_TOKENS, N_BOOTSTRAP,
+    N_PERMUTATIONS, N_PER_GROUP, TEMPERATURE,
+)
+
 
 @dataclass
 class PipelineConfig:
     """Configuration for an experiment pipeline run.
 
-    All fields have sensible defaults. Override via constructor or YAML file.
+    All fields have sensible defaults from constants.py.
+    Override via constructor or YAML file.
     """
     # Model
     model_id: str = "Qwen/Qwen2.5-7B-Instruct"
 
     # Sample sizes
-    n_per_group: int = 200
+    n_per_group: int = N_PER_GROUP
 
     # Statistical parameters
-    n_permutations: int = 10000
-    n_bootstrap: int = 10000
-    seed: int = 42
+    n_permutations: int = N_PERMUTATIONS
+    n_bootstrap: int = N_BOOTSTRAP
+    seed: int = DEFAULT_SEED
 
     # Generation parameters
-    temperature: float = 0.0  # greedy for primary, 0.7 for stochastic
-    max_new_tokens: int = 200
+    temperature: float = TEMPERATURE
+    max_new_tokens: int = MAX_NEW_TOKENS
 
     # Comparisons to run
     comparisons: List[str] = field(default_factory=lambda: [

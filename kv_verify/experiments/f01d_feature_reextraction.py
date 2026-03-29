@@ -30,7 +30,6 @@ so interrupted runs resume from where they left off.
 
 import hashlib
 import json
-import sys
 import time
 from pathlib import Path
 
@@ -38,9 +37,9 @@ import numpy as np
 import torch
 from scipy.stats import pearsonr
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-
+from kv_verify.constants import MAX_NEW_TOKENS
 from kv_verify.fixtures import PRIMARY_FEATURES
+from kv_verify.lib.models import load_model
 from kv_verify.stats import assign_groups, groupkfold_auroc
 
 HACKATHON_DIR = Path(__file__).resolve().parent.parent.parent / "results" / "hackathon"
@@ -49,40 +48,10 @@ CACHE_DIR = OUTPUT_DIR / "cache"
 
 
 # ================================================================
-# Model Loading
-# ================================================================
-
-def load_model(model_id="Qwen/Qwen2.5-7B-Instruct"):
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-
-    print(f"Loading {model_id}...")
-    t0 = time.time()
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-    if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
-
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id,
-        torch_dtype=torch.bfloat16,
-        device_map="auto",
-    )
-    model.eval()
-    elapsed = time.time() - t0
-    print(f"Loaded in {elapsed:.1f}s")
-
-    if torch.cuda.is_available():
-        props = torch.cuda.get_device_properties(0)
-        print(f"GPU: {props.name}, VRAM: {props.total_mem / 1e9:.1f}GB, "
-              f"Allocated: {torch.cuda.memory_allocated() / 1e9:.1f}GB")
-
-    return model, tokenizer
-
-
-# ================================================================
 # Feature Extraction (corrected code)
 # ================================================================
 
-def extract_features(model, tokenizer, prompt, system_prompt, max_new_tokens=200):
+def extract_features(model, tokenizer, prompt, system_prompt, max_new_tokens=MAX_NEW_TOKENS):
     """Extract KV-cache features with ALL bug fixes applied.
 
     Corrections vs original codebase:
@@ -285,6 +254,11 @@ def main():
     # Load model
     model, tokenizer = load_model()
 
+    if torch.cuda.is_available():
+        props = torch.cuda.get_device_properties(0)
+        print(f"GPU: {props.name}, VRAM: {props.total_mem / 1e9:.1f}GB, "
+              f"Allocated: {torch.cuda.memory_allocated() / 1e9:.1f}GB")
+
     # Extract features for each item
     t0_total = time.time()
     for i, item in enumerate(items):
@@ -483,7 +457,8 @@ def main():
         abs(v["delta"]) for v in classification_results.values()
     ) if classification_results else 0
 
-    if min_r > 0.99 and max_auroc_delta < 0.05:
+    from kv_verify.constants import AUROC_DELTA
+    if min_r > 0.99 and max_auroc_delta < AUROC_DELTA:
         verdict = "CONFIRMED"
         evidence = (
             f"Features match stored values (min r={min_r:.4f}). "

@@ -16,41 +16,21 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import GroupKFold, StratifiedKFold
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import make_pipeline
 
-from kv_verify.data_loader import load_comparison_data, list_comparisons, _load_json
-from kv_verify.fixtures import EXP47_COMPARISONS, PRIMARY_FEATURES
+from kv_verify.constants import (
+    AUROC_GEOMETRY_ADVANTAGE, AUROC_INPUT_CONFOUND,
+    AUROC_SAME_CONDITION, DEFAULT_SEED, F01A_N_REPEATS,
+)
+from kv_verify.data_loader import _load_json
+from kv_verify.fixtures import PRIMARY_FEATURES
+from kv_verify.stats import stratified_auroc
 from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
 
 
-# ================================================================
-# F01a: Null Experiment
-# ================================================================
-
-def _stratified_auroc(X, y, n_splits=5):
-    """Quick AUROC via StratifiedKFold (no group structure)."""
-    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=5000, solver="lbfgs"))
-    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
-    y_proba = np.full(len(y), np.nan)
-    for train_idx, test_idx in skf.split(X, y):
-        if len(np.unique(y[train_idx])) < 2:
-            continue
-        clf.fit(X[train_idx], y[train_idx])
-        y_proba[test_idx] = clf.predict_proba(X[test_idx])[:, 1]
-    valid = ~np.isnan(y_proba)
-    if valid.sum() < 4 or len(np.unique(y[valid])) < 2:
-        return 0.5
-    return float(roc_auc_score(y[valid], y_proba[valid]))
-
-
 def run_f01a(
     output_dir: Path,
-    n_repeats: int = 100,
+    n_repeats: int = F01A_N_REPEATS,
     tracker: Optional[ExperimentTracker] = None,
 ) -> ClaimVerification:
     """Null experiment: classify within the same condition.
@@ -93,7 +73,7 @@ def run_f01a(
         X = np.array([[r["features"][f] for f in PRIMARY_FEATURES] for r in items])
         condition_pools[f"exp36_{cond}"] = X
 
-    rng = np.random.RandomState(42)
+    rng = np.random.RandomState(DEFAULT_SEED)
     null_results = {}
 
     for pool_name, X_pool in condition_pools.items():
@@ -108,7 +88,7 @@ def run_f01a(
             X_a, X_b = X_pool[perm[:half]], X_pool[perm[half:2 * half]]
             X = np.vstack([X_a, X_b])
             y = np.array([1] * len(X_a) + [0] * len(X_b))
-            auroc = _stratified_auroc(X, y, n_splits=min(5, half))
+            auroc = stratified_auroc(X, y, n_splits=min(5, half))
             aurocs.append(auroc)
 
         null_results[pool_name] = {
@@ -122,7 +102,7 @@ def run_f01a(
 
     # Check if any pool has mean null AUROC > 0.65
     max_null = max(r["mean_auroc"] for r in null_results.values())
-    fatal = max_null > 0.65
+    fatal = max_null > AUROC_SAME_CONDITION
     worst_pool = max(null_results, key=lambda k: null_results[k]["mean_auroc"])
 
     if fatal:
@@ -208,7 +188,7 @@ def run_f01b(
             output_dir=output_dir, experiment_name="F01b-input",
         )
 
-    tracker.log_params(experiment="F01b", finding="F01b", threshold=0.70)
+    tracker.log_params(experiment="F01b", finding="F01b", threshold=AUROC_INPUT_CONFOUND)
     tracker.set_tag("experiment", "F01b")
     tracker.set_tag("finding", "F01b")
 
@@ -248,7 +228,7 @@ def run_f01b(
         X = np.vstack([X_pos, X_neg])
         y = np.array([1] * len(X_pos) + [0] * len(X_neg))
 
-        auroc = _stratified_auroc(X, y)
+        auroc = stratified_auroc(X, y)
 
         input_confound_results[comp_name] = {
             "input_only_auroc": float(auroc),
@@ -256,7 +236,7 @@ def run_f01b(
             "n_neg": len(neg_items),
             "mean_pos_words": float(np.mean(X_pos[:, 0])),
             "mean_neg_words": float(np.mean(X_neg[:, 0])),
-            "confounded": auroc > 0.70,
+            "confounded": auroc > AUROC_INPUT_CONFOUND,
         }
 
     # Check for input confounds
@@ -343,7 +323,7 @@ def run_f01c(
             output_dir=output_dir, experiment_name="F01c-format",
         )
 
-    tracker.log_params(experiment="F01c", finding="F01c", threshold=0.05)
+    tracker.log_params(experiment="F01c", finding="F01c", threshold=AUROC_GEOMETRY_ADVANTAGE)
     tracker.set_tag("experiment", "F01c")
     tracker.set_tag("finding", "F01c")
 
@@ -391,18 +371,18 @@ def run_f01c(
 
         y = np.array([1] * len(pos_items) + [0] * len(neg_items))
 
-        format_auroc = _stratified_auroc(X_format, y)
-        cache_auroc = _stratified_auroc(X_cache, y)
+        format_auroc = stratified_auroc(X_format, y)
+        cache_auroc = stratified_auroc(X_cache, y)
 
         format_results[comp_name] = {
             "format_auroc": float(format_auroc),
             "cache_auroc": float(cache_auroc),
             "delta": float(cache_auroc - format_auroc),
-            "format_confound": format_auroc >= cache_auroc - 0.05,
+            "format_confound": format_auroc >= cache_auroc - AUROC_GEOMETRY_ADVANTAGE,
         }
 
     confounded = [name for name, r in format_results.items() if r["format_confound"]]
-    any_geometry_wins = any(r["delta"] > 0.10 for r in format_results.values())
+    any_geometry_wins = any(r["delta"] > AUROC_GEOMETRY_ADVANTAGE for r in format_results.values())
 
     if len(confounded) == len(format_results):
         verdict = Verdict.FALSIFIED

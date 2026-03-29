@@ -49,22 +49,9 @@ from typing import Any, Dict, Optional
 import numpy as np
 from scipy.stats import mannwhitneyu
 
+from kv_verify.data_loader import _load_json
 from kv_verify.tracking import ExperimentTracker
 from kv_verify.types import ClaimVerification, Severity, Verdict
-
-
-# ================================================================
-# Data loading
-# ================================================================
-
-HACKATHON_DIR = Path(__file__).resolve().parent.parent.parent / "results" / "hackathon"
-
-
-def _load_json(filename: str) -> dict:
-    """Load a hackathon result JSON file."""
-    path = HACKATHON_DIR / filename
-    with open(path) as f:
-        return json.load(f)
 
 
 # ================================================================
