@@ -1,6 +1,7 @@
 """Local-first model management.
 
-All models and tokenizers are loaded from /mnt/d/dev/models (HF_HOME).
+Models and tokenizers are loaded from a configurable cache directory.
+Resolution order: explicit cache_dir parameter > KV_VERIFY_MODEL_DIR env var > default.
 No remote code execution. No implicit downloads during experiments.
 
 Usage:
@@ -14,13 +15,29 @@ Usage:
 
     # Pre-download before experiments
     ensure_downloaded("qwen")
+
+    # Custom cache directory
+    model, tokenizer = load_model("qwen", cache_dir="/workspace/models")
 """
 
 import os
 from pathlib import Path
 from typing import Optional, Tuple
 
-MODEL_CACHE_DIR = Path("/mnt/d/dev/models")
+_DEFAULT_CACHE_DIR = Path("/mnt/d/dev/models")
+
+
+def get_cache_dir(cache_dir: Optional[Path] = None) -> Path:
+    """Resolve model cache directory.
+
+    Resolution: explicit cache_dir > KV_VERIFY_MODEL_DIR env var > default.
+    """
+    if cache_dir is not None:
+        return Path(cache_dir)
+    env = os.environ.get("KV_VERIFY_MODEL_DIR")
+    if env:
+        return Path(env)
+    return _DEFAULT_CACHE_DIR
 
 # Canonical model IDs
 MODELS = {
@@ -36,73 +53,75 @@ def _resolve_model_id(name_or_id: str) -> str:
     return MODELS.get(name_or_id, name_or_id)
 
 
-def _set_cache_dir():
-    """Ensure HF_HOME points to our local cache."""
-    os.environ["HF_HOME"] = str(MODEL_CACHE_DIR)
+def _set_cache_dir(cache_dir: Optional[Path] = None):
+    """Ensure HF_HOME points to the resolved cache directory."""
+    os.environ["HF_HOME"] = str(get_cache_dir(cache_dir))
 
 
-def is_downloaded(name_or_id: str) -> bool:
+def is_downloaded(name_or_id: str, cache_dir: Optional[Path] = None) -> bool:
     """Check if a model is already in the local cache."""
+    resolved = get_cache_dir(cache_dir)
     model_id = _resolve_model_id(name_or_id)
-    # HF hub stores models as models--{org}--{name}
     cache_name = f"models--{model_id.replace('/', '--')}"
-    model_dir = MODEL_CACHE_DIR / cache_name
+    model_dir = resolved / cache_name
     if not model_dir.exists():
         return False
-    # Check for at least one snapshot
     snapshots = model_dir / "snapshots"
     if not snapshots.exists():
         return False
     return any(snapshots.iterdir())
 
 
-def ensure_downloaded(name_or_id: str) -> Path:
+def ensure_downloaded(name_or_id: str, cache_dir: Optional[Path] = None) -> Path:
     """Download a model to local cache if not already present.
 
     Returns the snapshot path.
     """
-    _set_cache_dir()
+    resolved = get_cache_dir(cache_dir)
+    _set_cache_dir(resolved)
     model_id = _resolve_model_id(name_or_id)
 
-    if is_downloaded(name_or_id):
+    if is_downloaded(name_or_id, cache_dir=resolved):
         cache_name = f"models--{model_id.replace('/', '--')}"
-        snapshots = MODEL_CACHE_DIR / cache_name / "snapshots"
+        snapshots = resolved / cache_name / "snapshots"
         return next(snapshots.iterdir())
 
     from huggingface_hub import snapshot_download
-    path = snapshot_download(model_id, cache_dir=str(MODEL_CACHE_DIR))
+    path = snapshot_download(model_id, cache_dir=str(resolved))
     return Path(path)
 
 
-def _get_snapshot_path(name_or_id: str) -> Path:
+def _get_snapshot_path(name_or_id: str, cache_dir: Optional[Path] = None) -> Path:
     """Get the local snapshot path for a downloaded model.
 
     Uses the snapshot directory directly instead of the model ID,
     avoiding HuggingFace Hub network calls for resolution.
     """
+    resolved = get_cache_dir(cache_dir)
     model_id = _resolve_model_id(name_or_id)
     cache_name = f"models--{model_id.replace('/', '--')}"
-    snapshots = MODEL_CACHE_DIR / cache_name / "snapshots"
+    snapshots = resolved / cache_name / "snapshots"
     if not snapshots.exists():
         raise RuntimeError(f"No snapshots for {model_id} at {snapshots}")
     return next(snapshots.iterdir())
 
 
-def load_tokenizer(name_or_id: str = "qwen"):
+def load_tokenizer(name_or_id: str = "qwen", cache_dir: Optional[Path] = None):
     """Load a tokenizer from local cache. No remote code execution.
 
     Fast, CPU-only. Uses local snapshot path directly (no network).
     """
-    _set_cache_dir()
+    resolved = get_cache_dir(cache_dir)
+    _set_cache_dir(resolved)
 
-    if not is_downloaded(name_or_id):
+    if not is_downloaded(name_or_id, cache_dir=resolved):
         model_id = _resolve_model_id(name_or_id)
         raise RuntimeError(
-            f"Model '{model_id}' not in local cache at {MODEL_CACHE_DIR}. "
+            f"Model '{model_id}' not in local cache at {resolved}. "
             f"Run ensure_downloaded('{name_or_id}') first."
         )
 
-    local_path = str(_get_snapshot_path(name_or_id))
+    local_path = str(_get_snapshot_path(name_or_id, cache_dir=resolved))
     from transformers import AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained(local_path)
     if tokenizer.pad_token is None:
@@ -110,18 +129,19 @@ def load_tokenizer(name_or_id: str = "qwen"):
     return tokenizer
 
 
-def load_model(name_or_id: str = "qwen", dtype=None):
+def load_model(name_or_id: str = "qwen", dtype=None, cache_dir: Optional[Path] = None):
     """Load model + tokenizer from local cache. No remote code execution.
 
     Uses local snapshot path directly (no network calls).
     Returns (model, tokenizer).
     """
-    _set_cache_dir()
+    resolved = get_cache_dir(cache_dir)
+    _set_cache_dir(resolved)
 
-    if not is_downloaded(name_or_id):
+    if not is_downloaded(name_or_id, cache_dir=resolved):
         model_id = _resolve_model_id(name_or_id)
         raise RuntimeError(
-            f"Model '{model_id}' not in local cache at {MODEL_CACHE_DIR}. "
+            f"Model '{model_id}' not in local cache at {resolved}. "
             f"Run ensure_downloaded('{name_or_id}') first."
         )
 
@@ -131,7 +151,7 @@ def load_model(name_or_id: str = "qwen", dtype=None):
     if dtype is None:
         dtype = torch.bfloat16
 
-    local_path = str(_get_snapshot_path(name_or_id))
+    local_path = str(_get_snapshot_path(name_or_id, cache_dir=resolved))
 
     tokenizer = AutoTokenizer.from_pretrained(local_path)
     if tokenizer.pad_token is None:
