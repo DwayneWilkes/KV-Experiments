@@ -12,10 +12,13 @@ Usage:
 
 import hashlib
 import json
+import math
 from collections import Counter
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional
+
+import numpy as np
 
 
 @dataclass
@@ -345,4 +348,243 @@ def _check_class_balance(items: List[dict], config: Dict, shared: Dict) -> Check
             "threshold": threshold,
         },
         details=f"Imbalance ratio {ratio:.1f}:1 exceeds {threshold}:1 threshold." if ratio > threshold else "",
+    )
+
+
+# ================================================================
+# TIER 1 CHECKS
+# ================================================================
+
+def _default_size_fn(item: dict) -> float:
+    """Default: use n_tokens from features dict."""
+    feats = item.get("features", {})
+    return float(feats.get("n_tokens", len(item.get("prompt", "").split())))
+
+
+def _default_text_fn(item: dict) -> str:
+    """Default: use prompt field."""
+    return item.get("prompt", "")
+
+
+def _get_tfidf_matrix(items: List[dict], config: Dict, shared: Dict):
+    """Compute or retrieve cached TF-IDF matrix."""
+    if "tfidf_matrix" in shared:
+        return shared["tfidf_matrix"], shared["tfidf_vectorizer"]
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    text_fn = config.get("text_fn") or _default_text_fn
+    texts = [text_fn(item) for item in items]
+    vec = TfidfVectorizer(max_features=1000, stop_words="english")
+    matrix = vec.fit_transform(texts)
+    shared["tfidf_matrix"] = matrix
+    shared["tfidf_vectorizer"] = vec
+    return matrix, vec
+
+
+def _get_similarity_matrix(items: List[dict], config: Dict, shared: Dict) -> np.ndarray:
+    """Compute or retrieve cached pairwise cosine similarity."""
+    if "sim_matrix" in shared:
+        return shared["sim_matrix"]
+    custom_fn = config.get("similarity_fn")
+    if custom_fn:
+        sim = custom_fn(items)
+    else:
+        from sklearn.metrics.pairwise import cosine_similarity
+        tfidf, _ = _get_tfidf_matrix(items, config, shared)
+        max_n = config.get("max_pairwise_n", 2000)
+        if tfidf.shape[0] > max_n:
+            rng = np.random.default_rng(42)
+            idx = rng.choice(tfidf.shape[0], max_n, replace=False)
+            sim = cosine_similarity(tfidf[idx])
+            shared["sim_approximated"] = True
+            shared["sim_sample_idx"] = idx
+        else:
+            sim = cosine_similarity(tfidf)
+            shared["sim_approximated"] = False
+    shared["sim_matrix"] = sim
+    return sim
+
+
+@check(name="size_overlap", tier=1)
+def _check_size_overlap(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Two-sample KS test on size distributions between conditions."""
+    from scipy.stats import ks_2samp
+    cond_field = config.get("condition_field", "condition")
+    size_fn = config.get("size_fn") or _default_size_fn
+    alpha = config.get("alpha", 0.05)
+
+    conditions = sorted(set(item.get(cond_field) for item in items))
+    by_cond = {}
+    for item in items:
+        c = item.get(cond_field)
+        by_cond.setdefault(c, []).append(size_fn(item))
+
+    # Pairwise KS tests
+    worst_p = 1.0
+    worst_pair = None
+    pair_results = []
+    for i, c1 in enumerate(conditions):
+        for c2 in conditions[i + 1:]:
+            stat, p = ks_2samp(by_cond[c1], by_cond[c2])
+            pair_results.append({"pair": f"{c1}_vs_{c2}", "ks_stat": round(stat, 4), "ks_p": round(p, 6)})
+            if p < worst_p:
+                worst_p = p
+                worst_pair = f"{c1}_vs_{c2}"
+
+    means = {c: round(float(np.mean(v)), 2) for c, v in by_cond.items()}
+    mean_diff = max(means.values()) - min(means.values()) if len(means) >= 2 else 0
+
+    passed = worst_p >= alpha
+
+    return CheckResult(
+        name="size_overlap",
+        passed=passed,
+        tier=1,
+        metrics={
+            "worst_ks_p": round(worst_p, 6),
+            "worst_pair": worst_pair,
+            "mean_per_condition": means,
+            "mean_diff": round(mean_diff, 2),
+            "pairs": pair_results,
+        },
+        details=f"Size distributions differ significantly ({worst_pair}, p={worst_p:.4f})." if not passed else "",
+    )
+
+
+@check(name="effective_n", tier=1)
+def _check_effective_n(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Compute effective sample size via design effect from similarity."""
+    cond_field = config.get("condition_field", "condition")
+    min_n_eff = config.get("effective_n_min", 20)
+
+    sim = _get_similarity_matrix(items, config, shared)
+
+    # Group items by condition
+    conditions = [item.get(cond_field) for item in items]
+    unique_conds = sorted(set(conditions))
+    cond_indices = {c: [i for i, x in enumerate(conditions) if x == c] for c in unique_conds}
+
+    metrics = {"approximated": shared.get("sim_approximated", False)}
+    min_n_eff_value = float("inf")
+
+    for cond, indices in cond_indices.items():
+        n = len(indices)
+        if n < 2:
+            metrics[f"deff_{cond}"] = 1.0
+            metrics[f"n_eff_{cond}"] = float(n)
+            continue
+
+        # Mean intra-condition similarity (excluding diagonal)
+        sub_sim = sim[np.ix_(indices, indices)] if len(indices) <= sim.shape[0] else np.eye(n)
+        np.fill_diagonal(sub_sim, 0)
+        mean_rho = float(sub_sim.sum() / (n * (n - 1))) if n > 1 else 0
+
+        # Design effect: DEFF = 1 + mean_rho * (cluster_size - 1)
+        # Use n as cluster_size (conservative: treats all items as one cluster)
+        deff = 1 + mean_rho * (n - 1)
+        deff = max(deff, 1.0)  # DEFF can't be < 1
+        n_eff = n / deff
+
+        metrics[f"deff_{cond}"] = round(deff, 2)
+        metrics[f"n_eff_{cond}"] = round(n_eff, 1)
+        metrics[f"mean_rho_{cond}"] = round(mean_rho, 4)
+        min_n_eff_value = min(min_n_eff_value, n_eff)
+
+    passed = min_n_eff_value >= min_n_eff
+
+    return CheckResult(
+        name="effective_n",
+        passed=passed,
+        tier=1,
+        metrics=metrics,
+        details=f"Effective N below {min_n_eff} threshold. Template reuse likely." if not passed else "",
+    )
+
+
+@check(name="semantic_diversity", tier=1)
+def _check_semantic_diversity(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Mean pairwise distance within each condition."""
+    cond_field = config.get("condition_field", "condition")
+    threshold = config.get("diversity_threshold", 0.4)
+
+    sim = _get_similarity_matrix(items, config, shared)
+
+    conditions = [item.get(cond_field) for item in items]
+    unique_conds = sorted(set(conditions))
+    cond_indices = {c: [i for i, x in enumerate(conditions) if x == c] for c in unique_conds}
+
+    min_diversity = float("inf")
+    metrics = {}
+
+    for cond, indices in cond_indices.items():
+        n = len(indices)
+        if n < 2:
+            metrics[f"mean_distance_{cond}"] = 1.0
+            continue
+        sub_sim = sim[np.ix_(indices, indices)]
+        # Distance = 1 - similarity
+        np.fill_diagonal(sub_sim, 1)  # exclude self
+        distances = 1 - sub_sim
+        np.fill_diagonal(distances, 0)
+        mean_dist = float(distances.sum() / (n * (n - 1)))
+        metrics[f"mean_distance_{cond}"] = round(mean_dist, 4)
+        min_diversity = min(min_diversity, mean_dist)
+
+    passed = min_diversity >= threshold
+
+    return CheckResult(
+        name="semantic_diversity",
+        passed=passed,
+        tier=1,
+        metrics=metrics,
+        details=f"Low semantic diversity (min={min_diversity:.3f} < {threshold}). Monoculture risk." if not passed else "",
+    )
+
+
+@check(name="domain_balance", tier=1)
+def _check_domain_balance(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Shannon entropy of topic clusters per condition."""
+    from sklearn.cluster import KMeans
+    cond_field = config.get("condition_field", "condition")
+    n_clusters = config.get("n_clusters", 5)
+    entropy_threshold = config.get("entropy_diff_threshold", 0.3)
+
+    tfidf, _ = _get_tfidf_matrix(items, config, shared)
+    n_items = tfidf.shape[0]
+    actual_k = min(n_clusters, n_items)
+
+    km = KMeans(n_clusters=actual_k, random_state=42, n_init=3)
+    labels = km.fit_predict(tfidf.toarray() if hasattr(tfidf, "toarray") else tfidf)
+
+    conditions = [item.get(cond_field) for item in items]
+    unique_conds = sorted(set(conditions))
+    cond_indices = {c: [i for i, x in enumerate(conditions) if x == c] for c in unique_conds}
+
+    def _entropy(counts):
+        total = sum(counts)
+        if total == 0:
+            return 0.0
+        probs = [c / total for c in counts if c > 0]
+        return -sum(p * math.log(p) for p in probs)
+
+    entropies = {}
+    for cond, indices in cond_indices.items():
+        cluster_counts = Counter(labels[i] for i in indices)
+        counts = [cluster_counts.get(k, 0) for k in range(actual_k)]
+        entropies[cond] = round(_entropy(counts), 4)
+
+    entropy_vals = list(entropies.values())
+    entropy_diff = max(entropy_vals) - min(entropy_vals) if len(entropy_vals) >= 2 else 0
+
+    passed = entropy_diff <= entropy_threshold
+
+    return CheckResult(
+        name="domain_balance",
+        passed=passed,
+        tier=1,
+        metrics={
+            "entropy_per_condition": entropies,
+            "entropy_diff": round(entropy_diff, 4),
+            "n_clusters": actual_k,
+        },
+        details=f"Topic entropy diff {entropy_diff:.3f} exceeds {entropy_threshold} threshold." if not passed else "",
     )
