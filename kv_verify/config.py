@@ -53,6 +53,7 @@ class PipelineConfig:
 
     # Flags
     skip_gpu: bool = False
+    force: bool = False  # override validation FAIL halt
 
     @classmethod
     def from_yaml(cls, path: Path) -> "PipelineConfig":

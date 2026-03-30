@@ -81,6 +81,7 @@ class TestPipelinePromptGenStage:
         )
         pipeline = Pipeline(cfg)
         pipeline.run_stage("environment")
+        pipeline.run_stage("validation")
         pipeline.run_stage("prompt_gen")
 
         prompts_dir = tmp_path / "run" / "prompts"
@@ -96,6 +97,7 @@ class TestPipelinePromptGenStage:
         )
         pipeline = Pipeline(cfg)
         pipeline.run_stage("environment")
+        pipeline.run_stage("validation")
         pipeline.run_stage("prompt_gen")
 
         meta = json.loads((tmp_path / "run" / "run_metadata.json").read_text())
@@ -117,6 +119,7 @@ class TestPipelineAnalysisStage:
 
         # Must run prerequisite stages (decorator checks dependencies)
         pipeline.run_stage("environment")
+        pipeline.run_stage("validation")
         pipeline.run_stage("prompt_gen")
         pipeline.run_stage("tokenization")
 
@@ -163,6 +166,7 @@ class TestPipelineAnalysisStage:
         )
         pipeline = Pipeline(cfg)
         pipeline.run_stage("environment")
+        pipeline.run_stage("validation")
         pipeline.run_stage("prompt_gen")
         pipeline.run_stage("tokenization")
         pipeline.tracker.log_item("stage_extraction", {"status": "complete"})
@@ -198,6 +202,7 @@ class TestPipelineReport:
 
         # Run all prerequisite stages
         pipeline.run_stage("environment")
+        pipeline.run_stage("validation")
         pipeline.run_stage("prompt_gen")
         pipeline.run_stage("tokenization")
         pipeline.tracker.log_item("stage_extraction", {"status": "complete"})
