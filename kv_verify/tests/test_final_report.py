@@ -19,27 +19,29 @@ class TestClaims:
 
 class TestGenerateFinalReport:
 
-    def test_produces_markdown(self):
-        # Minimal experiment results
+    def test_produces_markdown_with_verdicts(self):
         results = {
             "V01": {"verdict": "CONFIRMED", "p_value": 0.001},
             "V04": {"verdict": "WEAKENED", "p_value": 0.037},
         }
         report = generate_final_report(results)
         assert isinstance(report, str)
-        assert "CONFIRMED" in report or "WEAKENED" in report
+        # Both experiments should appear in the verdict table
+        assert "V01" in report
+        assert "V04" in report
 
-    def test_includes_global_holm(self):
+    def test_includes_global_holm_table(self):
         results = {
             "V01": {"verdict": "CONFIRMED", "p_value": 0.001},
             "F01b": {"verdict": "FALSIFIED", "p_value": 0.0001},
         }
         report = generate_final_report(results)
-        assert "Holm" in report or "corrected" in report.lower()
+        # The report must contain the Holm correction table header
+        assert "Holm-Bonferroni" in report
+        assert "Corrected p" in report
 
-    def test_includes_all_claims(self):
+    def test_includes_all_14_claims(self):
         results = {}
         report = generate_final_report(results)
-        # Even with no results, all claims should be listed
-        assert "C1" in report
-        assert "C5" in report
+        for claim in CLAIMS:
+            assert claim["id"] in report, f"Missing claim {claim['id']} from report"

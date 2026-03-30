@@ -37,17 +37,19 @@ def _permutation_importance(
     """Compute permutation importance for a single feature."""
     rng = np.random.RandomState(seed)
 
-    # Baseline AUROC
-    baseline = groupkfold_auroc(X, y, groups, n_splits=min(N_SPLITS, len(np.unique(groups))))
+    # Baseline AUROC (compute n_splits once)
+    n_splits = min(N_SPLITS, len(np.unique(groups)))
+    baseline = groupkfold_auroc(X, y, groups, n_splits=n_splits)
     baseline_auroc = baseline.auroc
 
-    # Permute the feature and recompute
+    # Permute the feature and recompute (save/restore single column, not full copy)
     drops = []
+    original_col = X[:, feature_idx].copy()
     for _ in range(n_repeats):
-        X_perm = X.copy()
-        X_perm[:, feature_idx] = rng.permutation(X_perm[:, feature_idx])
-        perm_result = groupkfold_auroc(X_perm, y, groups, n_splits=min(N_SPLITS, len(np.unique(groups))))
+        X[:, feature_idx] = rng.permutation(original_col)
+        perm_result = groupkfold_auroc(X, y, groups, n_splits=n_splits)
         drops.append(baseline_auroc - perm_result.auroc)
+    X[:, feature_idx] = original_col  # restore
 
     return {
         "baseline_auroc": float(baseline_auroc),

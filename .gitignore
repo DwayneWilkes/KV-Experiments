@@ -75,3 +75,6 @@ code/export_cricket_classifiers.py
 mlflow.db
 mlruns/
 .claude/
+experiments/output/
+results/
+reviews/

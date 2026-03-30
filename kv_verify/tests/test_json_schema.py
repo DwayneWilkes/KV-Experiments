@@ -8,9 +8,7 @@ import pytest
 from kv_verify.lib.dataset_validation import validate_dataset
 
 
-def _item(cond, prompt="test", n_tokens=50):
-    return {"condition": cond, "prompt": prompt, "features": {"n_tokens": n_tokens}}
-
+from kv_verify.tests.conftest import make_item as _item
 
 SCHEMA_PATH = Path(__file__).resolve().parent.parent / "schemas" / "dataset-report-v1.0.json"
 
@@ -20,9 +18,12 @@ class TestJsonSchema:
     def test_schema_file_exists(self):
         assert SCHEMA_PATH.exists(), f"Schema not found at {SCHEMA_PATH}"
 
-    def test_schema_is_valid_json(self):
+    def test_schema_has_required_structure(self):
         data = json.loads(SCHEMA_PATH.read_text())
-        assert "$schema" in data or "type" in data
+        assert "$schema" in data
+        assert data["type"] == "object"
+        assert "required" in data
+        assert "overall_verdict" in data["required"]
 
     def test_valid_report_passes_schema(self):
         jsonschema = pytest.importorskip("jsonschema")

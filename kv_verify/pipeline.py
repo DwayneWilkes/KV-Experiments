@@ -177,51 +177,50 @@ class Pipeline:
         """Run dataset validation as a pre-flight quality gate.
 
         Validates legacy datasets (hackathon JSONs) if they exist.
-        Results logged as MLflow artifact. Verdict stored for downstream annotation.
+        Stored features lack prompt text, so only structural checks (tier 0)
+        are meaningful unless raw prompts are available.
         """
         from kv_verify.lib.dataset_validation import validate_dataset
 
         results = {}
-
-        # Validate any existing loaded data
         data_dir = Path(__file__).parent.parent / "results" / "hackathon"
+
         if data_dir.exists():
             from kv_verify.data_loader import load_comparison_data, list_comparisons
+
+            feature_names = ["norm_per_token", "key_rank", "key_entropy"]
+
             for comp_name in list_comparisons():
                 try:
                     X, y, meta = load_comparison_data(comp_name)
-                    # Build items from loaded data
-                    items = []
-                    n = len(y)
-                    for i in range(n):
-                        items.append({
+                    names = meta.get("feature_names", feature_names)
+                    items = [
+                        {
                             "condition": "positive" if y[i] == 1 else "negative",
-                            "features": {f: float(X[i, j]) for j, f in enumerate(
-                                meta.get("feature_names", ["norm_per_token", "key_rank", "key_entropy"])
-                            )},
-                        })
-                    report = validate_dataset(items, tier=1)
+                            "features": {f: float(X[i, j]) for j, f in enumerate(names)},
+                        }
+                        for i in range(len(y))
+                    ]
+                    report = validate_dataset(items, tier=self.config.validation_tier)
                     results[comp_name] = report.overall_verdict
-                except Exception as e:
+                except (FileNotFoundError, KeyError, ValueError) as e:
                     results[comp_name] = f"ERROR: {e}"
 
-        # Determine overall validation verdict
-        if not results:
-            self._validation_verdict = "PASS"
-        elif any(v == "FAIL" for v in results.values()):
+        # Derive verdict from per-dataset results
+        verdicts = set(results.values()) if results else set()
+        if "FAIL" in verdicts:
             self._validation_verdict = "FAIL"
-        elif any(v == "INCONCLUSIVE" for v in results.values()):
+        elif "INCONCLUSIVE" in verdicts:
             self._validation_verdict = "INCONCLUSIVE"
         else:
             self._validation_verdict = "PASS"
 
         self.tracker.log_metric("validation_verdict", self._validation_verdict)
 
-        # Halt on FAIL unless --force
         if self._validation_verdict == "FAIL" and not self.config.force:
-            print(f"\nValidation FAILED: {results}")
-            print("Use --force to override.")
-            sys.exit(1)
+            raise RuntimeError(
+                f"Validation FAILED: {results}. Use --force to override."
+            )
 
         return {"validation_verdict": self._validation_verdict, "per_dataset": results}
 

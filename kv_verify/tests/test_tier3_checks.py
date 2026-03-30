@@ -8,13 +8,7 @@ import pytest
 from kv_verify.lib.dataset_validation import validate_dataset
 
 
-def _item(cond, prompt="test", n_tokens=50, **feats):
-    return {
-        "condition": cond,
-        "prompt": prompt,
-        "features": {"n_tokens": n_tokens, **feats},
-    }
-
+from kv_verify.tests.conftest import make_item as _item
 
 class TestProvenanceHash:
     """Task 5.1: SHA-256 of canonical dataset."""

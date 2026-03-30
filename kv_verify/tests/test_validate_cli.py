@@ -26,10 +26,10 @@ class TestValidateCLI:
             env={**__import__("os").environ, "PYTHONPATH": str(Path(__file__).resolve().parent.parent.parent)},
         )
         assert result.returncode == 0
-        assert "validate" in result.stdout.lower() or "dataset" in result.stdout.lower()
+        assert "--dataset" in result.stdout
 
-    def test_validate_runs_on_json_file(self, tmp_path):
-        """Validate a simple JSON dataset file."""
+    def test_validate_passes_on_clean_dataset(self, tmp_path):
+        """Tier 0 validation on a balanced dataset should exit 0."""
         items = [
             {"condition": "A", "prompt": f"question about topic {i}", "features": {"n_tokens": 50 + i}}
             for i in range(20)
@@ -45,5 +45,5 @@ class TestValidateCLI:
             cwd=str(tmp_path),
             env={**__import__("os").environ, "PYTHONPATH": str(Path(__file__).resolve().parent.parent.parent)},
         )
+        # Exit code 0 = PASS, 1 = FAIL/INCONCLUSIVE
         assert result.returncode == 0
-        assert "PASS" in result.stdout or "pass" in result.stdout.lower()

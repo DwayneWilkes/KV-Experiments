@@ -976,6 +976,9 @@ def global_holm_bonferroni(
 ) -> List[Dict]:
     """Apply Holm-Bonferroni across multiple named experiments.
 
+    Delegates to holm_bonferroni() for the core correction, then wraps
+    results with experiment names.
+
     Args:
         experiments: List of (name, p_value) tuples.
         alpha: Significance threshold (default from constants).
@@ -986,46 +989,22 @@ def global_holm_bonferroni(
     from kv_verify.constants import ALPHA
     alpha = alpha or ALPHA
 
-    n = len(experiments)
-    if n == 0:
+    if not experiments:
         return []
 
-    # Sort by p-value
-    indexed = [(name, p, i) for i, (name, p) in enumerate(experiments)]
-    indexed.sort(key=lambda x: x[1])
+    names = [name for name, _ in experiments]
+    p_values = [p for _, p in experiments]
 
-    results = []
-    rejected_so_far = True
-    prev_corrected_p = 0.0
-    for rank, (name, p, orig_idx) in enumerate(indexed):
-        # Holm correction: compare p against alpha / (n - rank)
-        adjusted_alpha = alpha / (n - rank)
-        corrected_p = min(p * (n - rank), 1.0)
-        # Enforce monotonicity: corrected p can't decrease as rank increases
-        corrected_p = max(corrected_p, prev_corrected_p)
-        prev_corrected_p = corrected_p
+    corrected = holm_bonferroni(p_values, alpha=alpha)
 
-        # Holm is step-down: once we fail to reject, all subsequent are also not rejected
-        if not rejected_so_far:
-            reject = False
-        elif p > adjusted_alpha:
-            reject = False
-            rejected_so_far = False
-        else:
-            reject = True
-
-        results.append({
+    return [
+        {
             "name": name,
-            "original_p": p,
-            "corrected_p": round(corrected_p, 6),
-            "rank": rank + 1,
-            "reject": reject,
-            "adjusted_alpha": round(adjusted_alpha, 6),
-        })
-
-    # Sort back to original order for stability
-    results.sort(key=lambda x: next(
-        i for i, (name, _, _) in enumerate(indexed) if name == x["name"]
-    ))
-
-    return results
+            "original_p": c["original_p"],
+            "corrected_p": c["corrected_p"],
+            "rank": c["rank"],
+            "reject": c["reject_null"],
+            "adjusted_alpha": round(alpha / (len(experiments) - c["rank"] + 1), 6),
+        }
+        for name, c in zip(names, corrected)
+    ]

@@ -84,16 +84,16 @@ class TestCheckResult:
 
 class TestDatasetReport:
 
-    def test_has_required_fields(self):
+    def test_report_fields_have_correct_types(self):
         report = validate_dataset(_make_items(10), tier=0)
-        assert hasattr(report, "schema_version")
-        assert hasattr(report, "tier")
-        assert hasattr(report, "overall_pass")
-        assert hasattr(report, "overall_verdict")
-        assert hasattr(report, "checks")
-        assert hasattr(report, "nominal_n")
-        assert hasattr(report, "timestamp")
-        assert hasattr(report, "config_hash")
+        assert isinstance(report.schema_version, str)
+        assert isinstance(report.tier, int)
+        assert isinstance(report.overall_pass, bool)
+        assert report.overall_verdict in ("PASS", "INCONCLUSIVE", "FAIL")
+        assert isinstance(report.checks, dict)
+        assert isinstance(report.nominal_n, dict)
+        assert len(report.timestamp) > 0
+        assert len(report.config_hash) > 0
 
     def test_nominal_n_per_condition(self):
         items = _make_items(15, conditions=("X", "Y"))

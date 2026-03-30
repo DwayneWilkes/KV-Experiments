@@ -1,7 +1,6 @@
 """Tests for pipeline remote routing (Task 8.4)."""
 
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
 import pytest
 
@@ -12,26 +11,19 @@ from kv_verify.pipeline import Pipeline
 
 class TestPipelineRemoteRouting:
 
-    def test_pipeline_has_remote_config_attr(self, tmp_path):
-        """Pipeline should have _remote_config attribute (None by default)."""
+    def test_remote_config_defaults_to_none(self, tmp_path):
         cfg = PipelineConfig(output_dir=tmp_path / "run", skip_gpu=True)
         pipeline = Pipeline(cfg)
-        assert hasattr(pipeline, "_remote_config")
         assert pipeline._remote_config is None
 
-    def test_pipeline_accepts_remote_config(self, tmp_path):
-        """Setting _remote_config should stick."""
+    def test_skip_gpu_extraction_returns_skipped(self, tmp_path):
+        """Without GPU or remote, extraction should skip."""
         cfg = PipelineConfig(output_dir=tmp_path / "run", skip_gpu=True)
         pipeline = Pipeline(cfg)
-        remote = RemoteConfig(backend="ssh", host="gpu.box", user="root",
-                             key_path=Path("/tmp/key"), remote_dir="/workspace")
-        pipeline._remote_config = remote
-        assert pipeline._remote_config.host == "gpu.box"
-
-    def test_do_extraction_checks_remote_config(self, tmp_path):
-        """_do_extraction should check _remote_config before running locally."""
-        cfg = PipelineConfig(output_dir=tmp_path / "run", skip_gpu=True)
-        pipeline = Pipeline(cfg)
-        # With skip_gpu and no remote, extraction returns skipped
-        result = pipeline._do_extraction()
+        # Must run prerequisite stages before extraction
+        pipeline.run_stage("environment")
+        pipeline.run_stage("validation")
+        pipeline.run_stage("prompt_gen")
+        pipeline.run_stage("tokenization")
+        result = pipeline.run_stage("extraction")
         assert result.get("status") == "skipped"

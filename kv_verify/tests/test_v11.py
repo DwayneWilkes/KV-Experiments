@@ -7,18 +7,14 @@ import numpy as np
 import pytest
 
 from kv_verify.experiments.v11_feature_ablation import run_v11
-from kv_verify.types import Verdict
+from kv_verify.types import ClaimVerification, Verdict
 
 
 class TestRunV11:
 
-    def test_produces_result(self, tmp_path):
+    def test_returns_claim_verification_with_valid_verdict(self, tmp_path):
         result = run_v11(output_dir=tmp_path / "v11")
-        assert result is not None
-        assert hasattr(result, "verdict")
-
-    def test_verdict_is_valid(self, tmp_path):
-        result = run_v11(output_dir=tmp_path / "v11")
+        assert isinstance(result, ClaimVerification)
         assert result.verdict in (Verdict.CONFIRMED, Verdict.WEAKENED, Verdict.FALSIFIED)
 
     def test_result_json_has_all_features(self, tmp_path):

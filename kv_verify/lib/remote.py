@@ -15,7 +15,7 @@ Usage:
 import os
 import shlex
 import subprocess
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 
@@ -157,7 +157,7 @@ def run_remote_stage(
         f"python -m kv_verify run --stages {shlex.quote(stage)}",
     ]
     if extra_args:
-        cmd_parts[-1] += " " + " ".join(extra_args)
+        cmd_parts[-1] += " " + " ".join(shlex.quote(a) for a in extra_args)
 
     full_cmd = " && ".join(cmd_parts[:1]) + " && " + " ".join(cmd_parts[1:])
     return session.run_ssh(full_cmd, check=False)

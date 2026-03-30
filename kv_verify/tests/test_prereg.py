@@ -5,9 +5,7 @@ import pytest
 from kv_verify.lib.dataset_validation import validate_dataset
 
 
-def _item(cond, prompt="test", n_tokens=50):
-    return {"condition": cond, "prompt": prompt, "features": {"n_tokens": n_tokens}}
-
+from kv_verify.tests.conftest import make_item as _item
 
 class TestPreregCompatibility:
 

@@ -16,6 +16,7 @@ class TestRemoteCLIFlag:
             capture_output=True, text=True, timeout=30,
             env={**__import__("os").environ, "PYTHONPATH": str(Path(__file__).resolve().parent.parent.parent)},
         )
+        assert result.returncode == 0
         assert "--remote" in result.stdout
 
     def test_remote_yaml_parsed(self, tmp_path):
