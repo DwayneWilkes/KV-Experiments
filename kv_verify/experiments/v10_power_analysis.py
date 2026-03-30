@@ -114,14 +114,24 @@ def run_v10(
             f"Underpowered (power < 0.50): {', '.join(underpowered)}."
         )
 
-    # Check linchpin specifically
+    # Annotate any comparison below the underpowered threshold as INCONCLUSIVE
+    for entry in power_table:
+        if entry["was_significant"] and entry["achieved_power"] < POWER_UNDERPOWERED:
+            entry["inconclusive"] = True
+            entry["inconclusive_reason"] = (
+                f"Power={entry['achieved_power']:.2f} < {POWER_UNDERPOWERED}. "
+                f"Requires N={entry['required_n']} for adequate power. "
+                f"Result cannot support claims in either direction."
+            )
+
     linchpin = [e for e in power_table if "impossible_vs_harmful" in e["name"]]
     if linchpin:
         lp = linchpin[0]
+        status = "INCONCLUSIVE" if lp.get("inconclusive") else "adequate"
         evidence_parts.append(
-            f"Linchpin (exp36_impossible_vs_harmful): "
+            f"Linchpin (exp36_impossible_vs_harmful): {status}. "
             f"AUROC={lp['observed_auroc']:.2f}, power={lp['achieved_power']:.2f}, "
-            f"requires N={lp['required_n']} for 80% power."
+            f"requires N={lp['required_n']} for {POWER_ADEQUATE} power."
         )
 
     # Log metrics
