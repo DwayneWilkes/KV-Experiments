@@ -72,6 +72,15 @@ def check(name: str, tier: int, depends_on: Optional[List[str]] = None):
     return decorator
 
 
+def list_checks(tier: int = 3) -> List[dict]:
+    """List all registered checks up to the given tier."""
+    return [
+        {"name": c["name"], "tier": c["tier"], "depends_on": c["depends_on"]}
+        for c in sorted(_CHECKS, key=lambda x: (x["tier"], x["name"]))
+        if c["tier"] <= tier
+    ]
+
+
 def _run_checks(
     items: List[dict],
     tier: int,
@@ -201,6 +210,8 @@ def _default_config() -> Dict[str, Any]:
     return {
         # Tier 0
         "balance_ratio_threshold": 2.0,
+        "required_fields": ["condition"],
+        "feature_fields_numeric": True,
         # Tier 1
         "alpha": 0.05,
         "effective_n_min": 20,
@@ -214,3 +225,124 @@ def _default_config() -> Dict[str, Any]:
         "variance_ratio_threshold": 3.0,
         "pair_token_tolerance": 5,
     }
+
+
+# ================================================================
+# TIER 0 CHECKS
+# ================================================================
+
+@check(name="structural", tier=0)
+def _check_structural(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Verify required fields exist and feature values are numeric."""
+    cond_field = config.get("condition_field", "condition")
+    issues = []
+
+    for i, item in enumerate(items):
+        if cond_field not in item:
+            issues.append(f"Item {i}: missing '{cond_field}' field")
+        if "features" in item and config.get("feature_fields_numeric", True):
+            for k, v in item["features"].items():
+                if not isinstance(v, (int, float)):
+                    issues.append(f"Item {i}: features['{k}'] is {type(v).__name__}, expected numeric")
+
+    return CheckResult(
+        name="structural",
+        passed=len(issues) == 0,
+        tier=0,
+        metrics={"n_issues": len(issues)},
+        details="; ".join(issues[:5]) if issues else "",
+    )
+
+
+@check(name="duplicates", tier=0)
+def _check_duplicates(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Detect exact duplicates within and across conditions."""
+    cond_field = config.get("condition_field", "condition")
+
+    # Build content fingerprints per item
+    def _fingerprint(item: dict) -> str:
+        prompt = item.get("prompt", "")
+        feats = item.get("features", {})
+        return f"{prompt}|{json.dumps(feats, sort_keys=True)}"
+
+    # Group by condition
+    by_condition: Dict[str, List[str]] = {}
+    all_fps: List[tuple] = []  # (fingerprint, condition, index)
+    for i, item in enumerate(items):
+        cond = item.get(cond_field, "")
+        fp = _fingerprint(item)
+        by_condition.setdefault(cond, []).append(fp)
+        all_fps.append((fp, cond, i))
+
+    # Within-condition duplicates
+    within_dupes = []
+    for cond, fps in by_condition.items():
+        seen = {}
+        for idx, fp in enumerate(fps):
+            if fp in seen:
+                within_dupes.append({"condition": cond, "indices": [seen[fp], idx]})
+            else:
+                seen[fp] = idx
+
+    # Cross-condition duplicates
+    cross_dupes = []
+    fp_to_cond: Dict[str, List[tuple]] = {}
+    for fp, cond, idx in all_fps:
+        fp_to_cond.setdefault(fp, []).append((cond, idx))
+    for fp, entries in fp_to_cond.items():
+        conds = {e[0] for e in entries}
+        if len(conds) > 1:
+            cross_dupes.append({"fingerprint": fp[:32], "conditions": list(conds)})
+
+    n_within = len(within_dupes)
+    n_cross = len(cross_dupes)
+    total_dupes = n_within + n_cross
+
+    details = ""
+    if n_within > 0:
+        details += f"{n_within} within-condition duplicate(s). "
+    if n_cross > 0:
+        details += f"{n_cross} cross-condition duplicate(s) (leakage risk). "
+
+    return CheckResult(
+        name="duplicates",
+        passed=total_dupes == 0,
+        tier=0,
+        metrics={
+            "n_exact": total_dupes,
+            "within_condition": within_dupes[:10],
+            "cross_condition": cross_dupes[:10],
+            "leakage_risk": n_cross > 0,
+            "adjusted_n": {
+                cond: len(set(fps)) for cond, fps in by_condition.items()
+            },
+        },
+        details=details,
+    )
+
+
+@check(name="class_balance", tier=0)
+def _check_class_balance(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Check class balance across conditions."""
+    cond_field = config.get("condition_field", "condition")
+    threshold = config.get("balance_ratio_threshold", 2.0)
+
+    counts = Counter(item.get(cond_field) for item in items)
+    if not counts:
+        return CheckResult(name="class_balance", passed=False, tier=0, details="No items")
+
+    max_count = max(counts.values())
+    min_count = min(counts.values())
+    ratio = max_count / max(min_count, 1)
+
+    return CheckResult(
+        name="class_balance",
+        passed=ratio <= threshold,
+        tier=0,
+        metrics={
+            "counts": dict(counts),
+            "ratio": round(ratio, 2),
+            "threshold": threshold,
+        },
+        details=f"Imbalance ratio {ratio:.1f}:1 exceeds {threshold}:1 threshold." if ratio > threshold else "",
+    )
