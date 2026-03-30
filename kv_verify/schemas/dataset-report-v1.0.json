@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DatasetReport",
+  "description": "Validation report for an ML experiment dataset",
+  "type": "object",
+  "required": ["schema_version", "tier", "overall_pass", "overall_verdict", "checks", "nominal_n", "timestamp"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "tier": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
+    "dataset_hash": {
+      "type": ["string", "null"]
+    },
+    "overall_pass": {
+      "type": "boolean"
+    },
+    "overall_verdict": {
+      "type": "string",
+      "enum": ["PASS", "INCONCLUSIVE", "FAIL"]
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["name", "passed", "tier"],
+        "properties": {
+          "name": {"type": "string"},
+          "passed": {"type": "boolean"},
+          "tier": {"type": "integer"},
+          "metrics": {"type": "object"},
+          "details": {"type": "string"}
+        }
+      }
+    },
+    "nominal_n": {
+      "type": "object",
+      "additionalProperties": {"type": "integer"}
+    },
+    "effective_n": {
+      "type": ["object", "null"]
+    },
+    "metadata": {
+      "type": ["object", "null"]
+    },
+    "confound_summary": {
+      "type": ["object", "null"]
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "config_hash": {
+      "type": "string"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {"type": "string"}
+    }
+  }
+}
