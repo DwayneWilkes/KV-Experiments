@@ -71,6 +71,8 @@ def main():
     run_parser.add_argument("--output-dir", type=Path, help="Output directory")
     run_parser.add_argument("--stages", nargs="*", help="Specific stages to run")
     run_parser.add_argument("--seed", type=int, help="Random seed")
+    run_parser.add_argument("--remote", type=Path, help="Remote GPU config YAML")
+    run_parser.add_argument("--force", action="store_true", help="Force run past validation failures")
 
     # --- validate subcommand ---
     val_parser = sub.add_parser("validate", help="Validate a dataset for experiment quality")
