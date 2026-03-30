@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Regenerate prompt datasets using Qwen on CPU with checkpointing.
+"""Regenerate prompt datasets using Qwen on CPU with validation loop.
 
-Safe to run in the background — checkpoints after each prompt pair.
-Resume by re-running: picks up from where it left off.
+Loads Qwen2.5-7B on CPU (float32, ~15GB RAM, slow but works).
+Uses PromptGenerator to produce format-matched minimal pairs.
+Validates each dataset at Tier 2. Checkpoints progress.
+
+Safe to run in background — survives disconnect via checkpointing.
 
 Usage:
     KV_VERIFY_MODEL_DIR=/mnt/d/dev/models python kv_verify/scripts/regenerate_prompts.py
@@ -14,197 +17,185 @@ import sys
 import time
 from pathlib import Path
 
-# Ensure kv_verify is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 os.environ.setdefault("KV_VERIFY_MODEL_DIR", "/mnt/d/dev/models")
 
-import torch
-import numpy as np
-
 OUTPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "prompts" / "generated"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-CHECKPOINT = OUTPUT_DIR / "_checkpoint.json"
 
 
-def load_checkpoint():
-    if CHECKPOINT.exists():
-        return json.loads(CHECKPOINT.read_text())
-    return {"deception": 0, "refusal": 0, "impossibility": 0, "status": "started"}
+def log(msg):
+    line = f"[{time.strftime('%H:%M:%S')}] {msg}"
+    print(line, flush=True)
 
 
-def save_checkpoint(state):
-    CHECKPOINT.write_text(json.dumps(state, indent=2))
-
-
-def generate_deception_pairs(model, tokenizer, n=200):
-    """Generate deception minimal pairs using factual questions."""
-    from kv_verify.lib.prompts.gen import deception_pair, PairSet
-    from kv_verify.data.prompts.factual_questions import FACTUAL_QUESTIONS
-
-    out_path = OUTPUT_DIR / "deception_pairs.json"
-    state = load_checkpoint()
-    start = state.get("deception", 0)
-
-    if start >= n:
-        print(f"  Deception: already complete ({n} pairs)")
-        return
-
-    pairs = []
-    # Load existing if resuming
-    if out_path.exists() and start > 0:
-        existing = json.loads(out_path.read_text())
-        pairs = [p for p in existing.get("pairs", [])]
-
-    questions = FACTUAL_QUESTIONS[:n]
-    for i in range(start, min(n, len(questions))):
-        pair = deception_pair(questions[i], f"d_{i}")
-        pairs.append(pair.to_dict())
-
-        if (i + 1) % 10 == 0:
-            # Checkpoint every 10
-            pair_set = {"comparison": "deception", "n_target": n, "pairs": pairs}
-            out_path.write_text(json.dumps(pair_set, indent=2))
-            state["deception"] = i + 1
-            save_checkpoint(state)
-            print(f"  Deception: {i+1}/{n} pairs")
-
-    # Final save
-    pair_set = {"comparison": "deception", "n_target": n, "pairs": pairs}
-    out_path.write_text(json.dumps(pair_set, indent=2))
-    state["deception"] = len(pairs)
-    save_checkpoint(state)
-    print(f"  Deception: complete ({len(pairs)} pairs)")
-
-
-def generate_refusal_pairs(n=200):
-    """Generate refusal minimal pairs from raw data (CPU only, no model needed)."""
-    from kv_verify.lib.prompts.gen import refusal_pair
-    from kv_verify.data.prompts.refusal_pairs_raw import REFUSAL_PAIRS
-
-    out_path = OUTPUT_DIR / "refusal_pairs.json"
-    state = load_checkpoint()
-
-    pairs = []
-    for i, (verb, harmful, benign) in enumerate(REFUSAL_PAIRS[:n]):
-        pair = refusal_pair(harmful, benign, verb, f"r_{i}")
-        pairs.append(pair.to_dict())
-
-    pair_set = {"comparison": "refusal", "n_target": n, "pairs": pairs}
-    out_path.write_text(json.dumps(pair_set, indent=2))
-    state["refusal"] = len(pairs)
-    save_checkpoint(state)
-    print(f"  Refusal: complete ({len(pairs)} pairs)")
-
-
-def generate_impossibility_pairs(n=200):
-    """Generate impossibility minimal pairs from raw data (CPU only)."""
-    from kv_verify.lib.prompts.gen import impossibility_pair
-    from kv_verify.data.prompts.impossibility_pairs_raw import IMPOSSIBILITY_PAIRS
-
-    out_path = OUTPUT_DIR / "impossibility_pairs.json"
-    state = load_checkpoint()
-
-    pairs = []
-    for i, (action, impossible, possible) in enumerate(IMPOSSIBILITY_PAIRS[:n]):
-        pair = impossibility_pair(impossible, possible, action, f"i_{i}")
-        pairs.append(pair.to_dict())
-
-    pair_set = {"comparison": "impossibility", "n_target": n, "pairs": pairs}
-    out_path.write_text(json.dumps(pair_set, indent=2))
-    state["impossibility"] = len(pairs)
-    save_checkpoint(state)
-    print(f"  Impossibility: complete ({len(pairs)} pairs)")
-
-
-def validate_dataset_from_pairs(name: str, pairs: list) -> dict:
-    """Validate a pair set and return the report."""
+def validate_pair_set(name, pairs):
+    """Run Tier 2 validation on a pair set. Returns (verdict, failures)."""
     from kv_verify.lib.dataset_validation import validate_dataset
 
     items = []
     for p in pairs:
-        items.append({"condition": "positive", "prompt": p["positive"], "features": {"n_tokens": len(p["positive"].split())}})
-        items.append({"condition": "negative", "prompt": p["negative"], "features": {"n_tokens": len(p["negative"].split())}})
+        pos = p["positive"] if isinstance(p, dict) else p.positive
+        neg = p["negative"] if isinstance(p, dict) else p.negative
+        items.append({"condition": "positive", "prompt": pos, "features": {"n_tokens": len(pos.split())}})
+        items.append({"condition": "negative", "prompt": neg, "features": {"n_tokens": len(neg.split())}})
 
     report = validate_dataset(items, tier=2, config_overrides={
-        "classification_features": [],  # no feature-based checks on prompt text
+        "classification_features": [],
     })
-    failed = [n for n, cr in report.checks.items() if not cr.passed]
-    print(f"  {name}: {report.overall_verdict} (N={len(items)}) fails={failed}")
-    for n, cr in report.checks.items():
+
+    failed = []
+    for check_name, cr in report.checks.items():
         if not cr.passed:
-            print(f"    [{n}] {cr.details[:100]}")
+            failed.append({"check": check_name, "details": cr.details[:150]})
 
     report_path = OUTPUT_DIR / f"{name}_validation.json"
     report_path.write_text(json.dumps(report.to_dict(), indent=2))
-    return {"verdict": report.overall_verdict, "failed": failed}
+
+    return report.overall_verdict, failed
 
 
-def validate_all() -> bool:
-    """Validate all datasets. Returns True if all pass."""
-    all_pass = True
-    for name in ["deception", "refusal", "impossibility"]:
-        path = OUTPUT_DIR / f"{name}_pairs.json"
-        if not path.exists():
-            print(f"  {name}: NOT FOUND")
-            all_pass = False
-            continue
-        data = json.loads(path.read_text())
-        result = validate_dataset_from_pairs(name, data["pairs"])
-        if result["verdict"] != "PASS":
-            all_pass = False
-    return all_pass
+def run_comparison(comparison, model, tokenizer, tracker=None):
+    """Generate prompts for one comparison type using PromptGenerator."""
+    from kv_verify.lib.prompts.generator import PromptGenerator, PromptGeneratorConfig
 
+    log(f"  Generating {comparison} pairs with Qwen on CPU...")
+    t0 = time.time()
 
-MAX_ITERATIONS = 5
+    config = PromptGeneratorConfig(
+        n_target=200,
+        effective_n_target=30.0,
+        max_iterations=5,
+        candidates_per_iteration=30,
+        temperature=0.7,
+    )
+
+    # Seed topics for diversity
+    seeds = {
+        "deception": ["physics", "history", "biology", "geography", "math",
+                      "cooking", "music", "sports", "politics", "technology"],
+        "refusal": ["cybersecurity", "privacy", "chemistry", "finance",
+                    "social media", "weapons", "drugs", "fraud", "hacking", "surveillance"],
+        "impossibility": ["time travel", "teleportation", "immortality", "telepathy",
+                         "invisibility", "flying", "breathing underwater", "seeing the future",
+                         "shrinking", "duplicating"],
+    }
+
+    gen = PromptGenerator(
+        config,
+        seed_topics=seeds.get(comparison, []),
+        tracker=tracker,
+    )
+
+    result = gen.generate(comparison, model=model, tokenizer=tokenizer)
+    elapsed = time.time() - t0
+
+    log(f"  Generated {result.pairs_added} pairs in {elapsed:.0f}s "
+        f"(effective_n={result.final_effective_n:.1f}, target_met={result.target_met})")
+
+    # Save pair set
+    if result.pair_set:
+        out_path = OUTPUT_DIR / f"{comparison}_pairs.json"
+        result.pair_set.save(out_path)
+
+        # Save generation metadata
+        meta_path = OUTPUT_DIR / f"{comparison}_meta.json"
+        meta_path.write_text(json.dumps(result.to_dict(), indent=2))
+
+    return result
 
 
 def main():
-    print("=" * 60)
-    print("PROMPT DATASET REGENERATION (loops until 0 validation issues)")
-    print("=" * 60)
+    from kv_verify.tracking import ExperimentTracker
+
+    log("=" * 60)
+    log("PROMPT REGENERATION WITH QWEN ON CPU")
+    log("=" * 60)
     t0 = time.time()
 
-    for iteration in range(1, MAX_ITERATIONS + 1):
-        print(f"\n{'='*60}")
-        print(f"ITERATION {iteration}/{MAX_ITERATIONS}")
-        print(f"{'='*60}")
+    tracker = ExperimentTracker(
+        output_dir=OUTPUT_DIR,
+        experiment_name="prompt-regeneration",
+    )
 
-        # Refusal and impossibility: CPU-only pair constructors
-        print("\n1. Generating refusal pairs...")
-        generate_refusal_pairs()
+    comparisons = ["deception", "refusal", "impossibility"]
+    # Check which comparisons are already cached by the tracker
+    done = set()
+    for comp in comparisons:
+        cached = tracker.get_cached(f"comparison_{comp}")
+        if cached is not None:
+            done.add(comp)
+            log(f"  {comp}: found in tracker cache, skipping")
 
-        print("\n2. Generating impossibility pairs...")
-        generate_impossibility_pairs()
+    # Load model once
+    import torch
+    from kv_verify.lib.models import load_model, load_tokenizer
 
-        # Deception: pair constructor wraps factual questions
-        print("\n3. Generating deception pairs...")
-        generate_deception_pairs(model=None, tokenizer=None)
+    log("Loading Qwen2.5-7B on CPU (float32)...")
+    model_t0 = time.time()
+    model, tokenizer = load_model("qwen", dtype=torch.float32)
+    log(f"Model loaded in {time.time() - model_t0:.0f}s")
 
-        print("\n4. Validating all datasets (Tier 2)...")
-        all_clean = validate_all()
+    for comparison in comparisons:
+        if comparison in done:
+            log(f"\n{comparison}: already done (from checkpoint)")
+            continue
 
-        if all_clean:
-            print(f"\n ALL DATASETS PASS VALIDATION (iteration {iteration})")
-            break
+        log(f"\n{'='*40}")
+        log(f"COMPARISON: {comparison}")
+        log(f"{'='*40}")
+
+        result = run_comparison(comparison, model, tokenizer, tracker=tracker)
+
+        if result.pair_set and result.pair_set.pairs:
+            # Validate
+            log(f"  Validating {comparison}...")
+            pairs_dicts = [p.to_dict() for p in result.pair_set.pairs]
+            verdict, failures = validate_pair_set(comparison, pairs_dicts)
+            log(f"  Validation: {verdict}")
+            for f in failures:
+                log(f"    FAIL: {f['check']} — {f['details'][:80]}")
         else:
-            print(f"\n Validation failures remain. Iteration {iteration}/{MAX_ITERATIONS}.")
-            if iteration < MAX_ITERATIONS:
-                print("  Attempting to fix issues in next iteration...")
-                # Future: use LLM to regenerate failing prompts
-                # For now: the pair constructors are deterministic, so re-running
-                # won't change the output. Break early if no LLM available.
-                print("  (No LLM-powered fix available without GPU. Reporting as-is.)")
-                break
+            log(f"  No pairs generated for {comparison}")
+
+        # Cache completion via tracker (survives restart)
+        done.add(comparison)
+        tracker.log_item(f"comparison_{comparison}", {
+            "pairs_added": result.pairs_added if result else 0,
+            "effective_n": result.final_effective_n if result else 0,
+            "target_met": result.target_met if result else False,
+        })
 
     elapsed = time.time() - t0
-    print(f"\nTotal time: {elapsed:.1f}s")
+    log(f"\nTotal time: {elapsed:.0f}s ({elapsed/60:.1f} min)")
 
-    state = load_checkpoint()
-    state["status"] = "complete" if all_clean else "incomplete"
-    state["iterations"] = iteration
-    state["elapsed_s"] = round(elapsed, 1)
-    state["all_clean"] = all_clean
-    save_checkpoint(state)
+    # Final validation summary
+    log("\n" + "=" * 60)
+    log("FINAL VALIDATION SUMMARY")
+    log("=" * 60)
+    all_pass = True
+    for comparison in comparisons:
+        path = OUTPUT_DIR / f"{comparison}_pairs.json"
+        if path.exists():
+            data = json.loads(path.read_text())
+            pairs = data.get("pairs", [])
+            verdict, failures = validate_pair_set(comparison, pairs)
+            status = "PASS" if verdict == "PASS" else f"FAIL ({len(failures)} issues)"
+            log(f"  {comparison}: {status}")
+            if verdict != "PASS":
+                all_pass = False
+        else:
+            log(f"  {comparison}: NO DATA")
+            all_pass = False
+
+    tracker.log_metric("all_pass", int(all_pass))
+    tracker.log_metric("elapsed_s", round(elapsed, 1))
+    tracker.log_verdict("prompt_regeneration",
+                       "PASS" if all_pass else "INCOMPLETE",
+                       f"{'All pass' if all_pass else 'Issues remain'} after {elapsed:.0f}s")
+    tracker.end()
+
+    log(f"\nOverall: {'ALL PASS' if all_pass else 'ISSUES REMAIN'}")
 
 
 if __name__ == "__main__":
