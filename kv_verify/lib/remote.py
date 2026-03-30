@@ -13,6 +13,7 @@ Usage:
 """
 
 import os
+import shlex
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -63,7 +64,7 @@ class RemoteSSHSession:
             args.extend(["-i", str(self.config.key_path)])
         if self.config.port != 22:
             args.extend(["-p", str(self.config.port)])
-        args.extend(["-o", "StrictHostKeyChecking=no"])
+        args.extend(["-o", "StrictHostKeyChecking=accept-new"])
         return args
 
     def _ssh_cmd(self, command: str) -> List[str]:
@@ -151,9 +152,9 @@ def run_remote_stage(
     remote_dir = config.remote_dir
 
     cmd_parts = [
-        f"cd {remote_dir}",
+        f"cd {shlex.quote(remote_dir)}",
         f"KV_VERIFY_MODEL_DIR=/workspace/models",
-        f"python -m kv_verify run --stages {stage}",
+        f"python -m kv_verify run --stages {shlex.quote(stage)}",
     ]
     if extra_args:
         cmd_parts[-1] += " " + " ".join(extra_args)

@@ -996,10 +996,14 @@ def global_holm_bonferroni(
 
     results = []
     rejected_so_far = True
+    prev_corrected_p = 0.0
     for rank, (name, p, orig_idx) in enumerate(indexed):
         # Holm correction: compare p against alpha / (n - rank)
         adjusted_alpha = alpha / (n - rank)
         corrected_p = min(p * (n - rank), 1.0)
+        # Enforce monotonicity: corrected p can't decrease as rank increases
+        corrected_p = max(corrected_p, prev_corrected_p)
+        prev_corrected_p = corrected_p
 
         # Holm is step-down: once we fail to reject, all subsequent are also not rejected
         if not rejected_so_far:

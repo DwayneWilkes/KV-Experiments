@@ -480,18 +480,33 @@ def _check_effective_n(items: List[dict], config: Dict, shared: Dict) -> CheckRe
     unique_conds = sorted(set(conditions))
     cond_indices = {c: [i for i, x in enumerate(conditions) if x == c] for c in unique_conds}
 
+    # When subsampled, map original indices to sim matrix indices
+    sample_idx = shared.get("sim_sample_idx")
+    if sample_idx is not None:
+        sample_set = set(sample_idx)
+        idx_map = {orig: new for new, orig in enumerate(sample_idx)}
+    else:
+        sample_set = None
+        idx_map = None
+
     metrics = {"approximated": shared.get("sim_approximated", False)}
     min_n_eff_value = float("inf")
 
     for cond, indices in cond_indices.items():
-        n = len(indices)
+        # Filter to indices present in the sim matrix
+        if idx_map is not None:
+            mapped = [idx_map[i] for i in indices if i in sample_set]
+        else:
+            mapped = indices
+
+        n = len(mapped)
         if n < 2:
             metrics[f"deff_{cond}"] = 1.0
-            metrics[f"n_eff_{cond}"] = float(n)
+            metrics[f"n_eff_{cond}"] = float(len(indices))  # report nominal
             continue
 
         # Mean intra-condition similarity (excluding diagonal)
-        sub_sim = sim[np.ix_(indices, indices)] if len(indices) <= sim.shape[0] else np.eye(n)
+        sub_sim = sim[np.ix_(mapped, mapped)]
         np.fill_diagonal(sub_sim, 0)
         mean_rho = float(sub_sim.sum() / (n * (n - 1))) if n > 1 else 0
 
@@ -529,10 +544,21 @@ def _check_semantic_diversity(items: List[dict], config: Dict, shared: Dict) -> 
     unique_conds = sorted(set(conditions))
     cond_indices = {c: [i for i, x in enumerate(conditions) if x == c] for c in unique_conds}
 
+    # Handle subsampled similarity matrix
+    sample_idx = shared.get("sim_sample_idx")
+    if sample_idx is not None:
+        sample_set = set(sample_idx)
+        idx_map = {orig: new for new, orig in enumerate(sample_idx)}
+    else:
+        sample_set = None
+        idx_map = None
+
     min_diversity = float("inf")
     metrics = {}
 
     for cond, indices in cond_indices.items():
+        if idx_map is not None:
+            indices = [idx_map[i] for i in indices if i in sample_set]
         n = len(indices)
         if n < 2:
             metrics[f"mean_distance_{cond}"] = 1.0

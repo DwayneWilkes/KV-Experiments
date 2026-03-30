@@ -93,7 +93,8 @@ class RunPodSession:
         return self.ssh_host, self.ssh_port
 
     def terminate(self) -> None:
-        """Terminate the pod."""
+        """Terminate the pod. Raises on failure to prevent orphaned billing."""
         if self.pod_id:
-            requests.delete(f"{BASE_URL}/pods/{self.pod_id}", headers=self._headers())
+            resp = requests.delete(f"{BASE_URL}/pods/{self.pod_id}", headers=self._headers())
+            resp.raise_for_status()
             self.pod_id = None
