@@ -902,6 +902,36 @@ def _check_metadata_completeness(items: List[dict], config: Dict, shared: Dict) 
     )
 
 
+@check(name="prereg_compatibility", tier=3)
+def _check_prereg_compatibility(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Check dataset against pre-registered plan."""
+    plan = config.get("prereg_plan")
+    cond_field = config.get("condition_field", "condition")
+
+    if plan is None:
+        return CheckResult(name="prereg_compatibility", passed=True, tier=3,
+                          metrics={"skipped": True}, details="No pre-registration plan provided.")
+
+    planned_n = plan.get("planned_n", {})
+    actual_n = Counter(item.get(cond_field) for item in items)
+    deviations = []
+
+    for cond, planned in planned_n.items():
+        actual = actual_n.get(cond, 0)
+        if actual != planned:
+            deviations.append({"condition": cond, "planned": planned, "actual": actual, "diff": actual - planned})
+
+    passed = len(deviations) == 0
+
+    return CheckResult(
+        name="prereg_compatibility",
+        passed=passed,
+        tier=3,
+        metrics={"planned_n": planned_n, "actual_n": dict(actual_n), "deviations": deviations},
+        details=f"Deviations from plan: {deviations}" if deviations else "",
+    )
+
+
 @check(name="measurement_validation", tier=3)
 def _check_measurement_validation(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
     """Run optional measurement validator and report ICC."""
