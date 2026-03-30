@@ -1,0 +1,7 @@
+# GPU dependencies for kv_verify pipeline
+# Install with: pip install -r kv_verify/requirements-gpu.txt
+# Or use: pip install ".[gpu]" with pyproject.toml
+
+torch>=2.0.0
+transformers>=4.35.0
+accelerate>=0.24.0
