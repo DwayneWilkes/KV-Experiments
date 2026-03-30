@@ -51,6 +51,9 @@ class PipelineConfig:
     mlflow_tracking_uri: str = "sqlite:///kv_verify/mlflow.db"
     mlflow_experiment: str = "kv-cache-verification"
 
+    # Validation
+    validation_tier: int = 1  # 0=smoke, 1=standard, 2=rigorous, 3=regulatory
+
     # Flags
     skip_gpu: bool = False
     force: bool = False  # override validation FAIL halt
