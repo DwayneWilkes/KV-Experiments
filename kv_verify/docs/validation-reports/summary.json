@@ -1,0 +1,65 @@
+{
+  "exp31_refusal_vs_benign": {
+    "verdict": "INCONCLUSIVE",
+    "failed": [
+      "size_overlap",
+      "variance_ratio"
+    ]
+  },
+  "exp32_jailbreak_vs_normal": {
+    "verdict": "INCONCLUSIVE",
+    "failed": [
+      "size_overlap",
+      "variance_ratio"
+    ]
+  },
+  "exp32_jailbreak_vs_refusal": {
+    "verdict": "PASS",
+    "failed": []
+  },
+  "exp33_Llama-3.1-8B-Instruct": {
+    "verdict": "INCONCLUSIVE",
+    "failed": [
+      "size_overlap",
+      "variance_ratio"
+    ]
+  },
+  "exp33_Mistral-7B-Instruct-v0.3": {
+    "verdict": "INCONCLUSIVE",
+    "failed": [
+      "size_overlap",
+      "variance_ratio"
+    ]
+  },
+  "exp36_impossible_vs_benign": {
+    "verdict": "INCONCLUSIVE",
+    "failed": [
+      "size_overlap",
+      "variance_ratio"
+    ]
+  },
+  "exp36_harmful_vs_benign": {
+    "verdict": "INCONCLUSIVE",
+    "failed": [
+      "size_overlap",
+      "variance_ratio"
+    ]
+  },
+  "exp36_impossible_vs_harmful": {
+    "verdict": "PASS",
+    "failed": []
+  },
+  "exp18b_deception": {
+    "verdict": "INCONCLUSIVE",
+    "failed": [
+      "effective_n",
+      "size_overlap"
+    ]
+  },
+  "exp39_sycophancy": {
+    "verdict": "INCONCLUSIVE",
+    "failed": [
+      "size_overlap"
+    ]
+  }
+}

@@ -1,0 +1,227 @@
+{
+  "schema_version": "1.0.0",
+  "tier": 2,
+  "dataset_hash": null,
+  "overall_pass": false,
+  "overall_verdict": "INCONCLUSIVE",
+  "checks": {
+    "class_balance": {
+      "name": "class_balance",
+      "passed": true,
+      "tier": 0,
+      "metrics": {
+        "counts": {
+          "positive": 20,
+          "negative": 20
+        },
+        "ratio": 1.0,
+        "threshold": 2.0
+      },
+      "details": ""
+    },
+    "duplicates": {
+      "name": "duplicates",
+      "passed": true,
+      "tier": 0,
+      "metrics": {
+        "n_exact": 0,
+        "within_condition": [],
+        "cross_condition": [],
+        "leakage_risk": false,
+        "adjusted_n": {
+          "positive": 20,
+          "negative": 20
+        }
+      },
+      "details": ""
+    },
+    "structural": {
+      "name": "structural",
+      "passed": true,
+      "tier": 0,
+      "metrics": {
+        "n_issues": 0
+      },
+      "details": ""
+    },
+    "domain_balance": {
+      "name": "domain_balance",
+      "passed": true,
+      "tier": 1,
+      "metrics": {
+        "entropy_per_condition": {
+          "negative": 0.3944,
+          "positive": 0.3944
+        },
+        "entropy_diff": 0.0,
+        "n_clusters": 5
+      },
+      "details": ""
+    },
+    "effective_n": {
+      "name": "effective_n",
+      "passed": true,
+      "tier": 1,
+      "metrics": {
+        "approximated": false,
+        "deff_negative": 1.0,
+        "n_eff_negative": 20.0,
+        "mean_rho_negative": 0.0,
+        "deff_positive": 1.0,
+        "n_eff_positive": 20.0,
+        "mean_rho_positive": 0.0
+      },
+      "details": ""
+    },
+    "semantic_diversity": {
+      "name": "semantic_diversity",
+      "passed": true,
+      "tier": 1,
+      "metrics": {
+        "mean_distance_negative": 1.0,
+        "mean_distance_positive": 1.0
+      },
+      "details": ""
+    },
+    "size_overlap": {
+      "name": "size_overlap",
+      "passed": false,
+      "tier": 1,
+      "metrics": {
+        "worst_ks_p": 0.033542,
+        "worst_pair": "negative_vs_positive",
+        "mean_per_condition": {
+          "positive": 29486.93,
+          "negative": 30107.93
+        },
+        "mean_diff": 621.0,
+        "pairs": [
+          {
+            "pair": "negative_vs_positive",
+            "ks_stat": 0.45,
+            "ks_p": 0.033542
+          }
+        ]
+      },
+      "details": "Size distributions differ significantly (negative_vs_positive, p=0.0335)."
+    },
+    "confound_disclosure": {
+      "name": "confound_disclosure",
+      "passed": true,
+      "tier": 2,
+      "metrics": {
+        "spec": {
+          "n_tokens": "residualized"
+        },
+        "uncontrolled": []
+      },
+      "details": ""
+    },
+    "confound_discovery": {
+      "name": "confound_discovery",
+      "passed": true,
+      "tier": 2,
+      "metrics": {
+        "discovered": [
+          {
+            "feature": "key_entropy",
+            "mi": 0.3155
+          },
+          {
+            "feature": "key_rank",
+            "mi": 0.3019
+          }
+        ],
+        "undeclared": [],
+        "confound_spec": {
+          "n_tokens": "residualized"
+        }
+      },
+      "details": ""
+    },
+    "format_consistency": {
+      "name": "format_consistency",
+      "passed": true,
+      "tier": 2,
+      "metrics": {
+        "feature_diffs": {
+          "newline_rate": 0.0,
+          "punct_density": 0.0,
+          "avg_word_len": 0.5,
+          "colon_rate": 0.0,
+          "question_rate": 0.0
+        },
+        "significant_diffs": []
+      },
+      "details": ""
+    },
+    "pair_integrity": {
+      "name": "pair_integrity",
+      "passed": true,
+      "tier": 2,
+      "metrics": {
+        "skipped": true
+      },
+      "details": ""
+    },
+    "shortcut_detection": {
+      "name": "shortcut_detection",
+      "passed": true,
+      "tier": 2,
+      "metrics": {
+        "auroc": 0.0,
+        "top_features": [
+          {
+            "feature": "item_16",
+            "coef": 0.4156
+          },
+          {
+            "feature": "item_2",
+            "coef": 0.4156
+          },
+          {
+            "feature": "item_18",
+            "coef": 0.4156
+          },
+          {
+            "feature": "item_39",
+            "coef": -0.4156
+          },
+          {
+            "feature": "item_37",
+            "coef": -0.4156
+          }
+        ],
+        "threshold": 0.65
+      },
+      "details": ""
+    },
+    "variance_ratio": {
+      "name": "variance_ratio",
+      "passed": false,
+      "tier": 2,
+      "metrics": {
+        "variances": {
+          "positive": 106476.28,
+          "negative": 2165035.14
+        },
+        "ratio": 20.33,
+        "threshold": 3.0
+      },
+      "details": "Variance ratio 20.3:1 exceeds 3.0:1. Asymmetric response distribution."
+    }
+  },
+  "nominal_n": {
+    "positive": 20,
+    "negative": 20
+  },
+  "effective_n": null,
+  "metadata": null,
+  "confound_summary": null,
+  "timestamp": "2026-03-30T06:33:24.369730+00:00",
+  "config_hash": "86c5fae4fffd714d",
+  "recommendations": [
+    "[size_overlap] Size distributions differ significantly (negative_vs_positive, p=0.0335).",
+    "[variance_ratio] Variance ratio 20.3:1 exceeds 3.0:1. Asymmetric response distribution."
+  ]
+}

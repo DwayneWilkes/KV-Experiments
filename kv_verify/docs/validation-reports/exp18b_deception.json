@@ -1,0 +1,235 @@
+{
+  "schema_version": "1.0.0",
+  "tier": 2,
+  "dataset_hash": null,
+  "overall_pass": false,
+  "overall_verdict": "INCONCLUSIVE",
+  "checks": {
+    "class_balance": {
+      "name": "class_balance",
+      "passed": true,
+      "tier": 0,
+      "metrics": {
+        "counts": {
+          "positive": 10,
+          "negative": 10
+        },
+        "ratio": 1.0,
+        "threshold": 2.0
+      },
+      "details": ""
+    },
+    "duplicates": {
+      "name": "duplicates",
+      "passed": true,
+      "tier": 0,
+      "metrics": {
+        "n_exact": 0,
+        "within_condition": [],
+        "cross_condition": [],
+        "leakage_risk": false,
+        "adjusted_n": {
+          "positive": 10,
+          "negative": 10
+        }
+      },
+      "details": ""
+    },
+    "structural": {
+      "name": "structural",
+      "passed": true,
+      "tier": 0,
+      "metrics": {
+        "n_issues": 0
+      },
+      "details": ""
+    },
+    "domain_balance": {
+      "name": "domain_balance",
+      "passed": true,
+      "tier": 1,
+      "metrics": {
+        "entropy_per_condition": {
+          "negative": 0.639,
+          "positive": 0.639
+        },
+        "entropy_diff": 0.0,
+        "n_clusters": 5
+      },
+      "details": ""
+    },
+    "effective_n": {
+      "name": "effective_n",
+      "passed": false,
+      "tier": 1,
+      "metrics": {
+        "approximated": false,
+        "deff_negative": 1.0,
+        "n_eff_negative": 10.0,
+        "mean_rho_negative": 0.0,
+        "deff_positive": 1.0,
+        "n_eff_positive": 10.0,
+        "mean_rho_positive": 0.0
+      },
+      "details": "Effective N below 20 threshold. Template reuse likely."
+    },
+    "semantic_diversity": {
+      "name": "semantic_diversity",
+      "passed": true,
+      "tier": 1,
+      "metrics": {
+        "mean_distance_negative": 1.0,
+        "mean_distance_positive": 1.0
+      },
+      "details": ""
+    },
+    "size_overlap": {
+      "name": "size_overlap",
+      "passed": false,
+      "tier": 1,
+      "metrics": {
+        "worst_ks_p": 0.002057,
+        "worst_pair": "negative_vs_positive",
+        "mean_per_condition": {
+          "positive": 1156.56,
+          "negative": 1446.38
+        },
+        "mean_diff": 289.82,
+        "pairs": [
+          {
+            "pair": "negative_vs_positive",
+            "ks_stat": 0.8,
+            "ks_p": 0.002057
+          }
+        ]
+      },
+      "details": "Size distributions differ significantly (negative_vs_positive, p=0.0021)."
+    },
+    "confound_disclosure": {
+      "name": "confound_disclosure",
+      "passed": true,
+      "tier": 2,
+      "metrics": {
+        "spec": {
+          "n_tokens": "residualized"
+        },
+        "uncontrolled": []
+      },
+      "details": ""
+    },
+    "confound_discovery": {
+      "name": "confound_discovery",
+      "passed": true,
+      "tier": 2,
+      "metrics": {
+        "discovered": [
+          {
+            "feature": "key_entropy",
+            "mi": 0.4638
+          },
+          {
+            "feature": "key_rank",
+            "mi": 0.4722
+          },
+          {
+            "feature": "n_tokens",
+            "mi": 0.3946
+          },
+          {
+            "feature": "norm_per_token",
+            "mi": 0.3946
+          }
+        ],
+        "undeclared": [],
+        "confound_spec": {
+          "n_tokens": "residualized"
+        }
+      },
+      "details": ""
+    },
+    "format_consistency": {
+      "name": "format_consistency",
+      "passed": true,
+      "tier": 2,
+      "metrics": {
+        "feature_diffs": {
+          "newline_rate": 0.0,
+          "punct_density": 0.0,
+          "avg_word_len": 1.0,
+          "colon_rate": 0.0,
+          "question_rate": 0.0
+        },
+        "significant_diffs": []
+      },
+      "details": ""
+    },
+    "pair_integrity": {
+      "name": "pair_integrity",
+      "passed": true,
+      "tier": 2,
+      "metrics": {
+        "skipped": true
+      },
+      "details": ""
+    },
+    "shortcut_detection": {
+      "name": "shortcut_detection",
+      "passed": true,
+      "tier": 2,
+      "metrics": {
+        "auroc": 0.0,
+        "top_features": [
+          {
+            "feature": "item_9",
+            "coef": 0.472
+          },
+          {
+            "feature": "item_8",
+            "coef": 0.472
+          },
+          {
+            "feature": "item_7",
+            "coef": 0.472
+          },
+          {
+            "feature": "item_6",
+            "coef": 0.472
+          },
+          {
+            "feature": "item_5",
+            "coef": 0.472
+          }
+        ],
+        "threshold": 0.65
+      },
+      "details": ""
+    },
+    "variance_ratio": {
+      "name": "variance_ratio",
+      "passed": true,
+      "tier": 2,
+      "metrics": {
+        "variances": {
+          "positive": 20827.94,
+          "negative": 18575.54
+        },
+        "ratio": 1.12,
+        "threshold": 3.0
+      },
+      "details": ""
+    }
+  },
+  "nominal_n": {
+    "positive": 10,
+    "negative": 10
+  },
+  "effective_n": null,
+  "metadata": null,
+  "confound_summary": null,
+  "timestamp": "2026-03-30T06:33:25.067809+00:00",
+  "config_hash": "86c5fae4fffd714d",
+  "recommendations": [
+    "[effective_n] Effective N below 20 threshold. Template reuse likely.",
+    "[size_overlap] Size distributions differ significantly (negative_vs_positive, p=0.0021)."
+  ]
+}

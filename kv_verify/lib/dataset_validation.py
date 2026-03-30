@@ -51,8 +51,19 @@ class DatasetReport:
     def to_dict(self) -> dict:
         """Serialize to JSON-compatible dict."""
         d = asdict(self)
-        # CheckResult dataclass already serialized by asdict
-        return d
+        # Convert numpy types to Python native for JSON serialization
+        return _make_json_safe(d)
+
+
+def _make_json_safe(obj):
+    """Recursively convert numpy types to Python native."""
+    if isinstance(obj, dict):
+        return {k: _make_json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_make_json_safe(v) for v in obj]
+    if hasattr(obj, 'item'):  # numpy scalar
+        return obj.item()
+    return obj
 
 
 # ================================================================
