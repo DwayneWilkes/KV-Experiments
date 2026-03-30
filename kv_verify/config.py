@@ -25,6 +25,7 @@ class PipelineConfig:
     """
     # Model
     model_id: str = "Qwen/Qwen2.5-7B-Instruct"
+    model_cache_dir: Optional[Path] = None  # None = use env var / default
 
     # Sample sizes
     n_per_group: int = N_PER_GROUP
@@ -47,7 +48,7 @@ class PipelineConfig:
     output_dir: Path = field(default_factory=lambda: Path("experiments/output/pipeline"))
 
     # MLflow (sqlite backend per MLflow 2026 recommendation)
-    mlflow_tracking_uri: str = "sqlite:///mlflow.db"
+    mlflow_tracking_uri: str = "sqlite:///kv_verify/mlflow.db"
     mlflow_experiment: str = "kv-cache-verification"
 
     # Flags
@@ -59,9 +60,10 @@ class PipelineConfig:
         with open(path) as f:
             data = yaml.safe_load(f) or {}
 
-        # Convert output_dir string to Path if present
-        if "output_dir" in data and isinstance(data["output_dir"], str):
-            data["output_dir"] = Path(data["output_dir"])
+        # Convert string paths to Path objects
+        for key in ("output_dir", "model_cache_dir"):
+            if key in data and isinstance(data[key], str):
+                data[key] = Path(data[key])
 
         return cls(**data)
 
@@ -69,4 +71,6 @@ class PipelineConfig:
         """Serialize to dict (with Path converted to str)."""
         d = asdict(self)
         d["output_dir"] = str(d["output_dir"])
+        if d["model_cache_dir"] is not None:
+            d["model_cache_dir"] = str(d["model_cache_dir"])
         return d
