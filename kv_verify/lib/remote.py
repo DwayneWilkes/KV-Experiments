@@ -16,6 +16,11 @@ import os
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
+
+
+class RemoteError(RuntimeError):
+    """Error during remote execution (SSH, rsync, or pod lifecycle)."""
+    pass
 from typing import List, Optional
 
 import yaml
@@ -80,13 +85,19 @@ class RemoteSSHSession:
     def run_ssh(self, command: str, check: bool = True) -> subprocess.CompletedProcess:
         """Execute a command on the remote machine."""
         cmd = self._ssh_cmd(command)
-        return subprocess.run(cmd, capture_output=True, text=True, check=check)
+        try:
+            return subprocess.run(cmd, capture_output=True, text=True, check=check)
+        except subprocess.CalledProcessError as e:
+            raise RemoteError(f"SSH command failed (exit {e.returncode}): {e.stderr}") from e
 
     def run_rsync(self, local: str, remote: str, upload: bool = True,
                   check: bool = True) -> subprocess.CompletedProcess:
         """Sync files between local and remote."""
         cmd = self._rsync_cmd(local, remote, upload=upload)
-        return subprocess.run(cmd, capture_output=True, text=True, check=check)
+        try:
+            return subprocess.run(cmd, capture_output=True, text=True, check=check)
+        except subprocess.CalledProcessError as e:
+            raise RemoteError(f"rsync failed (exit {e.returncode}): {e.stderr}") from e
 
 
 def sync_to_remote(
