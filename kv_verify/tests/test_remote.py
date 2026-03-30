@@ -86,26 +86,30 @@ class TestRemoteSSHSession:
         cfg = RemoteConfig(backend="ssh", host="gpu.box", user="ubuntu",
                           key_path=Path("/tmp/key"), remote_dir="/workspace")
         session = RemoteSSHSession(cfg)
-        cmd = session._rsync_cmd("/workspace/output/", "/local/output/", upload=False)
-        assert "ubuntu@gpu.box:/workspace/output/" in " ".join(cmd)
-        assert "/local/output/" in " ".join(cmd)
+        # _rsync_cmd(local, remote, upload=False): remote -> local
+        cmd = session._rsync_cmd("/tmp/local_output/", "/workspace/output/", upload=False)
+        cmd_str = " ".join(cmd)
+        assert "ubuntu@gpu.box:/workspace/output/" in cmd_str
+        assert "/tmp/local_output/" in cmd_str
 
 
 class TestSyncFunctions:
     """Tasks 7.3-7.4: sync_to_remote and sync_from_remote."""
 
+    @patch("kv_verify.lib.remote.RemoteSSHSession.run_ssh")
     @patch("kv_verify.lib.remote.RemoteSSHSession.run_rsync")
-    def test_sync_to_remote_includes_source(self, mock_rsync):
+    def test_sync_to_remote_includes_source(self, mock_rsync, mock_ssh, tmp_path):
         mock_rsync.return_value = None
+        mock_ssh.return_value = None
         cfg = RemoteConfig(backend="ssh", host="gpu.box", user="root",
                           key_path=Path("/tmp/key"), remote_dir="/workspace")
-        sync_to_remote(cfg, local_source=Path("/local/kv_verify"), output_dir=Path("/local/output"))
+        sync_to_remote(cfg, local_source=tmp_path / "kv_verify", output_dir=tmp_path / "output")
         assert mock_rsync.called
 
     @patch("kv_verify.lib.remote.RemoteSSHSession.run_rsync")
-    def test_sync_from_remote_downloads_output(self, mock_rsync):
+    def test_sync_from_remote_downloads_output(self, mock_rsync, tmp_path):
         mock_rsync.return_value = None
         cfg = RemoteConfig(backend="ssh", host="gpu.box", user="root",
                           key_path=Path("/tmp/key"), remote_dir="/workspace")
-        sync_from_remote(cfg, local_output=Path("/local/output"))
+        sync_from_remote(cfg, local_output=tmp_path / "output")
         assert mock_rsync.called
