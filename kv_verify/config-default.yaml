@@ -1,0 +1,17 @@
+model_id: Qwen/Qwen2.5-7B-Instruct
+model_cache_dir: null
+n_per_group: 200
+n_permutations: 10000
+n_bootstrap: 10000
+seed: 42
+temperature: 0.0
+max_new_tokens: 200
+comparisons:
+- deception
+- refusal
+- impossibility
+output_dir: experiments/output/pipeline
+mlflow_tracking_uri: sqlite:///kv_verify/mlflow.db
+mlflow_experiment: kv-cache-verification
+skip_gpu: false
+force: false
