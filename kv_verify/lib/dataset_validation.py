@@ -694,12 +694,16 @@ def _check_confound_discovery(items: List[dict], config: Dict, shared: Dict) -> 
 
     mi = mutual_info_classif(X, y, random_state=42)
 
+    # Features intentionally used for classification are expected to have high MI
+    classification_features = set(config.get("classification_features", []))
+
     discovered = []
     undeclared = []
     for i, fname in enumerate(feature_names):
         if mi[i] > mi_threshold:
             discovered.append({"feature": fname, "mi": round(float(mi[i]), 4)})
-            if fname not in confound_spec:
+            # Only flag as undeclared if it's not a classification feature AND not in confound spec
+            if fname not in confound_spec and fname not in classification_features:
                 undeclared.append(fname)
 
     passed = len(undeclared) == 0
