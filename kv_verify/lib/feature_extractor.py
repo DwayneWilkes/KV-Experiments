@@ -30,11 +30,11 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import numpy as np
 import torch
 
-from kv_verify.lib.models import MODEL_CACHE_DIR
+from kv_verify.lib.models import get_cache_dir
 from kv_verify.types import FeatureVector
 
 # Re-export for backward compatibility
-DEFAULT_MODEL_CACHE_DIR = str(MODEL_CACHE_DIR)
+DEFAULT_MODEL_CACHE_DIR = str(get_cache_dir())
 
 
 @dataclass

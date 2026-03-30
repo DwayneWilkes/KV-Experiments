@@ -36,6 +36,7 @@ class Pipeline:
         self.config = config
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
         self._validation_verdict = "NOT_RUN"
+        self._remote_config = None  # Set via CLI --remote for GPU delegation
 
         self.tracker = ExperimentTracker(
             output_dir=config.output_dir,
