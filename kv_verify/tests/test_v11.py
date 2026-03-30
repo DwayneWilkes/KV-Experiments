@@ -21,15 +21,21 @@ class TestRunV11:
         result = run_v11(output_dir=tmp_path / "v11")
         assert result.verdict in (Verdict.CONFIRMED, Verdict.WEAKENED, Verdict.FALSIFIED)
 
-    def test_reports_per_feature_importance(self, tmp_path):
-        result = run_v11(output_dir=tmp_path / "v11")
-        evidence = result.evidence_summary
-        assert "norm_per_token" in evidence or "key_rank" in evidence or "key_entropy" in evidence
-
-    def test_writes_result_json(self, tmp_path):
+    def test_result_json_has_all_features(self, tmp_path):
         out = tmp_path / "v11"
         run_v11(output_dir=out)
-        result_path = out / "v11_results.json"
-        assert result_path.exists()
-        data = json.loads(result_path.read_text())
-        assert "feature_importance" in data
+        data = json.loads((out / "v11_results.json").read_text())
+        importance = data["feature_importance"]
+        assert "norm_per_token" in importance
+        assert "key_rank" in importance
+        assert "key_entropy" in importance
+        # Each importance should be a number
+        for v in importance.values():
+            assert isinstance(v, float)
+
+    def test_result_json_has_per_comparison(self, tmp_path):
+        out = tmp_path / "v11"
+        run_v11(output_dir=out)
+        data = json.loads((out / "v11_results.json").read_text())
+        assert data["n_comparisons"] > 0
+        assert len(data["per_comparison"]) == data["n_comparisons"]
