@@ -15,19 +15,21 @@ class TestRunV13:
         result = run_v13(output_dir=tmp_path / "v13")
         assert result.verdict in (Verdict.CONFIRMED, Verdict.WEAKENED, Verdict.FALSIFIED)
 
-    def test_result_json_has_model_pairs(self, tmp_path):
+    def test_result_json_has_required_structure(self, tmp_path):
         out = tmp_path / "v13"
         run_v13(output_dir=out)
         data = json.loads((out / "v13_results.json").read_text())
         assert "model_pairs" in data
         assert "mean_transfer_auroc" in data
-        assert isinstance(data["mean_transfer_auroc"], float)
+        assert isinstance(data["mean_transfer_auroc"], (int, float))
+        assert "experiment" in data
+        assert data["experiment"] == "V13"
 
-    def test_result_has_per_pair_aurocs(self, tmp_path):
+    def test_result_pairs_have_correct_fields(self, tmp_path):
         out = tmp_path / "v13"
         run_v13(output_dir=out)
         data = json.loads((out / "v13_results.json").read_text())
-        # Each pair should have raw and residualized AUROC
+        # If data was available, pairs should have structured fields
         for pair in data["model_pairs"]:
             assert "train_model" in pair
             assert "test_model" in pair
