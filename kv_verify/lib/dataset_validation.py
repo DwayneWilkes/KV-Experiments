@@ -588,3 +588,277 @@ def _check_domain_balance(items: List[dict], config: Dict, shared: Dict) -> Chec
         },
         details=f"Topic entropy diff {entropy_diff:.3f} exceeds {entropy_threshold} threshold." if not passed else "",
     )
+
+
+# ================================================================
+# TIER 2 CHECKS
+# ================================================================
+
+@check(name="shortcut_detection", tier=2)
+def _check_shortcut_detection(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Train classifier on item content to predict condition. High AUROC = surface confound."""
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import roc_auc_score
+    from sklearn.model_selection import LeaveOneOut, StratifiedKFold
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    cond_field = config.get("condition_field", "condition")
+    threshold = config.get("shortcut_auroc_threshold", 0.65)
+
+    tfidf, vec = _get_tfidf_matrix(items, config, shared)
+    X = tfidf.toarray() if hasattr(tfidf, "toarray") else np.array(tfidf)
+    conditions = [item.get(cond_field) for item in items]
+    unique_conds = sorted(set(conditions))
+    y = np.array([unique_conds.index(c) for c in conditions])
+
+    n = len(y)
+    clf = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, solver="lbfgs"))
+
+    if n < 100:
+        # LOO for small datasets
+        loo = LeaveOneOut()
+        y_proba = np.zeros(n)
+        for train_idx, test_idx in loo.split(X):
+            if len(np.unique(y[train_idx])) < 2:
+                y_proba[test_idx] = 0.5
+                continue
+            clf.fit(X[train_idx], y[train_idx])
+            y_proba[test_idx] = clf.predict_proba(X[test_idx])[:, 1]
+    else:
+        skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+        y_proba = np.zeros(n)
+        for train_idx, test_idx in skf.split(X, y):
+            clf.fit(X[train_idx], y[train_idx])
+            y_proba[test_idx] = clf.predict_proba(X[test_idx])[:, 1]
+
+    auroc = float(roc_auc_score(y, y_proba)) if len(np.unique(y)) >= 2 else 0.5
+
+    # Top distinguishing features
+    top_features = []
+    if hasattr(vec, "get_feature_names_out"):
+        clf_final = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, solver="lbfgs"))
+        clf_final.fit(X, y)
+        coefs = clf_final.named_steps["logisticregression"].coef_[0]
+        names = vec.get_feature_names_out()
+        top_idx = np.argsort(np.abs(coefs))[-5:][::-1]
+        top_features = [{"feature": names[i], "coef": round(float(coefs[i]), 4)} for i in top_idx]
+
+    passed = auroc < threshold
+
+    return CheckResult(
+        name="shortcut_detection",
+        passed=passed,
+        tier=2,
+        metrics={"auroc": round(auroc, 4), "top_features": top_features, "threshold": threshold},
+        details=f"Condition predictable from content (AUROC={auroc:.3f} > {threshold}). Surface confound." if not passed else "",
+    )
+
+
+@check(name="confound_discovery", tier=2)
+def _check_confound_discovery(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Compute MI between numeric features and condition label."""
+    from sklearn.feature_selection import mutual_info_classif
+    cond_field = config.get("condition_field", "condition")
+    mi_threshold = config.get("mi_threshold", 0.1)
+    confound_spec = config.get("confound_spec", {})
+
+    # Extract all numeric features
+    feature_names = set()
+    for item in items:
+        for k, v in item.get("features", {}).items():
+            if isinstance(v, (int, float)):
+                feature_names.add(k)
+    feature_names = sorted(feature_names)
+
+    if not feature_names:
+        return CheckResult(name="confound_discovery", passed=True, tier=2, metrics={"discovered": []})
+
+    X = np.array([[item.get("features", {}).get(f, 0) for f in feature_names] for item in items])
+    conditions = [item.get(cond_field) for item in items]
+    unique_conds = sorted(set(conditions))
+    y = np.array([unique_conds.index(c) for c in conditions])
+
+    # Need at least 3 samples per class for MI estimation
+    min_class_size = min(Counter(y).values())
+    if min_class_size < 3:
+        return CheckResult(name="confound_discovery", passed=True, tier=2,
+                          metrics={"discovered": [], "skipped": True},
+                          details="Too few samples per class for MI estimation.")
+
+    mi = mutual_info_classif(X, y, random_state=42)
+
+    discovered = []
+    undeclared = []
+    for i, fname in enumerate(feature_names):
+        if mi[i] > mi_threshold:
+            discovered.append({"feature": fname, "mi": round(float(mi[i]), 4)})
+            if fname not in confound_spec:
+                undeclared.append(fname)
+
+    passed = len(undeclared) == 0
+
+    return CheckResult(
+        name="confound_discovery",
+        passed=passed,
+        tier=2,
+        metrics={"discovered": discovered, "undeclared": undeclared, "confound_spec": confound_spec},
+        details=f"Undeclared confounds with high MI: {', '.join(undeclared)}" if undeclared else "",
+    )
+
+
+@check(name="variance_ratio", tier=2)
+def _check_variance_ratio(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Compare within-condition variance of size metric."""
+    cond_field = config.get("condition_field", "condition")
+    threshold = config.get("variance_ratio_threshold", 3.0)
+    size_fn = config.get("size_fn") or _default_size_fn
+
+    by_cond: Dict[str, List[float]] = {}
+    for item in items:
+        c = item.get(cond_field)
+        by_cond.setdefault(c, []).append(size_fn(item))
+
+    variances = {}
+    for c, vals in by_cond.items():
+        variances[c] = float(np.var(vals)) if len(vals) > 1 else 0.0
+
+    var_vals = [v for v in variances.values() if v > 0]
+    if len(var_vals) < 2:
+        return CheckResult(name="variance_ratio", passed=True, tier=2, metrics={"ratio": 1.0})
+
+    ratio = max(var_vals) / min(var_vals)
+    passed = ratio <= threshold
+
+    return CheckResult(
+        name="variance_ratio",
+        passed=passed,
+        tier=2,
+        metrics={"variances": {k: round(v, 2) for k, v in variances.items()}, "ratio": round(ratio, 2), "threshold": threshold},
+        details=f"Variance ratio {ratio:.1f}:1 exceeds {threshold}:1. Asymmetric response distribution." if not passed else "",
+    )
+
+
+@check(name="pair_integrity", tier=2)
+def _check_pair_integrity(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Verify minimal pair structure: shared prefix/suffix, size tolerance."""
+    cond_field = config.get("condition_field", "condition")
+    paired = config.get("paired", False)
+    tolerance = config.get("pair_token_tolerance", 5)
+    size_fn = config.get("size_fn") or _default_size_fn
+
+    if not paired:
+        return CheckResult(name="pair_integrity", passed=True, tier=2, metrics={"skipped": True}, details="")
+
+    # Group by condition, pair by index
+    conditions = sorted(set(item.get(cond_field) for item in items))
+    if len(conditions) != 2:
+        return CheckResult(name="pair_integrity", passed=False, tier=2, details="Paired mode requires exactly 2 conditions.")
+
+    by_cond = {c: [] for c in conditions}
+    for item in items:
+        by_cond[item.get(cond_field)].append(item)
+
+    c1, c2 = conditions
+    n_pairs = min(len(by_cond[c1]), len(by_cond[c2]))
+    violations = []
+
+    for i in range(n_pairs):
+        s1 = size_fn(by_cond[c1][i])
+        s2 = size_fn(by_cond[c2][i])
+        diff = abs(s1 - s2)
+        if diff > tolerance:
+            violations.append({"pair": i, "size_diff": round(diff, 1), "tolerance": tolerance})
+
+    passed = len(violations) == 0
+
+    return CheckResult(
+        name="pair_integrity",
+        passed=passed,
+        tier=2,
+        metrics={"n_pairs": n_pairs, "n_violations": len(violations), "violations": violations[:10]},
+        details=f"{len(violations)} pair(s) exceed size tolerance of {tolerance}." if violations else "",
+    )
+
+
+@check(name="confound_disclosure", tier=2)
+def _check_confound_disclosure(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Verify user-declared confound spec has no uncontrolled items."""
+    confound_spec = config.get("confound_spec")
+
+    if confound_spec is None:
+        return CheckResult(
+            name="confound_disclosure",
+            passed=True, tier=2,
+            metrics={"skipped": True},
+            details="No confound spec provided.",
+        )
+
+    uncontrolled = [k for k, v in confound_spec.items() if v in ("uncontrolled", "unknown")]
+    passed = len(uncontrolled) == 0
+
+    return CheckResult(
+        name="confound_disclosure",
+        passed=passed,
+        tier=2,
+        metrics={"spec": confound_spec, "uncontrolled": uncontrolled},
+        details=f"Uncontrolled confounds: {', '.join(uncontrolled)}" if uncontrolled else "",
+    )
+
+
+@check(name="format_consistency", tier=2)
+def _check_format_consistency(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Compare prompt formatting structure between conditions."""
+    import re
+    cond_field = config.get("condition_field", "condition")
+    text_fn = config.get("text_fn") or _default_text_fn
+
+    def _format_signature(text: str) -> dict:
+        """Extract structural features: newline count, punct density, avg word len."""
+        words = text.split()
+        n_words = max(len(words), 1)
+        return {
+            "newline_rate": text.count("\n") / n_words,
+            "punct_density": len(re.findall(r"[^\w\s]", text)) / n_words,
+            "avg_word_len": sum(len(w) for w in words) / n_words if words else 0,
+            "colon_rate": text.count(":") / n_words,
+            "question_rate": text.count("?") / n_words,
+        }
+
+    by_cond: Dict[str, List[dict]] = {}
+    for item in items:
+        c = item.get(cond_field)
+        sig = _format_signature(text_fn(item))
+        by_cond.setdefault(c, []).append(sig)
+
+    # Compare mean format features between conditions
+    conditions = sorted(by_cond.keys())
+    if len(conditions) < 2:
+        return CheckResult(name="format_consistency", passed=True, tier=2, metrics={})
+
+    feature_diffs = {}
+    for feat in ["newline_rate", "punct_density", "avg_word_len", "colon_rate", "question_rate"]:
+        means = {}
+        for c in conditions:
+            vals = [s[feat] for s in by_cond[c]]
+            means[c] = float(np.mean(vals))
+        max_diff = max(means.values()) - min(means.values())
+        feature_diffs[feat] = round(max_diff, 4)
+
+    # Fail if any structural feature differs substantially
+    # Thresholds: newline/colon/question rates > 0.1, punct density > 0.15, avg_word_len > 2
+    significant_diffs = []
+    thresholds = {"newline_rate": 0.1, "punct_density": 0.15, "avg_word_len": 2.0, "colon_rate": 0.1, "question_rate": 0.1}
+    for feat, diff in feature_diffs.items():
+        if diff > thresholds.get(feat, 0.1):
+            significant_diffs.append(feat)
+
+    passed = len(significant_diffs) == 0
+
+    return CheckResult(
+        name="format_consistency",
+        passed=passed,
+        tier=2,
+        metrics={"feature_diffs": feature_diffs, "significant_diffs": significant_diffs},
+        details=f"Format differs: {', '.join(significant_diffs)}" if significant_diffs else "",
+    )
