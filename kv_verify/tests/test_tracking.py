@@ -22,7 +22,11 @@ class TestTrackerCreation:
     def test_creates_log_file(self, tmp_path):
         output = tmp_path / "test_run"
         tracker = ExperimentTracker(output_dir=output, experiment_name="test")
-        assert (output / "run.log").exists() or True  # log created on first write
+        # Trigger a write to create the log
+        tracker.log_metric("test_metric", 1.0)
+        tracker.end()
+        # Log may be in metadata or a separate file; verify the tracker ran without error
+        assert (output / "run_metadata.json").exists()
 
 
 class TestLogParams:

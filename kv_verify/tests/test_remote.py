@@ -98,18 +98,26 @@ class TestSyncFunctions:
 
     @patch("kv_verify.lib.remote.RemoteSSHSession.run_ssh")
     @patch("kv_verify.lib.remote.RemoteSSHSession.run_rsync")
-    def test_sync_to_remote_includes_source(self, mock_rsync, mock_ssh, tmp_path):
+    def test_sync_to_remote_uploads_source_dir(self, mock_rsync, mock_ssh, tmp_path):
         mock_rsync.return_value = None
         mock_ssh.return_value = None
         cfg = RemoteConfig(backend="ssh", host="gpu.box", user="root",
                           key_path=Path("/tmp/key"), remote_dir="/workspace")
-        sync_to_remote(cfg, local_source=tmp_path / "kv_verify", output_dir=tmp_path / "output")
-        assert mock_rsync.called
+        src = tmp_path / "kv_verify"
+        sync_to_remote(cfg, local_source=src, output_dir=tmp_path / "output")
+        # Verify rsync was called with the source path
+        call_args = mock_rsync.call_args_list[0]
+        assert str(src) in str(call_args)
+        assert "/workspace/" in str(call_args)
 
     @patch("kv_verify.lib.remote.RemoteSSHSession.run_rsync")
-    def test_sync_from_remote_downloads_output(self, mock_rsync, tmp_path):
+    def test_sync_from_remote_downloads_to_local(self, mock_rsync, tmp_path):
         mock_rsync.return_value = None
         cfg = RemoteConfig(backend="ssh", host="gpu.box", user="root",
                           key_path=Path("/tmp/key"), remote_dir="/workspace")
-        sync_from_remote(cfg, local_output=tmp_path / "output")
-        assert mock_rsync.called
+        out = tmp_path / "output"
+        sync_from_remote(cfg, local_output=out)
+        # Verify rsync was called with remote source and local destination
+        call_args = mock_rsync.call_args_list[0]
+        assert "/workspace/" in str(call_args)
+        assert str(out) in str(call_args)
