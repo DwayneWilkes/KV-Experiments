@@ -24,9 +24,32 @@ OUTPUT_DIR = Path(__file__).resolve().parent.parent / "data" / "prompts" / "gene
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
+STATUS_FILE = OUTPUT_DIR / "_status.json"
+
+
 def log(msg):
     line = f"[{time.strftime('%H:%M:%S')}] {msg}"
     print(line, flush=True)
+    with open(OUTPUT_DIR / "_run.log", "a") as f:
+        f.write(line + "\n")
+
+
+def update_status(phase, comparison, iteration=0, max_iter=0, pairs=0, target=0,
+                  elapsed=0, estimated_remaining=0, failures=None):
+    """Write machine-readable status for external monitoring."""
+    status = {
+        "phase": phase,
+        "comparison": comparison,
+        "iteration": iteration,
+        "max_iterations": max_iter,
+        "pairs_generated": pairs,
+        "pairs_target": target,
+        "elapsed_s": round(elapsed, 1),
+        "estimated_remaining_s": round(estimated_remaining, 1),
+        "failures": failures or [],
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+    }
+    STATUS_FILE.write_text(json.dumps(status, indent=2))
 
 
 def validate_pair_set(name, pairs):
@@ -91,7 +114,15 @@ def run_comparison(comparison, model, tokenizer, tracker=None):
     elapsed = time.time() - t0
 
     log(f"  Generated {result.pairs_added} pairs in {elapsed:.0f}s "
-        f"(effective_n={result.final_effective_n:.1f}, target_met={result.target_met})")
+        f"(effective_n={result.final_effective_n:.1f}, "
+        f"iterations={result.iterations_used}, target_met={result.target_met})")
+
+    update_status("generated", comparison,
+                  iteration=result.iterations_used,
+                  max_iter=config.max_iterations,
+                  pairs=result.pairs_added,
+                  target=config.n_target,
+                  elapsed=elapsed)
 
     # Save pair set
     if result.pair_set:
@@ -131,19 +162,31 @@ def main():
     import torch
     from kv_verify.lib.models import load_model, load_tokenizer
 
+    update_status("loading_model", "all", elapsed=0, estimated_remaining=300)
     log("Loading Qwen2.5-7B on CPU (float32)...")
     model_t0 = time.time()
     model, tokenizer = load_model("qwen", dtype=torch.float32)
-    log(f"Model loaded in {time.time() - model_t0:.0f}s")
+    model_load_time = time.time() - model_t0
+    log(f"Model loaded in {model_load_time:.0f}s")
 
     for comparison in comparisons:
         if comparison in done:
             log(f"\n{comparison}: already done (from checkpoint)")
             continue
 
+        comp_idx = comparisons.index(comparison)
+        elapsed = time.time() - t0
+        remaining_comps = len(comparisons) - comp_idx
+        est_per_comp = elapsed / max(comp_idx, 1) if comp_idx > 0 else 600
+        est_remaining = est_per_comp * remaining_comps
+
         log(f"\n{'='*40}")
-        log(f"COMPARISON: {comparison}")
+        log(f"COMPARISON: {comparison} ({comp_idx+1}/{len(comparisons)})")
+        log(f"Elapsed: {elapsed:.0f}s | Est remaining: {est_remaining:.0f}s")
         log(f"{'='*40}")
+
+        update_status("generating", comparison,
+                      elapsed=elapsed, estimated_remaining=est_remaining)
 
         result = run_comparison(comparison, model, tokenizer, tracker=tracker)
 
