@@ -964,3 +964,64 @@ def full_validation(
         # For verdict thresholds: use CI lower bound (conservative)
         "verdict_auroc": verdict_auroc,
     }
+
+
+# ================================================================
+# GLOBAL HOLM-BONFERRONI (across experiments)
+# ================================================================
+
+def global_holm_bonferroni(
+    experiments: List[tuple],
+    alpha: float = None,
+) -> List[Dict]:
+    """Apply Holm-Bonferroni across multiple named experiments.
+
+    Args:
+        experiments: List of (name, p_value) tuples.
+        alpha: Significance threshold (default from constants).
+
+    Returns:
+        List of dicts with name, original_p, corrected_p, rank, reject.
+    """
+    from kv_verify.constants import ALPHA
+    alpha = alpha or ALPHA
+
+    n = len(experiments)
+    if n == 0:
+        return []
+
+    # Sort by p-value
+    indexed = [(name, p, i) for i, (name, p) in enumerate(experiments)]
+    indexed.sort(key=lambda x: x[1])
+
+    results = []
+    rejected_so_far = True
+    for rank, (name, p, orig_idx) in enumerate(indexed):
+        # Holm correction: compare p against alpha / (n - rank)
+        adjusted_alpha = alpha / (n - rank)
+        corrected_p = min(p * (n - rank), 1.0)
+
+        # Holm is step-down: once we fail to reject, all subsequent are also not rejected
+        if not rejected_so_far:
+            reject = False
+        elif p > adjusted_alpha:
+            reject = False
+            rejected_so_far = False
+        else:
+            reject = True
+
+        results.append({
+            "name": name,
+            "original_p": p,
+            "corrected_p": round(corrected_p, 6),
+            "rank": rank + 1,
+            "reject": reject,
+            "adjusted_alpha": round(adjusted_alpha, 6),
+        })
+
+    # Sort back to original order for stability
+    results.sort(key=lambda x: next(
+        i for i, (name, _, _) in enumerate(indexed) if name == x["name"]
+    ))
+
+    return results

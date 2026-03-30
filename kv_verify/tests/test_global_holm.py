@@ -18,15 +18,22 @@ class TestGlobalHolm:
         assert all(r["reject"] for r in result)
 
     def test_weak_p_value_loses_significance(self):
-        """Marginal p-value fails after correction."""
+        """Marginal p-value fails after Holm correction with enough tests."""
         experiments = [
             ("V01", 0.001),
-            ("V10_linchpin", 0.037),  # marginal
-            ("V04", 0.002),
+            ("V03", 0.002),
+            ("V04", 0.003),
+            ("V07", 0.004),
+            ("V10_linchpin", 0.04),  # marginal: 0.04 * 1 = 0.04 < 0.05, but
+            # Holm step-down: at rank 5, adjusted_alpha = 0.05/1 = 0.05
+            # Still passes. Need to push it above.
+            ("F01", 0.005),
+            ("F02", 0.006),
+            ("F03", 0.045),  # this one: corrected_p = 0.045 * 3 = 0.135 > 0.05
         ]
         result = global_holm_bonferroni(experiments)
-        linchpin = next(r for r in result if r["name"] == "V10_linchpin")
-        assert not linchpin["reject"]
+        f03 = next(r for r in result if r["name"] == "F03")
+        assert not f03["reject"]
 
     def test_returns_corrected_p_values(self):
         experiments = [("A", 0.01), ("B", 0.04)]
