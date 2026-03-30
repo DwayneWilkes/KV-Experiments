@@ -153,7 +153,7 @@ class PromptGenerator:
                 response = generate_text(
                     model, tokenizer, gen_prompt,
                     system_prompt=self._system_prompt(comparison),
-                    max_new_tokens=2000,
+                    max_new_tokens=500,
                     temperature=self.config.temperature,
                 )
             else:

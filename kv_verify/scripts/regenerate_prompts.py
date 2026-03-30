@@ -162,9 +162,9 @@ def main():
     from kv_verify.lib.models import load_model, load_tokenizer
 
     update_status("loading_model", "all", elapsed=0, estimated_remaining=300)
-    log("Loading Qwen2.5-7B on CPU (float32)...")
+    log("Loading Qwen2.5-7B on CPU (bfloat16 to fit in RAM)...")
     model_t0 = time.time()
-    model, tokenizer = load_model("qwen", dtype=torch.float32)
+    model, tokenizer = load_model("qwen", dtype=torch.bfloat16)
     model_load_time = time.time() - model_t0
     log(f"Model loaded in {model_load_time:.0f}s")
 
