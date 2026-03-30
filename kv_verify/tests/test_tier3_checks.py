@@ -37,7 +37,8 @@ class TestProvenanceHash:
         assert r1.dataset_hash != r2.dataset_hash
 
     def test_hash_is_sha256(self):
-        items = [_item("A", "a"), _item("B", "b")] * 5
+        items = [_item("A", f"question about astronomy {i}") for i in range(10)]
+        items += [_item("B", f"question about biology {i}") for i in range(10)]
         report = validate_dataset(items, tier=3)
         assert len(report.dataset_hash) == 64  # SHA-256 hex = 64 chars
 

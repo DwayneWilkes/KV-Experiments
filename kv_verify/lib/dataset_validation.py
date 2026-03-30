@@ -196,8 +196,14 @@ def validate_dataset(
         if not cr.passed and cr.details:
             recommendations.append(f"[{cr.name}] {cr.details}")
 
+    # Provenance hash (Tier 3 only)
+    dataset_hash = None
+    if tier >= 3:
+        dataset_hash = _compute_dataset_hash(items)
+
     return DatasetReport(
         tier=tier,
+        dataset_hash=dataset_hash,
         overall_pass=overall_pass,
         overall_verdict=verdict,
         checks=checks,
@@ -861,4 +867,58 @@ def _check_format_consistency(items: List[dict], config: Dict, shared: Dict) -> 
         tier=2,
         metrics={"feature_diffs": feature_diffs, "significant_diffs": significant_diffs},
         details=f"Format differs: {', '.join(significant_diffs)}" if significant_diffs else "",
+    )
+
+
+# ================================================================
+# TIER 3 CHECKS
+# ================================================================
+
+def _compute_dataset_hash(items: List[dict]) -> str:
+    """SHA-256 of canonical JSON serialization."""
+    canonical = json.dumps(items, sort_keys=True, ensure_ascii=True, default=str)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+@check(name="metadata_completeness", tier=3)
+def _check_metadata_completeness(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Verify required metadata fields are present."""
+    meta = config.get("dataset_metadata", {})
+    required = ["generation_method", "llm_generated", "author", "decoding_strategy", "contamination_risk"]
+
+    missing = [f for f in required if f not in meta or meta[f] is None or meta[f] == ""]
+    passed = len(missing) == 0
+
+    return CheckResult(
+        name="metadata_completeness",
+        passed=passed,
+        tier=3,
+        metrics={"provided": list(meta.keys()), "missing": missing, "required": required},
+        details=f"Missing metadata: {', '.join(missing)}. NeurIPS checklist item 16 requires LLM disclosure." if missing else "",
+    )
+
+
+@check(name="measurement_validation", tier=3)
+def _check_measurement_validation(items: List[dict], config: Dict, shared: Dict) -> CheckResult:
+    """Run optional measurement validator and report ICC."""
+    validator = config.get("measurement_validator")
+
+    if validator is None:
+        return CheckResult(
+            name="measurement_validation",
+            passed=True, tier=3,
+            metrics={"skipped": True},
+            details="No measurement validator provided.",
+        )
+
+    result = validator()
+    passed = result.get("passed", False)
+    icc = result.get("icc", 0.0)
+
+    return CheckResult(
+        name="measurement_validation",
+        passed=passed,
+        tier=3,
+        metrics={"icc": icc, "skipped": False, **result},
+        details=f"Measurement ICC={icc:.2f} below reliability threshold." if not passed else "",
     )
