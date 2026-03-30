@@ -153,8 +153,7 @@ def main():
     # Check which comparisons are already cached by the tracker
     done = set()
     for comp in comparisons:
-        cached = tracker.get_cached(f"comparison_{comp}")
-        if cached is not None:
+        if tracker.is_cached(f"comparison_{comp}"):
             done.add(comp)
             log(f"  {comp}: found in tracker cache, skipping")
 
