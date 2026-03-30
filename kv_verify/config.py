@@ -68,6 +68,11 @@ class PipelineConfig:
 
         return cls(**data)
 
+    def to_yaml(self, path: Path) -> None:
+        """Write config to a YAML file."""
+        with open(path, "w") as f:
+            yaml.dump(self.to_dict(), f, default_flow_style=False, sort_keys=False)
+
     def to_dict(self) -> dict:
         """Serialize to dict (with Path converted to str)."""
         d = asdict(self)

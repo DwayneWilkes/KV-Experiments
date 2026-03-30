@@ -74,6 +74,11 @@ def main():
     run_parser.add_argument("--remote", type=Path, help="Remote GPU config YAML")
     run_parser.add_argument("--force", action="store_true", help="Force run past validation failures")
 
+    # --- config subcommand ---
+    cfg_parser = sub.add_parser("config", help="Show or export pipeline configuration")
+    cfg_parser.add_argument("--dump", action="store_true", help="Dump default config as YAML")
+    cfg_parser.add_argument("--output", type=Path, help="Write config to file instead of stdout")
+
     # --- validate subcommand ---
     val_parser = sub.add_parser("validate", help="Validate a dataset for experiment quality")
     val_parser.add_argument("--dataset", type=Path, required=True, help="Path to dataset JSON")
@@ -84,6 +89,16 @@ def main():
 
     if args.command == "validate":
         _run_validate(args)
+        return
+
+    if args.command == "config":
+        import yaml as _yaml
+        config = PipelineConfig()
+        if args.output:
+            config.to_yaml(args.output)
+            print(f"Config written to {args.output}")
+        else:
+            print(_yaml.dump(config.to_dict(), default_flow_style=False, sort_keys=False))
         return
 
     if args.command != "run":
