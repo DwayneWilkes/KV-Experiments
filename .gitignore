@@ -74,4 +74,5 @@ code/export_cricket_classifiers.py
 # Local development artifacts (not in kv_verify/)
 mlflow.db
 mlruns/
-.claude/
+.claude/*
+!.claude/agents/
