@@ -1,0 +1,86 @@
+{
+  "agent": "experiment-writer",
+  "date": "2026-03-26",
+  "scope": "V03 FWL Leakage Test experiment for kv_verify verification pipeline",
+  "verdict": "COMPLETE",
+  "findings": [
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "design-decision",
+      "description": "n_permutations parameter included in run_v03 signature but currently unused. V03 uses AUROC difference thresholds, not permutation null distributions.",
+      "location": "kv_verify/experiments/v03_fwl_leakage.py:182",
+      "impact": "No functional impact. Parameter reserved for potential future permutation-based leakage testing.",
+      "recommendation": "If permutation testing is needed later, implement inside run_v03 rather than adding a separate function.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "convention-deviation",
+      "description": "No SHA-256 checksum on result JSON. V04 (the only existing experiment) also omits checksums.",
+      "location": "kv_verify/experiments/v03_fwl_leakage.py:319",
+      "impact": "Result integrity not cryptographically verified. Consistent with existing convention.",
+      "recommendation": "Add checksums to both V03 and V04 if result integrity becomes a concern.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MAJOR",
+      "confidence": "MEDIUM",
+      "method": "inferred",
+      "category": "known-limitation",
+      "description": "Polynomial FWL conditions 3-4 residualize the full dataset before CV splitting, which is itself a form of information leakage. This is by spec design (testing 'does nonlinear length explain the signal?') but means the polynomial AUROC may be optimistically biased toward collapse.",
+      "location": "kv_verify/experiments/v03_fwl_leakage.py:99-116",
+      "impact": "If polynomial FWL appears to collapse signal, it may be partly due to overfitting confounds on the full dataset rather than true nonlinear confounding.",
+      "recommendation": "Monitor R-squared values for poly3 fits. If R-squared approaches 1.0 for any feature, the polynomial degree is too high for the sample size.",
+      "is_red_team": true
+    },
+    {
+      "severity": "MAJOR",
+      "confidence": "MEDIUM",
+      "method": "inferred",
+      "category": "known-limitation",
+      "description": "Degree-3 polynomial on 2 confounds produces 9 basis features. With N=10-20, this risks overfitting confounds and artificially collapsing all signal.",
+      "location": "kv_verify/experiments/v03_fwl_leakage.py:109-116",
+      "impact": "Poly3 AUROC may be artificially low for small-N comparisons (esp. exp18b with N=10), making FALSIFIED verdict more likely than warranted.",
+      "recommendation": "Compare poly2 vs poly3 R-squared. If poly3 is dramatically higher, the degree-3 results should be interpreted with extreme caution.",
+      "is_red_team": true
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "MEDIUM",
+      "method": "inferred",
+      "category": "known-limitation",
+      "description": "Leakage detection uses a fixed 0.05 AUROC threshold without uncertainty quantification. With N=20, AUROC noise is ~0.05-0.10, so threshold may trigger from noise or miss real leakage.",
+      "location": "kv_verify/experiments/v03_fwl_leakage.py:134",
+      "impact": "Individual comparison leakage verdicts may have high false positive/negative rates. The overall pattern across 10 comparisons is more informative than any single comparison.",
+      "recommendation": "Consider adding paired bootstrap CI on AUROC(full) - AUROC(within) for more rigorous leakage detection.",
+      "is_red_team": true
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "test-coverage",
+      "description": "Tests run the full experiment (10 comparisons x 4 conditions) for each test method. No caching or fixture sharing between test methods.",
+      "location": "kv_verify/tests/test_v03.py",
+      "impact": "Test suite will be slow (~30-60 seconds per test, ~10-20 minutes total). Acceptable for CI but slow for development iteration.",
+      "recommendation": "Consider a session-scoped pytest fixture that runs run_v03 once and shares the result across all tests. This matches V04's pattern but would improve speed significantly.",
+      "is_red_team": false
+    }
+  ],
+  "referrals": [
+    {
+      "to_agent": "reviewer",
+      "description": "Verify polynomial FWL degree 3 does not overfit confounds given small sample sizes. Check R-squared values for degree-3 fits approaching 1.0."
+    },
+    {
+      "to_agent": "stats-reviewer",
+      "description": "Consider whether a paired bootstrap test on AUROC(full) - AUROC(within) would be more appropriate than a fixed 0.05 threshold for leakage detection."
+    }
+  ],
+  "literature_links": [],
+  "acquired_papers": []
+}

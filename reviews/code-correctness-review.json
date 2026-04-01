@@ -1,0 +1,189 @@
+{
+  "agent": "code-reviewer",
+  "date": "2026-03-27",
+  "scope": "kv_verify/lib/{tracking,stats,models,feature_extractor,scorers}.py, kv_verify/lib/prompts/{gen,analyzer,gap_filler,generator}.py, kv_verify/{pipeline,config,types,data_loader,fixtures}.py + 9 re-export shims",
+  "verdict": "MINOR ISSUES",
+  "findings": [
+    {
+      "severity": "MAJOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "api-misuse",
+      "description": "is_minimal_pair_scorer shared-suffix check is structurally incompatible with refusal and impossibility prompt designs. The scorer checks whether the LAST N words match, but refusal/impossibility pairs share a PREFIX (verb/action), not a suffix. The scorer would reject ALL refusal and impossibility pairs as non-minimal.",
+      "location": "kv_verify/lib/scorers.py:191-229",
+      "impact": "Any downstream code using this scorer would incorrectly reject 2/3 of comparison types. Not called in pipeline currently, so no impact on computed results.",
+      "recommendation": "Add shared-prefix check alongside shared-suffix check. Accept pairs where EITHER matches.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MAJOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "copy-paste",
+      "description": "Within-fold FWL in groupkfold_auroc reimplements residualization manually instead of using fwl_residualize(within_fold=True, train_idx, test_idx). Fits LinearRegression twice on identical data: once via fwl_residualize(within_fold=False) for training data, once directly for test data. Produces correct results by coincidence (same OLS on same inputs), but creates divergence risk.",
+      "location": "kv_verify/lib/stats.py:319-327",
+      "impact": "No current correctness impact. If either regression path is modified independently, train/test residualization would silently diverge.",
+      "recommendation": "Replace with single call to fwl_residualize(X, Z, within_fold=True, train_idx=train_idx, test_idx=test_idx).",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "MEDIUM",
+      "method": "read",
+      "category": "dtype",
+      "description": "Group label computation int(np.median(y[groups==g] > 0.5)) truncates 0.5 to 0 for balanced groups. Python int() floors, so mixed groups always get label 0.",
+      "location": "kv_verify/lib/stats.py:469-472",
+      "impact": "Never triggered in current code (unique groups). Would cause degenerate permutation test with paired groups.",
+      "recommendation": "Use int(np.round(np.median(...))) or explicit majority vote.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "data-pipeline",
+      "description": "Hardcoded power=0.80 placeholder in _do_verdicts. power_analysis() exists in stats.py but is never called. The 'underpowered' verdict can never fire.",
+      "location": "kv_verify/pipeline.py:445",
+      "impact": "Pipeline cannot detect underpowered experiments. Scientific validity of verdict system is incomplete.",
+      "recommendation": "Compute actual power or document that power checking is deferred.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "llm-artifact",
+      "description": "Two disjoint verdict string sets: verdict_scorer returns raw strings (input_confounded, collapsed, genuine_signal, etc.), types.py defines Verdict enum with different values (CONFIRMED, FALSIFIED, etc.). The enum is dead code.",
+      "location": "kv_verify/lib/scorers.py:75-120, kv_verify/types.py:13-19",
+      "impact": "No type safety on verdicts. Enum is unused dead code.",
+      "recommendation": "Align enum with scorer values or remove the enum.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "MEDIUM",
+      "method": "read",
+      "category": "api-misuse",
+      "description": "UnboundLocalError when max_iterations=0 and existing pairs are provided. Variable 'iteration' from for-loop is undefined if loop never executes.",
+      "location": "kv_verify/lib/prompts/generator.py:210",
+      "impact": "Crash on edge-case configuration. Not a silent bug.",
+      "recommendation": "Initialize iteration = -1 before the loop.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "data-pipeline",
+      "description": "sys.path.insert(0, ...) in _load_refusal_items and _load_impossibility_items accumulates duplicates with no guard.",
+      "location": "kv_verify/pipeline.py:694-715",
+      "impact": "sys.path pollution. No correctness impact.",
+      "recommendation": "Use importlib for isolated dynamic imports or convert data files to JSON.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "llm-artifact",
+      "description": "186-line inline question list in pipeline orchestrator. Inconsistent with refusal/impossibility data which use separate files.",
+      "location": "kv_verify/pipeline.py:500-686",
+      "impact": "Code organization only. No correctness impact.",
+      "recommendation": "Move to data/prompts/factual_questions.json.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "data-pipeline",
+      "description": "Redundant tokenization: analyze_length_distribution and analyze_pair_balance each tokenize all prompts independently. 2x work when called together from analyze_pair_set.",
+      "location": "kv_verify/lib/prompts/analyzer.py:74-155",
+      "impact": "Performance only. No correctness impact.",
+      "recommendation": "Pre-tokenize once in analyze_pair_set.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "data-pipeline",
+      "description": "TF-IDF + KMeans computed twice in single analyze_gaps() call: once for entropy (line 318-326), once in _compute_gaps (line 249-254).",
+      "location": "kv_verify/lib/prompts/gap_filler.py:249-254,318-326",
+      "impact": "2x clustering cost. No correctness impact (same random_state=42).",
+      "recommendation": "Compute once, pass results to both consumers.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "data-pipeline",
+      "description": "Inconsistency: _token_length_density uses both positive and negative prompts, _token_entropy uses only positive. Both called from analyze_gaps.",
+      "location": "kv_verify/lib/prompts/gap_filler.py:61-101",
+      "impact": "Inconsistent density vs entropy views. No correctness impact on gap ranking.",
+      "recommendation": "Document or standardize which sides are used.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "llm-artifact",
+      "description": "8 optional FeatureVector fields (norm_variance, gen_delta, layer_uniformity, head_variance, max_layer_rank, top_sv_ratio, rank_10, layer_variance) are declared but never populated by extract_from_cache.",
+      "location": "kv_verify/types.py:60-68",
+      "impact": "Dead fields. Confusing for readers.",
+      "recommendation": "Remove unused fields or implement features.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "llm-artifact",
+      "description": "Unused 'label' parameter in _side_stats inner function. Called with 'positive'/'negative' but the value is never used.",
+      "location": "kv_verify/lib/prompts/analyzer.py:82",
+      "impact": "Dead code. No correctness impact.",
+      "recommendation": "Remove the parameter.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "data-pipeline",
+      "description": "feature_extractor.py imports MODEL_CACHE_DIR from models.py only to re-export as DEFAULT_MODEL_CACHE_DIR. Never used internally.",
+      "location": "kv_verify/lib/feature_extractor.py:33-37",
+      "impact": "Unnecessary coupling between feature extractor and model management.",
+      "recommendation": "Remove if backward compatibility no longer needed.",
+      "is_red_team": false
+    },
+    {
+      "severity": "MAJOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "data-pipeline",
+      "description": "Red team: The hardcoded power=0.80 + within-fold FWL divergence represent the highest-risk path. Power placeholder means underpowered experiments are never flagged. FWL divergence is correct today but any modification to one regression path without the other would silently produce mismatched train/test residualization. Additionally, BCa bootstrap implementation could not be verified against a reference at runtime.",
+      "location": "kv_verify/pipeline.py:445, kv_verify/lib/stats.py:319-327, kv_verify/lib/stats.py:578-611",
+      "impact": "No current impact. Highest future risk for silent incorrect results.",
+      "recommendation": "Call power_analysis() in pipeline. Use fwl_residualize(within_fold=True) instead of manual reimplementation. Add BCa test cases with known-correct reference intervals.",
+      "is_red_team": true
+    }
+  ],
+  "referrals": [
+    {
+      "to_agent": "impl-auditor",
+      "description": "Verify hardcoded power=0.80 in _do_verdicts is intentional or forgotten TODO. If unintentional, 'underpowered' verdict can never fire."
+    },
+    {
+      "to_agent": "impl-auditor",
+      "description": "Verify _do_falsification uses fwl_residualize(within_fold=False) intentionally as comparison baseline, or whether it should be within_fold=True per C4 fix."
+    },
+    {
+      "to_agent": "impl-auditor",
+      "description": "Verify pipeline stage cache correctly prevents stale data from previous runs with different configuration."
+    }
+  ],
+  "literature_links": [],
+  "acquired_papers": []
+}

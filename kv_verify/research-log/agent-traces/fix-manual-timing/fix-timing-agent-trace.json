@@ -1,0 +1,86 @@
+{
+  "agent": "fix-implementer",
+  "date": "2026-03-26",
+  "scope": "Remove redundant manual timing code from 4 experiment files (6 functions)",
+  "verdict": "FIX APPLIED",
+  "findings": [
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "fix-applied",
+      "description": "Removed manual t0/elapsed/log_metric('elapsed_seconds') timing from run_f01a, run_f01b, run_f01c in f01_falsification.py. Also removed import time.",
+      "location": "kv_verify/experiments/f01_falsification.py:67,145,166,173,208,287,307,314,348,441,460,467",
+      "impact": "Eliminates redundant boilerplate. No computation logic changed.",
+      "recommendation": "None",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "fix-applied",
+      "description": "Removed manual timing from run_f02 in f02_held_out_input_control.py. Also removed import time, elapsed_seconds from result_json, and elapsed from markdown summary.",
+      "location": "kv_verify/experiments/f02_held_out_input_control.py:514,585,611,657,679",
+      "impact": "Eliminates redundant boilerplate. result_json schema changes (elapsed_seconds key removed).",
+      "recommendation": "None",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "fix-applied",
+      "description": "Removed manual timing from run_f03 in f03_cross_model_input_control.py. Kept import time (still used by time.strftime/time.gmtime at line 455).",
+      "location": "kv_verify/experiments/f03_cross_model_input_control.py:154,396,428,438",
+      "impact": "Eliminates redundant boilerplate. stats dict schema changes (elapsed_seconds key removed).",
+      "recommendation": "None",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "fix-applied",
+      "description": "Removed manual timing from run_f04 in f04_cross_condition_validity.py. Also removed import time.",
+      "location": "kv_verify/experiments/f04_cross_condition_validity.py:513,617,681,687",
+      "impact": "Eliminates redundant boilerplate. stats dict schema changes (elapsed_seconds key removed).",
+      "recommendation": "None",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "HIGH",
+      "method": "read",
+      "category": "test-added",
+      "description": "Added AST-based test that verifies no experiment function contains time.monotonic() calls, tracker.log_metric('elapsed_seconds') calls, or 'elapsed_seconds' dict keys.",
+      "location": "kv_verify/tests/test_no_manual_timing.py",
+      "impact": "Prevents regression of manual timing boilerplate.",
+      "recommendation": "Run tests to verify: TMPDIR=/tmp/claude-1000 .venv/bin/python -m pytest kv_verify/tests/ -v --tb=short -x",
+      "is_red_team": false
+    },
+    {
+      "severity": "MINOR",
+      "confidence": "MEDIUM",
+      "method": "read",
+      "category": "edge-case",
+      "description": "The experiment functions are not currently wrapped in tracker.stage(), so after removing manual timing, there is no timing recorded unless the caller wraps in tracker.stage(). The manual timing was the only timing mechanism for these functions. This may be intentional (timing is the caller's responsibility) or may need follow-up.",
+      "location": "kv_verify/experiments/f01_falsification.py, f02, f03, f04",
+      "impact": "No timing data will be recorded in tracker metrics unless callers use tracker.stage().",
+      "recommendation": "Consider wrapping function bodies in tracker.stage() if timing data is needed in the tracker.",
+      "is_red_team": true
+    }
+  ],
+  "referrals": [
+    {
+      "to_agent": "PI",
+      "description": "Run pytest to verify all tests pass (Bash permission denied during fix session). Command: TMPDIR=/tmp/claude-1000 .venv/bin/python -m pytest kv_verify/tests/ -v --tb=short -x"
+    },
+    {
+      "to_agent": "PI",
+      "description": "Consider whether to wrap experiment function bodies in tracker.stage() to get automatic timing back, since the manual timing was the only timing mechanism."
+    }
+  ],
+  "literature_links": [],
+  "acquired_papers": []
+}

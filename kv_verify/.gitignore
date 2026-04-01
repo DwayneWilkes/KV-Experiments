@@ -1,0 +1,7 @@
+# MLflow tracking data (local, not committed)
+mlruns/
+mlflow.db
+
+# Pipeline run outputs (regenerated, not committed)
+# Committed results are in data/output/
+*.log

@@ -1,4 +1,4 @@
-This section presents four detection capabilities unified by a common mechanism---\emph{output suppression}---plus one refuted candidate (sycophancy). Three capabilities (refusal, absence-of-suppression in abliterated models, impossibility refusal) are new to Campaign 3. The key evidence for the output suppression interpretation is Experiment 36: impossibility refusal (AUROC $\approx 0.94$) is \emph{more} detectable than safety refusal (AUROC $\approx 0.91$), and the two refusal types are geometrically indistinguishable (AUROC $\approx 0.65$). This proves the signal is about \emph{withholding}, not content type.
+This section presents six detection capabilities, three of which (refusal, jailbreak, impossibility) are new to Campaign 3.
 
 \subsection{Deception Detection}
 \label{sec:deception}
@@ -23,13 +23,11 @@ Rank entropy & $22.1 \pm 0.9$ & $24.2 \pm 0.6$ & $+2.79$ \\
 \end{tabular}
 \end{table}
 
-GroupKFold AUROC: $\approx \textbf{0.92}$ (95\% CI $[0.83, 1.00]$, $p < 0.001$ by 10{,}000-permutation test), accuracy: 80\%. All four features show large or very large effect sizes, with rank entropy providing the strongest single-feature separation.
+LOO-CV AUROC: \textbf{0.880}, accuracy: 80\%. All four features show large or very large effect sizes, with rank entropy providing the strongest single-feature separation.
 
-\paragraph{Length caveat (resolved).} The corrected AUROC of $\approx 0.92$ should be interpreted cautiously: a length-only baseline using raw norm achieves AUROC $\approx 0.91$, and a token-count baseline ($n_{\text{generated}}$) achieves $\approx 0.82$. At $n = 10$ per class, the bootstrap CI is wide ($[0.83, 1.00]$), and the $\approx 0.01$ improvement over the norm baseline is well within noise. While the corrected features exclude raw norm (using only norm-per-token, effective rank, and rank entropy), norm-per-token remains correlated with response length. This concern is \textbf{definitively resolved} by Experiment 49b (length-matched deception): when honest and deceptive responses are forced to equal length (mean difference only 0.8 tokens), the classifier achieves AUROC $= 0.990$ ($p < 0.0001$, 95\% CI $[0.950, 1.000]$) while a length-only baseline falls to AUROC $= 0.535$ (chance). Frisch--Waugh--Lovell residualization (Experiment 48) further confirms that same-prompt deception's apparent fragility under joint length correction reflects over-correction at small $n$ ($R^{2} > 0.98$ between length proxies), not absence of signal. The deception signal is real and separable from length (see \Cref{sec:length} for full details).
+\paragraph{Cross-condition transfer (Experiment 18).} Training on system-prompt-manipulated deception across 7 models, then testing on natural DeepSeek censorship (where the model evades politically sensitive questions without any deceptive system prompt): RF AUROC \textbf{0.887}. This demonstrates shared geometric structure between instructed and natural deception.
 
-\paragraph{Cross-condition transfer (Experiment 18).} Training on system-prompt-manipulated deception across 7 models, then testing on natural DeepSeek censorship (where the model evades politically sensitive questions without any deceptive system prompt): RF AUROC $\approx \textbf{0.89}$. This demonstrates shared geometric structure between instructed and natural output suppression.
-
-\paragraph{Cross-model transfer (Experiment 19).} The cross-model transfer bottleneck from Campaign 2 (AUROC $\approx 0.67$ with RF) was resolved by switching to logistic regression:
+\paragraph{Cross-model transfer (Experiment 19).} The cross-model transfer bottleneck from Campaign 2 (AUROC 0.67 with RF) was resolved by switching to logistic regression:
 
 \begin{table}[H]
 \centering
@@ -52,7 +50,7 @@ The key insight: LR's linear decision boundary generalizes across architectures 
 \subsection{Refusal Detection}
 \label{sec:refusal}
 
-\textbf{New capability.} Experiment 31 demonstrates that safety refusal---when a model declines to answer a harmful question---produces a detectable KV-cache signature. We interpret this as \emph{output suppression detection}: the model recognizes content it could elaborate on but withholds, allocating fewer representational resources per token.
+\textbf{New capability.} Experiment 31 demonstrates that safety refusal---when a model declines to answer a harmful question---produces a detectable KV-cache signature.
 
 \paragraph{Design.} 20 harmful prompts (designed to trigger refusal) paired with 20 benign prompts matched for domain. Qwen2.5-7B, 50 tokens generation. Actual refusal rate in text: 19/20.
 
@@ -60,108 +58,73 @@ The key insight: LR's linear decision boundary generalizes across architectures 
 
 \begin{table}[H]
 \centering
-\caption{Refusal detection: single-model and multi-model results. LR values are corrected (GroupKFold, 3 features excl.\ raw norm, 10{,}000 permutations); RF values are from original evaluation.}
+\caption{Refusal detection: single-model and multi-model results.}
 \label{tab:refusal}
 \begin{tabular}{lccc}
 \toprule
 \textbf{Model} & \textbf{AUROC (LR)} & \textbf{AUROC (RF)} & \textbf{$d$ (rank)} \\
 \midrule
-Qwen2.5-7B & $\approx$\textbf{0.91} & 0.830 & 1.530 \\
-Llama-3.1-8B & $\approx$0.87 & 0.893 & --- \\
-Mistral-7B & $\approx$0.83 & 0.756 & --- \\
+Qwen2.5-7B & \textbf{0.898} & 0.830 & 1.530 \\
+Llama-3.1-8B & 0.868 & 0.893 & --- \\
+Mistral-7B & 0.843 & 0.756 & --- \\
 \midrule
-\textit{Mean} & $\approx$\textit{0.87} & \textit{0.826} & --- \\
+\textit{Mean} & \textit{0.869} & \textit{0.826} & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Refusal responses are \emph{sparser per token} (295.7 vs.\ 301.1 norm/token on Qwen), consistent with output suppression: the model withholds its full representational capacity, generating a constrained, formulaic response. As shown in \Cref{sec:impossibility}, this suppression geometry is not specific to harmful content---it occurs whenever the model withholds output, whether for safety or logical impossibility reasons.
+Refusal responses are \emph{sparser per token} (295.7 vs.\ 301.1 norm/token on Qwen), consistent with a suppression model: the model recognizes the harmful content, activates refusal circuitry, and generates a shorter, more formulaic response.
 
-\paragraph{Cross-model suppression transfer: an open problem (Experiment 49c).} Unlike deception detection, which transfers across architectures at AUROC $\approx 0.86$ (\Cref{sec:deception}), cross-model transfer for suppression detection (refusal and impossibility) remains largely at chance:
-
-\begin{table}[H]
-\centering
-\caption{Cross-model suppression transfer (train on row model, test on column model).}
-\label{tab:suppression_transfer}
-\begin{tabular}{lccc}
-\toprule
-\textbf{Train $\to$ Test} & \textbf{Qwen} & \textbf{Llama} & \textbf{Mistral} \\
-\midrule
-\multicolumn{4}{l}{\emph{Refusal}} \\
-Qwen & $\approx 0.84$ & $\approx 0.50$ & $\approx 0.50$ \\
-Llama & $\approx 0.50$ & $\approx 0.84$ & $\approx 0.50$ \\
-Mistral & $\approx 0.94$ & $\approx 0.15$ & $\approx 0.84$ \\
-\midrule
-\multicolumn{4}{l}{\emph{Impossibility}} \\
-Qwen & $\approx 0.83$ & $\approx 0.50$ & $\approx 0.50$ \\
-Llama & $\approx 0.50$ & $\approx 0.83$ & $\approx 0.74$ \\
-Mistral & $\approx 0.50$ & $\approx 0.64$ & $\approx 0.83$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-Within-model detection is consistent ($\approx 0.84$ across all three models for both conditions), but cross-model transfer is mostly at chance ($\approx 0.50$), with notable exceptions: Mistral$\to$Qwen refusal ($\approx 0.94$), Llama$\to$Mistral impossibility ($\approx 0.74$), and---strikingly---Mistral$\to$Llama refusal ($\approx 0.15$, \emph{below} chance, indicating active misclassification). The asymmetry of these exceptions (e.g., Mistral$\to$Qwen works but Qwen$\to$Mistral does not) suggests architecture-specific suppression geometry rather than a universal suppression direction. This contrasts sharply with deception detection, where logistic regression achieves AUROC $\approx 0.86$ for all-to-all transfer (\Cref{tab:transfer}), indicating that deception produces a more architecturally universal geometric perturbation than suppression. Cross-model suppression transfer remains an open problem.
-
-\subsection{Absence-of-Suppression Detection (Abliterated Models)}
+\subsection{Jailbreak Detection}
 \label{sec:jailbreak}
 
-\textbf{New capability.} Experiment 32 tests whether abliterated models---those with the refusal direction removed via \citet{arditi2024refusal}---produce a different cache signature than either normal or refusing models. We frame this as \emph{absence-of-suppression detection}: abliterated models that answer harmful prompts lack the suppression circuitry that normally constrains output, and their cache geometry reflects this by showing \emph{normal} (non-suppressed) processing patterns rather than the sparse geometry characteristic of refusal.
+\textbf{New capability.} Experiment 32 tests whether abliterated models (refusal direction removed via \citealt{arditi2024refusal}) produce a different cache signature than either normal or refusing models.
 
 \paragraph{Results.}
 
 \begin{table}[H]
 \centering
-\caption{Absence-of-suppression detection across models.}
+\caption{Jailbreak detection across models.}
 \label{tab:jailbreak}
 \begin{tabular}{lcc}
 \toprule
 \textbf{Comparison} & \textbf{Llama AUROC} & \textbf{Mistral AUROC} \\
 \midrule
-Abliterated vs.\ Normal & $\approx \textbf{0.91}$ & $\approx 0.69$ \\
-Abliterated vs.\ Refusal & $\approx 0.61$ & $\approx 0.48$ \\
+Jailbreak vs.\ Normal & \textbf{0.913} & 0.691 \\
+Jailbreak vs.\ Refusal & 0.606 & 0.480 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Abliterated responses to harmful prompts are separable from normal benign responses (AUROC $\approx 0.91$ on Llama) but nearly indistinguishable from refusal responses (AUROC $\approx 0.61$). This is initially counterintuitive---abliterated models \emph{comply} while refusing models \emph{decline}---but is explained by the output suppression framework: both conditions involve processing harmful content, and the suppression geometry reflects the \emph{content being processed}, not whether the model ultimately complies. The critical difference is between ``processing harmful content'' and ``processing benign content,'' not between ``refusing'' and ``complying.''
+Jailbreak responses are separable from normal benign responses (AUROC 0.913 on Llama) but nearly indistinguishable from refusal responses (AUROC 0.606). Both jailbreak and refusal produce sparse cache signatures---processing harmful content creates a suppression geometry \emph{regardless of whether the model complies}. The critical difference is between ``processing harmful content'' and ``processing benign content,'' not between ``refusing'' and ``complying.''
 
-\paragraph{Caveat: heterogeneous labels.} Abliteration does not produce uniform compliance. Manual inspection of the Qwen abliterated outputs shows that only \textbf{8/20} (not 18/20) genuinely provide harmful information; ${\sim}10/20$ warn but partially comply, and ${\sim}2/20$ hard-refuse despite abliteration. The classifier separates this heterogeneous mixture from benign responses, but the signal reflects \emph{output suppression} (the model's residual suppression circuitry engaging when processing harmful content) rather than any ``jailbreak-specific'' geometry. This heterogeneity means the reported AUROC values should be interpreted cautiously: they measure separation of a \emph{mixed} class from benign, not clean ``compliant harmful'' versus ``benign'' discrimination.
-
-\paragraph{Control: abliterated on benign prompts.} A follow-up experiment (Experiment 41) tested abliterated models on \emph{benign} prompts, yielding AUROC $= 0.118$---below chance. This confirms that the classifier detects \emph{suppression triggered by harmful content processing}, not abliteration as a structural modification: when abliterated models process benign content, their cache geometry is indistinguishable from normal benign responses. The signal is content-dependent, not a weight-modification artifact.
+\paragraph{Caveat: heterogeneous ``jailbreak'' class.} Abliteration does not produce uniform compliance. Manual inspection of the Qwen abliterated outputs shows approximately 8/20 genuinely providing harmful information, ${\sim}10/20$ warning but partially complying, and ${\sim}2/20$ hard-refusing despite abliteration. The classifier separates this heterogeneous mixture from benign responses, but the signal may reflect \emph{output suppression} (model withholding resources when processing harmful content) rather than jailbreak-specific geometry. This is consistent with the impossibility refusal finding (\Cref{sec:impossibility}): the signal is about withholding, not content type. A follow-up experiment (Experiment 41) tested abliterated models on \emph{benign} prompts, yielding AUROC $= 0.118$---below chance. This confirms that the classifier detects \emph{harmful-content processing}, not abliteration per se: when abliterated models process benign content, their cache geometry is indistinguishable from (or slightly more similar to) normal benign responses. The jailbreak signal is content-dependent, not a structural artifact of weight modification.
 
 \subsection{Impossibility Refusal}
 \label{sec:impossibility}
 
-\textbf{Key evidence for the output suppression interpretation.} Experiment 36 tests whether refusal geometry is specific to safety-related content or reflects a general \emph{withholding} mechanism. This experiment provides the strongest single piece of evidence that the detected signal is output suppression, not harmful content detection.
+\textbf{New capability.} Experiment 36 tests whether refusal geometry is specific to safety-related content or reflects a general \emph{withholding} mechanism.
 
-\paragraph{Design.} 20 impossible questions (``What is north of north?'', ``What is the last digit of $\pi$?'') versus 20 benign questions. Qwen2.5-7B. These prompts contain no harmful content whatsoever---they are simply unanswerable.
+\paragraph{Design.} 20 impossible questions (``What is north of north?'', ``What is the last digit of $\pi$?'') versus 20 benign questions. Qwen2.5-7B.
 
 \paragraph{Results.}
 
 \begin{table}[H]
 \centering
-\caption{Impossibility refusal versus safety refusal: evidence for output suppression.}
+\caption{Impossibility refusal versus safety refusal.}
 \label{tab:impossibility}
 \begin{tabular}{lcc}
 \toprule
 \textbf{Comparison} & \textbf{AUROC (LR)} & \textbf{AUROC (RF)} \\
 \midrule
-Impossible vs.\ Benign & $\approx \textbf{0.94}$ & $\approx 0.88$ \\
-Harmful vs.\ Benign (Exp 31) & $\approx 0.91$ & $\approx 0.83$ \\
-Impossible vs.\ Harmful & $\approx 0.65$ & $\approx 0.74$ \\
+Impossible vs.\ Benign & \textbf{0.950} & 0.876 \\
+Harmful vs.\ Benign (Exp 31) & 0.898 & 0.830 \\
+Impossible vs.\ Harmful & 0.693 & 0.743 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Three findings converge on the output suppression interpretation:
-
-\begin{enumerate}[leftmargin=*]
-    \item \textbf{Impossibility refusal is \emph{more} detectable than safety refusal} (AUROC $\approx 0.94$ vs.\ $\approx 0.91$). If the signal were ``harmful content detection,'' impossibility---which involves no harmful content---should be undetectable.
-    \item \textbf{The two refusal types are geometrically indistinguishable} (AUROC $\approx 0.65$, near chance; $p = 0.037$, marginal). Safety refusal and impossibility refusal produce the same cache geometry despite involving entirely different content domains.
-    \item \textbf{The common mechanism is withholding.} The model produces a similar geometric perturbation whether it declines because ``that's dangerous'' or because ``that's impossible.'' In both cases, the model has representational capacity it could deploy but chooses not to, and this restraint manifests as reduced angular spread and lower norm-per-token.
-\end{enumerate}
-
-\noindent The most parsimonious explanation is output suppression---the model allocating fewer resources per token when withholding output. This is not harm-specific or intent-specific geometry; it is detection of whether the model is withholding.
+Impossibility refusal achieves \emph{higher} AUROC (0.950) than safety refusal (0.898), while impossibility vs.\ harmful refusal is only 0.693---the two refusal types look geometrically similar. This demonstrates that the cache suppression signature is about \textbf{withholding information}, not about content type. The model produces a similar geometric perturbation whether it declines because ``that's dangerous'' or because ``that's impossible.''
 
 \subsection{Sycophancy Detection: An Honest Null}
 \label{sec:sycophancy}
@@ -185,44 +148,21 @@ Experiment 38 adds the 5 extended key-geometry features (\Cref{sec:methods}), co
 
 \begin{table}[H]
 \centering
-\caption{Feature set comparison for output suppression detection (Qwen2.5-7B, refusal vs.\ benign).}
+\caption{Feature set comparison for harmful content detection (Qwen2.5-7B).}
 \label{tab:extended}
 \begin{tabular}{lcc}
 \toprule
 \textbf{Feature Set} & \textbf{AUROC (LR)} & \textbf{AUROC (RF)} \\
 \midrule
-Core 4 features & $\approx 0.90$ & $\approx 0.83$ \\
-Extended 5 only & $\approx 0.89$ & $\approx 0.94$ \\
-\textbf{Combined 9 features} & $\approx \textbf{0.95}$ & $\approx \textbf{0.94}$ \\
+Core 4 features & 0.898 & 0.830 \\
+Extended 5 only & 0.888 & 0.943 \\
+\textbf{Combined 9 features} & \textbf{0.950} & \textbf{0.940} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The strongest new features: angular spread ($d = -0.857$; suppressed output produces less diverse keys), norm variance ($d = -0.702$; suppressed output produces more uniform processing), and generation delta ($d = +0.561$; suppressed output shows larger encoding--generation gaps).
+The strongest new features: angular spread ($d = -0.857$; harmful content produces less diverse keys), norm variance ($d = -0.702$; harmful content produces more uniform processing), and generation delta ($d = +0.561$; harmful content shows larger encoding--generation gaps).
 
 The extended features capture complementary information: they measure \emph{how} the model processes (diversity, uniformity, phase transitions) rather than \emph{how much} (norms, ranks).
 
-\paragraph{Multi-model validation (Experiment 49f).} The benefit of the extended feature set was confirmed across two models and three detection conditions:
-
-\begin{table}[H]
-\centering
-\caption{Cricket 3-feature (M3) vs.\ 9-feature (extended) AUROC across models and conditions.}
-\label{tab:extended_multimodel}
-\begin{tabular}{llcc}
-\toprule
-\textbf{Model} & \textbf{Condition} & \textbf{3-feat AUROC} & \textbf{9-feat AUROC} \\
-\midrule
-Qwen2.5-7B & Deception & 0.84 & 0.99 \\
-Qwen2.5-7B & Refusal & 0.71 & 0.96 \\
-Qwen2.5-7B & Impossibility & 0.66 & 0.92 \\
-\midrule
-Llama-3.1-8B & Deception & 0.69 & 0.98 \\
-Llama-3.1-8B & Refusal & 0.72 & 0.76 \\
-Llama-3.1-8B & Impossibility & 0.54 & 0.65 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The 9-feature set produces large improvements across all conditions and both models, with the most dramatic gains on deception (Qwen: $0.84 \to 0.99$; Llama: $0.69 \to 0.98$). Refusal and impossibility improvements are more modest on Llama, suggesting that the extended features contribute most when the core features leave room for improvement.
-
-\paragraph{Caveat.} At $n = 20$ per class, the improvement from AUROC $\approx 0.90$ to $\approx 0.95$ ($\Delta \approx 0.05$) is within the expected CV noise for any single comparison. \citet{varoquaux2018cross} show that at these sample sizes, cross-validated AUROC estimates carry error bars of $\pm 0.15$--$0.20$; \citet{hanley1982meaning} provide the classical SE formula for AUROC, which at $n = 20$ per class gives SE $\approx 0.05$--$0.07$ (yielding 95\% CIs of $\pm 0.10$--$0.14$, though this assumes independent observations, which LOO-CV violates). No permutation test was performed to establish that 9 features significantly outperform 4 in any single condition. However, the \emph{consistency} of improvement across 6 model--condition pairs (all show $\Delta > 0$) provides stronger evidence than any single comparison: the probability of 6/6 positive improvements by chance is $p = 0.016$ under a sign test. The extended features are both scientifically informative (angular spread and norm variance provide mechanistic insight into the suppression mechanism) and practically useful.
+\paragraph{Caveat.} At $n = 20$ per class, the improvement from 0.898 to 0.950 ($\Delta = 0.052$) is within the expected CV noise ($\pm 0.15$--$0.20$ per \citealt{apollo2024}). No permutation test was performed to establish that 9 features significantly outperform 4. The extended features are scientifically informative (angular spread and norm variance provide mechanistic insight) but the AUROC improvement should not be cited as validated.
