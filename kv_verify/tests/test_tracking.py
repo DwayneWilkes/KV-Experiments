@@ -400,3 +400,32 @@ class TestValidatedDecorator:
         with open(tmp_path / "run_metadata.json") as f:
             meta = json.load(f)
         assert meta["metrics"].get("process_validation_failed") == 1
+
+
+class TestLogMetrics:
+    """log_metrics should batch multiple metrics in a single metadata write."""
+
+    def test_batch_metrics(self, tmp_path):
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+        tracker.log_metrics(auroc=0.85, p_value=0.001, power=0.9)
+
+        with open(tmp_path / "run_metadata.json") as f:
+            meta = json.load(f)
+        assert meta["metrics"]["auroc"] == 0.85
+        assert meta["metrics"]["p_value"] == 0.001
+        assert meta["metrics"]["power"] == 0.9
+
+    def test_batch_writes_once(self, tmp_path):
+        """Batching N metrics should write metadata once, not N times."""
+        tracker = ExperimentTracker(output_dir=tmp_path, experiment_name="test")
+        write_count = 0
+        original_save = tracker._save_metadata
+
+        def counting_save():
+            nonlocal write_count
+            write_count += 1
+            original_save()
+
+        tracker._save_metadata = counting_save
+        tracker.log_metrics(a=1.0, b=2.0, c=3.0)
+        assert write_count == 1, f"expected 1 write, got {write_count}"

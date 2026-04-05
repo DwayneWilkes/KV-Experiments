@@ -352,3 +352,41 @@ class TestCodexP1StageCacheInvalidation:
         p2._do_environment = make_counting_env(p2)
         p2.run_stage("environment")
         assert call_count == 1, "same config should reuse cached result"
+
+
+class TestSysPathPollution:
+    """sys.path.insert should not grow unboundedly on repeated calls."""
+
+    def test_prompt_loaders_do_not_duplicate_sys_path(self):
+        import sys
+        from kv_verify.pipeline import _load_refusal_items, _load_impossibility_items
+
+        before = len(sys.path)
+        _load_refusal_items(1)
+        _load_refusal_items(1)
+        _load_impossibility_items(1)
+        _load_impossibility_items(1)
+        after = len(sys.path)
+        assert after <= before + 1, (
+            f"sys.path grew by {after - before} entries (expected at most 1)"
+        )
+
+
+class TestConfigHashDeterminism:
+    """_config_hash must be deterministic even with nested config values."""
+
+    def test_hash_stable_across_calls(self, tmp_path):
+        cfg = PipelineConfig(output_dir=tmp_path / "run", skip_gpu=True)
+        h1 = Pipeline._config_hash(cfg)
+        h2 = Pipeline._config_hash(cfg)
+        assert h1 == h2
+
+    def test_hash_differs_for_different_config(self, tmp_path):
+        cfg1 = PipelineConfig(output_dir=tmp_path / "a", n_per_group=100)
+        cfg2 = PipelineConfig(output_dir=tmp_path / "b", n_per_group=200)
+        assert Pipeline._config_hash(cfg1) != Pipeline._config_hash(cfg2)
+
+    def test_hash_ignores_output_dir(self, tmp_path):
+        cfg1 = PipelineConfig(output_dir=tmp_path / "a", n_per_group=100)
+        cfg2 = PipelineConfig(output_dir=tmp_path / "b", n_per_group=100)
+        assert Pipeline._config_hash(cfg1) == Pipeline._config_hash(cfg2)
