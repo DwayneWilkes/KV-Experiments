@@ -246,3 +246,71 @@ class TestDecoratorIntegration:
         cfg = PipelineConfig(output_dir=tmp_path / "run", skip_gpu=True)
         pipeline = Pipeline(cfg)
         assert "extraction" in pipeline._stages
+
+
+class TestCodexP1CudaAttribute:
+    """P1: pipeline.py reads props.total_mem but PyTorch exposes total_memory."""
+
+    def test_uses_correct_cuda_property(self, tmp_path):
+        """On a GPU host, _do_environment must read total_memory, not total_mem."""
+        cfg = PipelineConfig(output_dir=tmp_path / "run", skip_gpu=True)
+        pipeline = Pipeline(cfg)
+
+        mock_props = MagicMock(spec=[])  # empty spec: no auto-created attrs
+        mock_props.total_memory = 8_000_000_000
+        # total_mem is NOT set, so accessing it will raise AttributeError
+
+        with patch("torch.cuda.is_available", return_value=True), \
+             patch("torch.cuda.get_device_name", return_value="FakeGPU"), \
+             patch("torch.cuda.get_device_properties", return_value=mock_props):
+            result = pipeline._do_environment()
+
+        assert result["vram_gb"] == 8.0
+
+
+class TestCodexP2EmptyPairSet:
+    """P2: tokenization summary crashes when a PairSet has zero pairs."""
+
+    def test_tokenization_with_empty_pair_set(self, tmp_path):
+        """_do_tokenization must not crash if a prompt file has zero pairs."""
+        from kv_verify.prompt_gen import PairSet
+
+        cfg = PipelineConfig(output_dir=tmp_path / "run", skip_gpu=True)
+        pipeline = Pipeline(cfg)
+
+        # Create a prompts dir with an empty pair set
+        prompts_dir = tmp_path / "run" / "prompts"
+        prompts_dir.mkdir(parents=True)
+        empty_ps = PairSet(comparison="empty_test", pairs=[], template="t", n_target=0)
+        empty_ps.save(prompts_dir / "empty_test.json")
+
+        result = pipeline._do_tokenization()
+        assert "empty_test" in result
+        assert result["empty_test"]["total"] == 0
+        assert result["empty_test"]["method"] == "unknown"
+
+
+class TestCodexP1StageCacheInvalidation:
+    """P1: stage cache must invalidate when config values change."""
+
+    def test_different_config_does_not_reuse_cache(self, tmp_path):
+        """Rerunning with different n_per_group in the same output dir must
+        not silently return cached results from the previous config."""
+        out = tmp_path / "shared_output"
+
+        # Run 1: n_per_group=100
+        cfg1 = PipelineConfig(output_dir=out, skip_gpu=True, n_per_group=100)
+        p1 = Pipeline(cfg1)
+        result1 = p1.run_stage("environment")
+
+        # Run 2: n_per_group=200, same output dir
+        cfg2 = PipelineConfig(output_dir=out, skip_gpu=True, n_per_group=200)
+        p2 = Pipeline(cfg2)
+        result2 = p2.run_stage("environment")
+
+        # The second run must NOT return a cached result that was logged
+        # with n_per_group=100 params. If cache invalidation works, the
+        # environment stage runs fresh and the tracker logs new params.
+        meta_path = out / "run_metadata.json"
+        meta = json.loads(meta_path.read_text())
+        assert meta["params"]["n_per_group"] == 200
