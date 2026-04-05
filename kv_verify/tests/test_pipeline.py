@@ -304,20 +304,50 @@ class TestCodexP1StageCacheInvalidation:
         """Rerunning with different n_per_group in the same output dir must
         not silently return cached results from the previous config."""
         out = tmp_path / "shared_output"
+        call_count = 0
 
         # Run 1: n_per_group=100
         cfg1 = PipelineConfig(output_dir=out, skip_gpu=True, n_per_group=100)
         p1 = Pipeline(cfg1)
-        result1 = p1.run_stage("environment")
+        original_do_env = p1._do_environment
 
-        # Run 2: n_per_group=200, same output dir
+        def counting_env():
+            nonlocal call_count
+            call_count += 1
+            return original_do_env()
+
+        p1._do_environment = counting_env
+        p1.run_stage("environment")
+        assert call_count == 1
+
+        # Run 2: n_per_group=200, same output dir.
+        # Without config_hash, the decorator would return the cached result
+        # and _do_environment would not execute again.
         cfg2 = PipelineConfig(output_dir=out, skip_gpu=True, n_per_group=200)
         p2 = Pipeline(cfg2)
-        result2 = p2.run_stage("environment")
+        p2._do_environment = counting_env
+        p2.run_stage("environment")
+        assert call_count == 2, "stage body must re-execute for a different config"
 
-        # The second run must NOT return a cached result that was logged
-        # with n_per_group=100 params. If cache invalidation works, the
-        # environment stage runs fresh and the tracker logs new params.
-        meta_path = out / "run_metadata.json"
-        meta = json.loads(meta_path.read_text())
-        assert meta["params"]["n_per_group"] == 200
+    def test_same_config_still_uses_cache(self, tmp_path):
+        """Same config in the same output dir should still skip via cache."""
+        out = tmp_path / "shared_output"
+        call_count = 0
+
+        cfg = PipelineConfig(output_dir=out, skip_gpu=True)
+        p1 = Pipeline(cfg)
+        original_do_env = p1._do_environment
+
+        def counting_env():
+            nonlocal call_count
+            call_count += 1
+            return original_do_env()
+
+        p1._do_environment = counting_env
+        p1.run_stage("environment")
+
+        # Second pipeline, same config, same output dir
+        p2 = Pipeline(cfg)
+        p2._do_environment = counting_env
+        p2.run_stage("environment")
+        assert call_count == 1, "same config should reuse cached result"

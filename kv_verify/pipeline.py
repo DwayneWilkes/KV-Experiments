@@ -50,8 +50,14 @@ class Pipeline:
 
     @staticmethod
     def _config_hash(config: PipelineConfig) -> str:
-        """Short hash of config values that affect stage outputs."""
-        blob = json.dumps(config.to_dict(), sort_keys=True).encode()
+        """Short hash of config values that affect stage outputs.
+
+        Excludes output_dir so copying/moving an output directory
+        doesn't invalidate the cache.
+        """
+        d = config.to_dict()
+        d.pop("output_dir", None)
+        blob = json.dumps(d, sort_keys=True).encode()
         return hashlib.sha256(blob).hexdigest()[:12]
 
     def _build_stages(self) -> Dict[str, callable]:
@@ -304,15 +310,15 @@ class Pipeline:
         prompts_dir = self.config.output_dir / "prompts"
         results = {}
 
+        method = "tokenizer" if tokenizer else "word_count"
+
         for path in prompts_dir.glob("*.json"):
             ps = PairSet.load(path)
             valid = 0
             invalid = 0
             outliers = []
-            method = "unknown"
             for pair in ps.pairs:
                 check = validate_token_counts(pair, tokenizer=tokenizer, max_diff=2)
-                method = check.get("method", "unknown")
                 if check["valid"]:
                     valid += 1
                 else:
@@ -320,7 +326,7 @@ class Pipeline:
                     outliers.append({"pair_id": pair.pair_id, "diff": check["diff"]})
             results[ps.comparison] = {
                 "total": len(ps.pairs), "valid": valid, "invalid": invalid,
-                "method": method,
+                "method": method if ps.pairs else "unknown",
                 "outliers": outliers[:10],  # first 10 for logging
             }
             self.tracker.log_metric(f"{ps.comparison}_valid_pairs", valid)

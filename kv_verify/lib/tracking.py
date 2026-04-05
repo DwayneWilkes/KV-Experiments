@@ -395,7 +395,8 @@ def stage(
         depends_on: list of stage names that must complete first
         skip_if_cached: if True, skip the stage if already completed
         config_hash: if provided, incorporated into the cache key so that
-                     reruns with different config values invalidate the cache
+                     reruns with different config values invalidate the cache.
+                     Note: old cache files from prior configs remain on disk.
 
     Usage:
         @stage(tracker, "extraction", depends_on=["tokenization"])
