@@ -17,6 +17,7 @@ Stages:
 Run: python -m kv_verify.pipeline run --config config.yaml
 """
 
+import hashlib
 import json
 import os
 import sys
@@ -47,41 +48,48 @@ class Pipeline:
         # Each is auto-cached, auto-timed, auto-dependency-checked.
         self._stages = self._build_stages()
 
+    @staticmethod
+    def _config_hash(config: PipelineConfig) -> str:
+        """Short hash of config values that affect stage outputs."""
+        blob = json.dumps(config.to_dict(), sort_keys=True).encode()
+        return hashlib.sha256(blob).hexdigest()[:12]
+
     def _build_stages(self) -> Dict[str, callable]:
         """Create decorated stage functions. Order matters for dependencies."""
         t = self.tracker
+        ch = self._config_hash(self.config)
 
-        @stage(t, "environment")
+        @stage(t, "environment", config_hash=ch)
         def run_environment():
             return self._do_environment()
 
-        @stage(t, "prompt_gen", depends_on=["environment"])
+        @stage(t, "prompt_gen", depends_on=["environment"], config_hash=ch)
         def run_prompt_gen():
             return self._do_prompt_gen()
 
-        @stage(t, "tokenization", depends_on=["prompt_gen"])
+        @stage(t, "tokenization", depends_on=["prompt_gen"], config_hash=ch)
         def run_tokenization():
             return self._do_tokenization()
 
-        @stage(t, "extraction", depends_on=["tokenization"])
+        @stage(t, "extraction", depends_on=["tokenization"], config_hash=ch)
         def run_extraction():
             if self.config.skip_gpu:
                 return {"status": "skipped", "reason": "skip_gpu=True"}
             return self._do_extraction()
 
-        @stage(t, "analysis", depends_on=["extraction"])
+        @stage(t, "analysis", depends_on=["extraction"], config_hash=ch)
         def run_analysis():
             return self._do_analysis()
 
-        @stage(t, "falsification", depends_on=["analysis"])
+        @stage(t, "falsification", depends_on=["analysis"], config_hash=ch)
         def run_falsification():
             return self._do_falsification()
 
-        @stage(t, "verdicts", depends_on=["falsification"])
+        @stage(t, "verdicts", depends_on=["falsification"], config_hash=ch)
         def run_verdicts():
             return self._do_verdicts()
 
-        @stage(t, "report", depends_on=["verdicts"])
+        @stage(t, "report", depends_on=["verdicts"], config_hash=ch)
         def run_report():
             return self._do_report()
 
@@ -151,7 +159,7 @@ class Pipeline:
             if torch.cuda.is_available():
                 info["gpu_name"] = torch.cuda.get_device_name(0)
                 props = torch.cuda.get_device_properties(0)
-                info["vram_gb"] = round(props.total_mem / 1e9, 1)
+                info["vram_gb"] = round(props.total_memory / 1e9, 1)
         except ImportError:
             info["torch"] = "not installed"
 
@@ -301,8 +309,10 @@ class Pipeline:
             valid = 0
             invalid = 0
             outliers = []
+            method = "unknown"
             for pair in ps.pairs:
                 check = validate_token_counts(pair, tokenizer=tokenizer, max_diff=2)
+                method = check.get("method", "unknown")
                 if check["valid"]:
                     valid += 1
                 else:
@@ -310,7 +320,7 @@ class Pipeline:
                     outliers.append({"pair_id": pair.pair_id, "diff": check["diff"]})
             results[ps.comparison] = {
                 "total": len(ps.pairs), "valid": valid, "invalid": invalid,
-                "method": check.get("method", "unknown"),
+                "method": method,
                 "outliers": outliers[:10],  # first 10 for logging
             }
             self.tracker.log_metric(f"{ps.comparison}_valid_pairs", valid)

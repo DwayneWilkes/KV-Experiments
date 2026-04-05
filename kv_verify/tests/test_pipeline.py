@@ -14,6 +14,12 @@ from kv_verify.config import PipelineConfig
 from kv_verify.pipeline import Pipeline
 
 
+def _stage_key(pipeline: Pipeline, name: str) -> str:
+    """Build the config-aware stage cache key matching the @stage decorator."""
+    ch = Pipeline._config_hash(pipeline.config)
+    return f"stage_{name}_{ch}"
+
+
 class TestPipelineCreation:
     def test_creates_with_config(self, tmp_path):
         cfg = PipelineConfig(output_dir=tmp_path / "run")
@@ -44,8 +50,9 @@ class TestPipelineStageSkipping:
         cfg = PipelineConfig(output_dir=tmp_path / "run", skip_gpu=True)
         pipeline = Pipeline(cfg)
 
-        # Manually mark environment as complete (decorator @stage checks this)
-        pipeline.tracker.log_item("stage_environment", {"status": "complete"})
+        # Manually mark environment as complete (decorator @stage checks this).
+        # Cache key includes config hash so different configs don't collide.
+        pipeline.tracker.log_item(_stage_key(pipeline, "environment"), {"status": "complete"})
 
         # Running again should return cached result (decorator auto-skips)
         result = pipeline.run_stage("environment")
@@ -121,7 +128,7 @@ class TestPipelineAnalysisStage:
         pipeline.run_stage("tokenization")
 
         # Mark extraction as complete (GPU skipped)
-        pipeline.tracker.log_item("stage_extraction", {"status": "complete"})
+        pipeline.tracker.log_item(_stage_key(pipeline, "extraction"), {"status": "complete"})
 
         # Inject synthetic extracted features
         features_dir = tmp_path / "run" / "features"
@@ -165,7 +172,7 @@ class TestPipelineAnalysisStage:
         pipeline.run_stage("environment")
         pipeline.run_stage("prompt_gen")
         pipeline.run_stage("tokenization")
-        pipeline.tracker.log_item("stage_extraction", {"status": "complete"})
+        pipeline.tracker.log_item(_stage_key(pipeline, "extraction"), {"status": "complete"})
 
         features_dir = tmp_path / "run" / "features"
         features_dir.mkdir(parents=True, exist_ok=True)
@@ -200,10 +207,10 @@ class TestPipelineReport:
         pipeline.run_stage("environment")
         pipeline.run_stage("prompt_gen")
         pipeline.run_stage("tokenization")
-        pipeline.tracker.log_item("stage_extraction", {"status": "complete"})
-        pipeline.tracker.log_item("stage_analysis", {"status": "complete"})
-        pipeline.tracker.log_item("stage_falsification", {"status": "complete"})
-        pipeline.tracker.log_item("stage_verdicts", {"status": "complete"})
+        pipeline.tracker.log_item(_stage_key(pipeline, "extraction"), {"status": "complete"})
+        pipeline.tracker.log_item(_stage_key(pipeline, "analysis"), {"status": "complete"})
+        pipeline.tracker.log_item(_stage_key(pipeline, "falsification"), {"status": "complete"})
+        pipeline.tracker.log_item(_stage_key(pipeline, "verdicts"), {"status": "complete"})
 
         pipeline.tracker.log_verdict("test-claim", "confirmed", "test evidence")
         pipeline.run_stage("report")

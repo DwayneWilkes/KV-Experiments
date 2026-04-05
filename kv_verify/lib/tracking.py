@@ -385,6 +385,7 @@ def stage(
     name: str,
     depends_on: Optional[List[str]] = None,
     skip_if_cached: bool = True,
+    config_hash: Optional[str] = None,
 ):
     """Decorator that declares a pipeline stage with auto-timing and caching.
 
@@ -393,6 +394,8 @@ def stage(
         name: stage name (used for caching and logging)
         depends_on: list of stage names that must complete first
         skip_if_cached: if True, skip the stage if already completed
+        config_hash: if provided, incorporated into the cache key so that
+                     reruns with different config values invalidate the cache
 
     Usage:
         @stage(tracker, "extraction", depends_on=["tokenization"])
@@ -405,7 +408,8 @@ def stage(
     def decorator(fn: Callable) -> Callable:
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
-            stage_key = f"stage_{name}"
+            suffix = f"_{config_hash}" if config_hash else ""
+            stage_key = f"stage_{name}{suffix}"
 
             # Check cache
             if skip_if_cached and tracker.is_cached(stage_key):
@@ -416,7 +420,7 @@ def stage(
             # Check dependencies
             if depends_on:
                 for dep in depends_on:
-                    dep_key = f"stage_{dep}"
+                    dep_key = f"stage_{dep}{suffix}"
                     if not tracker.is_cached(dep_key):
                         raise RuntimeError(
                             f"Stage '{name}' depends on '{dep}' which has not completed"
