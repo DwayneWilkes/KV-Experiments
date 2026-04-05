@@ -76,3 +76,4 @@ mlflow.db
 mlruns/
 .claude/*
 !.claude/agents/
+!.claude/skills/
