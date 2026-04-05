@@ -157,6 +157,19 @@ class ExperimentTracker:
             except Exception:
                 pass
 
+    def log_metrics(self, **kwargs: float) -> None:
+        """Log multiple metrics with a single metadata write."""
+        self._metadata["metrics"].update(kwargs)
+        self._save_metadata()
+
+        if self._mlflow_run:
+            try:
+                import mlflow
+                for k, v in kwargs.items():
+                    mlflow.log_metric(k, v)
+            except Exception:
+                pass
+
     # ================================================================
     # Per-Item Caching
     # ================================================================

@@ -53,62 +53,61 @@ class Pipeline:
         """Short hash of config values that affect stage outputs.
 
         Excludes output_dir so copying/moving an output directory
-        doesn't invalidate the cache.
+        doesn't invalidate the cache. Uses recursive key sorting for
+        determinism even if PipelineConfig gains nested dict fields.
         """
         d = config.to_dict()
         d.pop("output_dir", None)
-        blob = json.dumps(d, sort_keys=True).encode()
+
+        def _sort_keys(obj):
+            if isinstance(obj, dict):
+                return {k: _sort_keys(v) for k, v in sorted(obj.items())}
+            if isinstance(obj, list):
+                return [_sort_keys(v) for v in obj]
+            return obj
+
+        blob = json.dumps(_sort_keys(d)).encode()
         return hashlib.sha256(blob).hexdigest()[:12]
 
+    # Stage definitions: (name, depends_on).
+    # Order determines the pipeline sequence and dependency chain.
+    STAGE_ORDER = [
+        ("environment",    None),
+        ("prompt_gen",     ["environment"]),
+        ("tokenization",   ["prompt_gen"]),
+        ("extraction",     ["tokenization"]),
+        ("analysis",       ["extraction"]),
+        ("falsification",  ["analysis"]),
+        ("verdicts",       ["falsification"]),
+        ("report",         ["verdicts"]),
+    ]
+
     def _build_stages(self) -> Dict[str, callable]:
-        """Create decorated stage functions. Order matters for dependencies."""
+        """Create decorated stage functions from STAGE_ORDER."""
         t = self.tracker
         ch = self._config_hash(self.config)
+        stages = {}
 
-        @stage(t, "environment", config_hash=ch)
-        def run_environment():
-            return self._do_environment()
+        for name, deps in self.STAGE_ORDER:
+            # Late-bind via method name so monkey-patching _do_X still works
+            method_name = f"_do_{name}"
 
-        @stage(t, "prompt_gen", depends_on=["environment"], config_hash=ch)
-        def run_prompt_gen():
-            return self._do_prompt_gen()
+            if name == "extraction":
+                def make_fn(m=method_name):
+                    def fn():
+                        if self.config.skip_gpu:
+                            return {"status": "skipped", "reason": "skip_gpu=True"}
+                        return getattr(self, m)()
+                    return fn
+            else:
+                def make_fn(m=method_name):
+                    def fn():
+                        return getattr(self, m)()
+                    return fn
 
-        @stage(t, "tokenization", depends_on=["prompt_gen"], config_hash=ch)
-        def run_tokenization():
-            return self._do_tokenization()
+            stages[name] = stage(t, name, depends_on=deps, config_hash=ch)(make_fn())
 
-        @stage(t, "extraction", depends_on=["tokenization"], config_hash=ch)
-        def run_extraction():
-            if self.config.skip_gpu:
-                return {"status": "skipped", "reason": "skip_gpu=True"}
-            return self._do_extraction()
-
-        @stage(t, "analysis", depends_on=["extraction"], config_hash=ch)
-        def run_analysis():
-            return self._do_analysis()
-
-        @stage(t, "falsification", depends_on=["analysis"], config_hash=ch)
-        def run_falsification():
-            return self._do_falsification()
-
-        @stage(t, "verdicts", depends_on=["falsification"], config_hash=ch)
-        def run_verdicts():
-            return self._do_verdicts()
-
-        @stage(t, "report", depends_on=["verdicts"], config_hash=ch)
-        def run_report():
-            return self._do_report()
-
-        return {
-            "environment": run_environment,
-            "prompt_gen": run_prompt_gen,
-            "tokenization": run_tokenization,
-            "extraction": run_extraction,
-            "analysis": run_analysis,
-            "falsification": run_falsification,
-            "verdicts": run_verdicts,
-            "report": run_report,
-        }
+        return stages
 
     @property
     def stages(self):
@@ -329,8 +328,10 @@ class Pipeline:
                 "method": method if ps.pairs else "unknown",
                 "outliers": outliers[:10],  # first 10 for logging
             }
-            self.tracker.log_metric(f"{ps.comparison}_valid_pairs", valid)
-            self.tracker.log_metric(f"{ps.comparison}_invalid_pairs", invalid)
+            self.tracker.log_metrics(**{
+                f"{ps.comparison}_valid_pairs": valid,
+                f"{ps.comparison}_invalid_pairs": invalid,
+            })
 
         return results
 
@@ -449,15 +450,17 @@ class Pipeline:
                 seed=self.config.seed,
             )
 
-            # Log key metrics
-            self.tracker.log_metric(f"{comparison}_auroc", validation["auroc"])
-            self.tracker.log_metric(f"{comparison}_auroc_ci_lower", validation["auroc_ci_lower"])
-            self.tracker.log_metric(f"{comparison}_auroc_ci_upper", validation["auroc_ci_upper"])
-            self.tracker.log_metric(f"{comparison}_auroc_std", validation["auroc_std"])
-            self.tracker.log_metric(f"{comparison}_p_value", validation["p_value"])
-            self.tracker.log_metric(f"{comparison}_power", validation["power"])
-            self.tracker.log_metric(f"{comparison}_hanley_se", validation["hanley_mcneil_se"])
-            self.tracker.log_metric(f"{comparison}_verdict_auroc", validation["verdict_auroc"])
+            # Log key metrics (single metadata write per comparison)
+            self.tracker.log_metrics(**{
+                f"{comparison}_auroc": validation["auroc"],
+                f"{comparison}_auroc_ci_lower": validation["auroc_ci_lower"],
+                f"{comparison}_auroc_ci_upper": validation["auroc_ci_upper"],
+                f"{comparison}_auroc_std": validation["auroc_std"],
+                f"{comparison}_p_value": validation["p_value"],
+                f"{comparison}_power": validation["power"],
+                f"{comparison}_hanley_se": validation["hanley_mcneil_se"],
+                f"{comparison}_verdict_auroc": validation["verdict_auroc"],
+            })
 
             comp_results = {
                 "comparison": comparison,
@@ -508,11 +511,12 @@ class Pipeline:
             groups = assign_groups(len(pos), len(neg), paired=False)
 
             input_result = groupkfold_auroc(input_all, y, groups, feature_names=["input_tokens"])
-            self.tracker.log_metric(f"{comparison}_input_auroc", input_result.auroc)
-
             X_resid, r2 = fwl_residualize(X, input_all, within_fold=False)
             resid_result = groupkfold_auroc(X_resid, y, groups)
-            self.tracker.log_metric(f"{comparison}_resid_auroc", resid_result.auroc)
+            self.tracker.log_metrics(**{
+                f"{comparison}_input_auroc": input_result.auroc,
+                f"{comparison}_resid_auroc": resid_result.auroc,
+            })
 
             falsification[comparison] = {
                 "input_auroc": input_result.auroc,
@@ -803,10 +807,17 @@ def _load_factual_questions(n: int) -> List[str]:
     return _FACTUAL_QUESTIONS[:n]
 
 
+def _ensure_prompts_on_path() -> None:
+    """Add prompts directory to sys.path once."""
+    import sys
+    prompts = str(_PROMPTS_DIR)
+    if prompts not in sys.path:
+        sys.path.insert(0, prompts)
+
+
 def _load_refusal_items(n: int) -> List[Dict[str, str]]:
     """Load n refusal pairs from the full 200-pair raw file."""
-    import sys
-    sys.path.insert(0, str(_PROMPTS_DIR))
+    _ensure_prompts_on_path()
     from refusal_pairs_raw import REFUSAL_PAIRS
     items = [
         {"harmful": h, "benign": b, "verb": v}
@@ -817,8 +828,7 @@ def _load_refusal_items(n: int) -> List[Dict[str, str]]:
 
 def _load_impossibility_items(n: int) -> List[Dict[str, str]]:
     """Load n impossibility pairs from the full 200-pair raw file."""
-    import sys
-    sys.path.insert(0, str(_PROMPTS_DIR))
+    _ensure_prompts_on_path()
     from impossibility_pairs_raw import IMPOSSIBILITY_PAIRS
     items = [
         {"impossible": i, "possible": p, "action": a}
