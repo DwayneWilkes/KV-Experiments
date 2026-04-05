@@ -380,6 +380,16 @@ def tracked(
     return decorator
 
 
+def stage_cache_key(name: str, config_hash: Optional[str] = None) -> str:
+    """Build the cache key for a pipeline stage.
+
+    Shared by the @stage decorator and anything that needs to write/read
+    stage cache entries directly (e.g. tests that pre-populate cache).
+    """
+    suffix = f"_{config_hash}" if config_hash else ""
+    return f"stage_{name}{suffix}"
+
+
 def stage(
     tracker: ExperimentTracker,
     name: str,
@@ -407,25 +417,23 @@ def stage(
         run_extraction(config)  # auto-timed, auto-cached, auto-skipped on restart
     """
     def decorator(fn: Callable) -> Callable:
+        key = stage_cache_key(name, config_hash)
+        dep_keys = {dep: stage_cache_key(dep, config_hash) for dep in (depends_on or [])}
+
         @functools.wraps(fn)
         def wrapper(*args, **kwargs):
-            suffix = f"_{config_hash}" if config_hash else ""
-            stage_key = f"stage_{name}{suffix}"
-
             # Check cache
-            if skip_if_cached and tracker.is_cached(stage_key):
-                cached = tracker.load_cached(stage_key)
+            if skip_if_cached and tracker.is_cached(key):
+                cached = tracker.load_cached(key)
                 if cached.get("status") == "complete":
                     return cached
 
             # Check dependencies
-            if depends_on:
-                for dep in depends_on:
-                    dep_key = f"stage_{dep}{suffix}"
-                    if not tracker.is_cached(dep_key):
-                        raise RuntimeError(
-                            f"Stage '{name}' depends on '{dep}' which has not completed"
-                        )
+            for dep, dep_key in dep_keys.items():
+                if not tracker.is_cached(dep_key):
+                    raise RuntimeError(
+                        f"Stage '{name}' depends on '{dep}' which has not completed"
+                    )
 
             # Run with timing
             with tracker.stage(name):
@@ -435,7 +443,7 @@ def stage(
             cache_data = {"status": "complete"}
             if isinstance(result, dict):
                 cache_data.update(result)
-            tracker.log_item(stage_key, cache_data)
+            tracker.log_item(key, cache_data)
 
             return result
         return wrapper

@@ -12,12 +12,12 @@ import pytest
 
 from kv_verify.config import PipelineConfig
 from kv_verify.pipeline import Pipeline
+from kv_verify.tracking import stage_cache_key
 
 
 def _stage_key(pipeline: Pipeline, name: str) -> str:
-    """Build the config-aware stage cache key matching the @stage decorator."""
-    ch = Pipeline._config_hash(pipeline.config)
-    return f"stage_{name}_{ch}"
+    """Build the config-aware stage cache key for this pipeline's config."""
+    return stage_cache_key(name, Pipeline._config_hash(pipeline.config))
 
 
 class TestPipelineCreation:
@@ -334,20 +334,21 @@ class TestCodexP1StageCacheInvalidation:
         out = tmp_path / "shared_output"
         call_count = 0
 
+        def make_counting_env(pipeline):
+            original = pipeline._do_environment
+            def counting_env():
+                nonlocal call_count
+                call_count += 1
+                return original()
+            return counting_env
+
         cfg = PipelineConfig(output_dir=out, skip_gpu=True)
         p1 = Pipeline(cfg)
-        original_do_env = p1._do_environment
-
-        def counting_env():
-            nonlocal call_count
-            call_count += 1
-            return original_do_env()
-
-        p1._do_environment = counting_env
+        p1._do_environment = make_counting_env(p1)
         p1.run_stage("environment")
 
         # Second pipeline, same config, same output dir
         p2 = Pipeline(cfg)
-        p2._do_environment = counting_env
+        p2._do_environment = make_counting_env(p2)
         p2.run_stage("environment")
         assert call_count == 1, "same config should reuse cached result"
