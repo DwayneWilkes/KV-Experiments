@@ -77,3 +77,6 @@ mlruns/
 .claude/*
 !.claude/agents/
 !.claude/skills/
+
+# Reviews are local process artifacts, not deliverables
+reviews/
