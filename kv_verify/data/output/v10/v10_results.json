@@ -1,0 +1,115 @@
+{
+  "claim_id": "M7-power",
+  "finding_id": "M7",
+  "verdict": "weakened",
+  "evidence_summary": "8/9 significant comparisons have power > 0.80. Underpowered (power < 0.50): exp36_impossible_vs_harmful. Linchpin (exp36_impossible_vs_harmful): AUROC=0.65, power=0.43, requires N=58 for 80% power.",
+  "stats": {
+    "power_table": [
+      {
+        "name": "exp31_refusal_vs_benign",
+        "n_per_group": 20,
+        "observed_auroc": 0.9075,
+        "was_significant": true,
+        "achieved_power": 1.0,
+        "min_detectable_auroc": 0.738,
+        "required_n": 6,
+        "observed_d": 1.874562986902487
+      },
+      {
+        "name": "exp32_jailbreak_vs_normal",
+        "n_per_group": 20,
+        "observed_auroc": 0.8775,
+        "was_significant": true,
+        "achieved_power": 0.998,
+        "min_detectable_auroc": 0.738,
+        "required_n": 9,
+        "observed_d": 1.6441362263458668
+      },
+      {
+        "name": "exp32_jailbreak_vs_refusal",
+        "n_per_group": 20,
+        "observed_auroc": 0.635,
+        "was_significant": false,
+        "achieved_power": 0.358,
+        "min_detectable_auroc": 0.738,
+        "required_n": 76,
+        "observed_d": 0.48808120732676447
+      },
+      {
+        "name": "exp33_Llama-3.1-8B-Instruct",
+        "n_per_group": 20,
+        "observed_auroc": 0.8675,
+        "was_significant": true,
+        "achieved_power": 0.998,
+        "min_detectable_auroc": 0.738,
+        "required_n": 9,
+        "observed_d": 1.5763545826307026
+      },
+      {
+        "name": "exp33_Mistral-7B-Instruct-v0.3",
+        "n_per_group": 20,
+        "observed_auroc": 0.8275,
+        "was_significant": true,
+        "achieved_power": 0.984,
+        "min_detectable_auroc": 0.738,
+        "required_n": 11,
+        "observed_d": 1.3354871727043829
+      },
+      {
+        "name": "exp36_impossible_vs_benign",
+        "n_per_group": 20,
+        "observed_auroc": 0.9425,
+        "was_significant": true,
+        "achieved_power": 1.0,
+        "min_detectable_auroc": 0.738,
+        "required_n": 5,
+        "observed_d": 2.2289589294305636
+      },
+      {
+        "name": "exp36_harmful_vs_benign",
+        "n_per_group": 20,
+        "observed_auroc": 0.9075,
+        "was_significant": true,
+        "achieved_power": 1.0,
+        "min_detectable_auroc": 0.738,
+        "required_n": 6,
+        "observed_d": 1.874562986902487
+      },
+      {
+        "name": "exp36_impossible_vs_harmful",
+        "n_per_group": 20,
+        "observed_auroc": 0.65,
+        "was_significant": true,
+        "achieved_power": 0.426,
+        "min_detectable_auroc": 0.738,
+        "required_n": 58,
+        "observed_d": 0.5449254294535089
+      },
+      {
+        "name": "exp18b_deception",
+        "n_per_group": 10,
+        "observed_auroc": 0.92,
+        "was_significant": true,
+        "achieved_power": 0.986,
+        "min_detectable_auroc": 0.823,
+        "required_n": 7,
+        "observed_d": 1.9870712566946092
+      },
+      {
+        "name": "exp39_sycophancy",
+        "n_per_group": 20,
+        "observed_auroc": 0.9325,
+        "was_significant": true,
+        "achieved_power": 1.0,
+        "min_detectable_auroc": 0.738,
+        "required_n": 5,
+        "observed_d": 2.1137857669792295
+      }
+    ],
+    "n_underpowered": 1,
+    "underpowered_comparisons": [
+      "exp36_impossible_vs_harmful"
+    ],
+    "elapsed_seconds": 275.9494783759583
+  }
+}

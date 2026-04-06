@@ -1,0 +1,108 @@
+{
+  "claim_id": "C5-47-holm",
+  "finding_id": "C5",
+  "verdict": "weakened",
+  "evidence_summary": "9/10 significant before correction, 8/10 after Holm-Bonferroni. Lost significance: exp36_impossible_vs_harmful.",
+  "original_value": "9/10",
+  "corrected_value": "8/10",
+  "stats": {
+    "corrections": [
+      {
+        "name": "exp31_refusal_vs_benign",
+        "original_p": 9.999000099990002e-05,
+        "corrected_p": 0.000999900009999,
+        "was_significant": true,
+        "is_significant": true,
+        "flipped": false,
+        "rank": 1
+      },
+      {
+        "name": "exp32_jailbreak_vs_normal",
+        "original_p": 9.999000099990002e-05,
+        "corrected_p": 0.000999900009999,
+        "was_significant": true,
+        "is_significant": true,
+        "flipped": false,
+        "rank": 2
+      },
+      {
+        "name": "exp32_jailbreak_vs_refusal",
+        "original_p": 0.051594840515948405,
+        "corrected_p": 0.0731926807319268,
+        "was_significant": false,
+        "is_significant": false,
+        "flipped": false,
+        "rank": 10
+      },
+      {
+        "name": "exp33_Llama-3.1-8B-Instruct",
+        "original_p": 9.999000099990002e-05,
+        "corrected_p": 0.000999900009999,
+        "was_significant": true,
+        "is_significant": true,
+        "flipped": false,
+        "rank": 3
+      },
+      {
+        "name": "exp33_Mistral-7B-Instruct-v0.3",
+        "original_p": 0.00019998000199980003,
+        "corrected_p": 0.000999900009999,
+        "was_significant": true,
+        "is_significant": true,
+        "flipped": false,
+        "rank": 7
+      },
+      {
+        "name": "exp36_impossible_vs_benign",
+        "original_p": 9.999000099990002e-05,
+        "corrected_p": 0.000999900009999,
+        "was_significant": true,
+        "is_significant": true,
+        "flipped": false,
+        "rank": 4
+      },
+      {
+        "name": "exp36_harmful_vs_benign",
+        "original_p": 9.999000099990002e-05,
+        "corrected_p": 0.000999900009999,
+        "was_significant": true,
+        "is_significant": true,
+        "flipped": false,
+        "rank": 5
+      },
+      {
+        "name": "exp36_impossible_vs_harmful",
+        "original_p": 0.0365963403659634,
+        "corrected_p": 0.0731926807319268,
+        "was_significant": true,
+        "is_significant": false,
+        "flipped": true,
+        "rank": 9
+      },
+      {
+        "name": "exp18b_deception",
+        "original_p": 0.00019998000199980003,
+        "corrected_p": 0.000999900009999,
+        "was_significant": true,
+        "is_significant": true,
+        "flipped": false,
+        "rank": 8
+      },
+      {
+        "name": "exp39_sycophancy",
+        "original_p": 9.999000099990002e-05,
+        "corrected_p": 0.000999900009999,
+        "was_significant": true,
+        "is_significant": true,
+        "flipped": false,
+        "rank": 6
+      }
+    ],
+    "n_significant_raw": 9,
+    "n_significant_corrected": 8,
+    "flipped_comparisons": [
+      "exp36_impossible_vs_harmful"
+    ],
+    "elapsed_seconds": 0.00011298398021608591
+  }
+}

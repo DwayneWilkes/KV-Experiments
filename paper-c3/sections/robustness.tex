@@ -1,4 +1,4 @@
-This section presents five forms of generalization evidence: hardware invariance, scale invariance, stochastic sampling invariance, held-out prompt generalization, and cross-architecture transfer.
+This section presents three forms of generalization evidence: hardware invariance, scale invariance, and cross-architecture transfer.
 
 \subsection{Hardware Invariance}
 \label{sec:hardware}
@@ -60,22 +60,6 @@ The category geometry is preserved from 0.6B to 70B parameters. Coding remains t
     \item Grounded facts $\approx$ confabulation (AUROC $< 0.70$ at every scale).
 \end{enumerate}
 
-\subsection{Stochastic Sampling Invariance}
-\label{sec:stochastic_robust}
-
-All Campaign 3 experiments through Experiment 46 used greedy decoding ($\text{temperature} = 0$), which raises a deployment concern: real-world LLM usage is stochastic. Experiment 49a tested detection under temperature $= 0.7$ ($\text{top-}p = 0.9$) on RunPod RTX 6000 Ada hardware.
-
-All three core detection capabilities survive stochastic sampling: deception AUROC $\approx 0.85$ ($p < 0.001$, 95\% CI $[0.892, 0.951]$), impossibility AUROC $\approx 0.80$ ($p < 0.001$), and refusal AUROC $\approx 0.66$ ($p = 0.001$). Within-run feature variation is small (CV: honest 0.3\%, deceptive 1.6\%), confirming that stochastic token selection introduces minimal geometric noise.
-
-The degradation is non-uniform: greedy decoding inflates refusal detection most (AUROC $0.91 \to 0.66$) and deception detection least (${\sim}1.00 \to 0.85$). This is consistent with the per-head anatomy (\Cref{sec:perhead}): deception's globally distributed signal is robust to sampling variation, while refusal's concentrated gatekeeper-head signal is more sensitive to the specific token sequence. Practical deployment should train and evaluate under stochastic conditions to avoid overestimating suppression detection.
-
-\subsection{Held-Out Prompt Generalization}
-\label{sec:heldout_robust}
-
-Cross-validated AUROC within a fixed prompt battery may overestimate generalization if prompts share systematic features. Experiment 49d tested classifiers on completely new prompts never seen during training: deception AUROC $\approx 0.81$, refusal AUROC $\approx 0.76$, impossibility AUROC $\approx 0.77$.
-
-The held-out degradation is moderate and consistent across conditions ($\Delta \approx 0.15$--$0.19$), confirming that classifiers learn generalizable suppression geometry rather than prompt-specific artifacts. Combined with stochastic sampling invariance, these results establish that KV-cache detection generalizes across both input distribution (new prompts) and output distribution (stochastic tokens).
-
 \subsection{Cross-Architecture Transfer}
 \label{sec:transfer}
 
@@ -85,4 +69,4 @@ The cross-model deception transfer results were presented in \Cref{sec:deception
 
 RF partitions the feature space with axis-aligned splits that are calibrated to absolute feature magnitudes. When Qwen produces key norms of ${\sim}29{,}000$ and Llama produces ${\sim}19{,}000$, RF splits learned on Qwen misclassify Llama inputs. LR's linear decision boundary, applied after standard scaling, captures the \emph{direction} of feature perturbation (deceptive processing increases norm, rank, and entropy while decreasing norm-per-token) regardless of architecture-specific magnitudes.
 
-This suggests that the output suppression signal is \emph{directionally universal}: all architectures perturb in the same direction when suppressing output, but with different magnitudes. A linear classifier captures the direction; a nonlinear classifier overfits to the magnitude.
+This suggests that the deception signal is \emph{directionally universal}: all architectures perturb in the same direction, but with different magnitudes. A linear classifier captures the direction; a nonlinear classifier overfits to the magnitude.

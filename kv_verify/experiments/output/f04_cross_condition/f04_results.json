@@ -1,0 +1,680 @@
+{
+  "experiment": "F04_cross_condition_validity",
+  "timestamp": "2026-03-26T04:28:32.898654+00:00",
+  "claim_id": "F04-transfer",
+  "verdict": "falsified",
+  "evidence_summary": "The cross-condition transfer claim (AUROC 0.89) is invalidated by the confluence of three findings: (1) The deception classifier predicts 100% of test samples as 'deceptive' regardless of category, showing no discriminative boundary. AUROC depends entirely on probability score ranking. (2) Same-model transfer (Mistral -> Mistral) is at chance (AUROC 0.53), which directly contradicts 'shared suppression geometry' -- if the geometry were shared, same-model should be the easiest transfer, not the hardest. (3) The classifier's top features (norms_per_token, key_ranks) have R^2 > 0.80 with input length, inheriting the confound from deception training. The high cross-model transfer likely reflects model-scale artifacts: small training models (1.1B-9B) produce different cache geometry than 14B test models, and the censored/control distinction rides on this scale difference.",
+  "original_value": "AUROC 0.89 (paper claim: shared suppression geometry)",
+  "corrected_value": "AUROC 0.89 is a confound artifact: the deception classifier inherits input-length bias, same-model transfer fails, and the classifier has no discriminative boundary (100% deceptive predictions for all test samples)",
+  "stats": {
+    "f04a_per_topic": {
+      "A_mistral": {
+        "category_stats": {
+          "censored": {
+            "n_topics": 6,
+            "mean_deception_probability": 1.0,
+            "std_deception_probability": 0.0,
+            "min_deception_probability": 1.0,
+            "max_deception_probability": 1.0,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "control": {
+            "n_topics": 6,
+            "mean_deception_probability": 1.0,
+            "std_deception_probability": 0.0,
+            "min_deception_probability": 1.0,
+            "max_deception_probability": 1.0,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "complex_noncensored": {
+            "n_topics": 6,
+            "mean_deception_probability": 1.0,
+            "std_deception_probability": 0.0,
+            "min_deception_probability": 1.0,
+            "max_deception_probability": 1.0,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          }
+        },
+        "probability_separation": {
+          "mann_whitney_U": 18.0,
+          "p_value": 1.0,
+          "censored_mean_prob": 1.0,
+          "control_mean_prob": 1.0,
+          "prob_gap": 0.0
+        },
+        "all_topics_predicted_100pct_deceptive": true,
+        "interpretation": "The classifier predicts EVERY sample as 'deceptive' with probability >= 0.95. AUROC depends entirely on probability score ranking, not binary classification. This is consistent with a classifier that learned a global bias (e.g., input length signature) rather than suppression-specific geometry."
+      },
+      "B_qwen": {
+        "category_stats": {
+          "censored": {
+            "n_topics": 6,
+            "mean_deception_probability": 1.0,
+            "std_deception_probability": 0.0,
+            "min_deception_probability": 1.0,
+            "max_deception_probability": 1.0,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "control": {
+            "n_topics": 6,
+            "mean_deception_probability": 1.0,
+            "std_deception_probability": 0.0,
+            "min_deception_probability": 1.0,
+            "max_deception_probability": 1.0,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "complex_noncensored": {
+            "n_topics": 6,
+            "mean_deception_probability": 1.0,
+            "std_deception_probability": 0.0,
+            "min_deception_probability": 1.0,
+            "max_deception_probability": 1.0,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          }
+        },
+        "probability_separation": {
+          "mann_whitney_U": 18.0,
+          "p_value": 1.0,
+          "censored_mean_prob": 1.0,
+          "control_mean_prob": 1.0,
+          "prob_gap": 0.0
+        },
+        "all_topics_predicted_100pct_deceptive": true,
+        "interpretation": "The classifier predicts EVERY sample as 'deceptive' with probability >= 0.95. AUROC depends entirely on probability score ranking, not binary classification. This is consistent with a classifier that learned a global bias (e.g., input length signature) rather than suppression-specific geometry."
+      },
+      "C_deepseek": {
+        "category_stats": {
+          "censored": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9753333333333333,
+            "std_deception_probability": 0.009977753031397186,
+            "min_deception_probability": 0.958,
+            "max_deception_probability": 0.986,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "control": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9843333333333334,
+            "std_deception_probability": 0.004229525846816485,
+            "min_deception_probability": 0.978,
+            "max_deception_probability": 0.9899999999999999,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "complex_noncensored": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9839999999999999,
+            "std_deception_probability": 0.003265986323710964,
+            "min_deception_probability": 0.9779999999999999,
+            "max_deception_probability": 0.988,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          }
+        },
+        "probability_separation": {
+          "mann_whitney_U": 8.0,
+          "p_value": 0.12620020095760107,
+          "censored_mean_prob": 0.9753333333333333,
+          "control_mean_prob": 0.9843333333333334,
+          "prob_gap": -0.009000000000000119
+        },
+        "all_topics_predicted_100pct_deceptive": true,
+        "interpretation": "The classifier predicts EVERY sample as 'deceptive' with probability >= 0.95. AUROC depends entirely on probability score ranking, not binary classification. This is consistent with a classifier that learned a global bias (e.g., input length signature) rather than suppression-specific geometry."
+      },
+      "D_DeepSeek-R1-Distill-Qwen-14B": {
+        "category_stats": {
+          "censored": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9753333333333333,
+            "std_deception_probability": 0.009977753031397186,
+            "min_deception_probability": 0.958,
+            "max_deception_probability": 0.986,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "control": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9843333333333334,
+            "std_deception_probability": 0.004229525846816485,
+            "min_deception_probability": 0.978,
+            "max_deception_probability": 0.9899999999999999,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "complex_noncensored": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9839999999999999,
+            "std_deception_probability": 0.003265986323710964,
+            "min_deception_probability": 0.9779999999999999,
+            "max_deception_probability": 0.988,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          }
+        },
+        "probability_separation": {
+          "mann_whitney_U": 8.0,
+          "p_value": 0.12620020095760107,
+          "censored_mean_prob": 0.9753333333333333,
+          "control_mean_prob": 0.9843333333333334,
+          "prob_gap": -0.009000000000000119
+        },
+        "all_topics_predicted_100pct_deceptive": true,
+        "interpretation": "The classifier predicts EVERY sample as 'deceptive' with probability >= 0.95. AUROC depends entirely on probability score ranking, not binary classification. This is consistent with a classifier that learned a global bias (e.g., input length signature) rather than suppression-specific geometry."
+      },
+      "D_Mistral-7B-v0.3": {
+        "category_stats": {
+          "censored": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9790000000000001,
+            "std_deception_probability": 0.002236067977499833,
+            "min_deception_probability": 0.9739999999999999,
+            "max_deception_probability": 0.98,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "control": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9803333333333333,
+            "std_deception_probability": 0.0007453559924999305,
+            "min_deception_probability": 0.98,
+            "max_deception_probability": 0.982,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "complex_noncensored": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9793333333333333,
+            "std_deception_probability": 0.0014907119849998612,
+            "min_deception_probability": 0.976,
+            "max_deception_probability": 0.98,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          }
+        },
+        "probability_separation": {
+          "mann_whitney_U": 12.5,
+          "p_value": 0.21835469056590173,
+          "censored_mean_prob": 0.9790000000000001,
+          "control_mean_prob": 0.9803333333333333,
+          "prob_gap": -0.0013333333333331865
+        },
+        "all_topics_predicted_100pct_deceptive": true,
+        "interpretation": "The classifier predicts EVERY sample as 'deceptive' with probability >= 0.95. AUROC depends entirely on probability score ranking, not binary classification. This is consistent with a classifier that learned a global bias (e.g., input length signature) rather than suppression-specific geometry."
+      },
+      "D_Qwen2.5-14B": {
+        "category_stats": {
+          "censored": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9800000000000001,
+            "std_deception_probability": 1.1102230246251565e-16,
+            "min_deception_probability": 0.98,
+            "max_deception_probability": 0.98,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "control": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9806666666666667,
+            "std_deception_probability": 0.0009428090415820641,
+            "min_deception_probability": 0.98,
+            "max_deception_probability": 0.982,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          },
+          "complex_noncensored": {
+            "n_topics": 6,
+            "mean_deception_probability": 0.9800000000000001,
+            "std_deception_probability": 1.1102230246251565e-16,
+            "min_deception_probability": 0.98,
+            "max_deception_probability": 0.98,
+            "mean_predicted_deceptive_pct": 100.0,
+            "all_predicted_100pct_deceptive": true
+          }
+        },
+        "probability_separation": {
+          "mann_whitney_U": 12.0,
+          "p_value": 0.17394501679990915,
+          "censored_mean_prob": 0.9800000000000001,
+          "control_mean_prob": 0.9806666666666667,
+          "prob_gap": -0.0006666666666665932
+        },
+        "all_topics_predicted_100pct_deceptive": true,
+        "interpretation": "The classifier predicts EVERY sample as 'deceptive' with probability >= 0.95. AUROC depends entirely on probability score ranking, not binary classification. This is consistent with a classifier that learned a global bias (e.g., input length signature) rather than suppression-specific geometry."
+      }
+    },
+    "f04b_feature_confound": {
+      "scenario_importances": {
+        "A_same_model_mistral": {
+          "norms": 0.44839230684490644,
+          "norms_per_token": 0.4546062057258892,
+          "key_ranks": 0.07457878862959617,
+          "key_entropies": 0.02242269879960825
+        },
+        "B_same_family_qwen": {
+          "norms": 0.327804392442558,
+          "norms_per_token": 0.4241660864718461,
+          "key_ranks": 0.1911744093047146,
+          "key_entropies": 0.056855111780881214
+        },
+        "C_cross_model_deepseek": {
+          "norms": 0.29061746154071544,
+          "norms_per_token": 0.35662589552699686,
+          "key_ranks": 0.21091862133207548,
+          "key_entropies": 0.1418380216002122
+        },
+        "D_all_to_all": {
+          "norms": 0.29061746154071544,
+          "norms_per_token": 0.35662589552699686,
+          "key_ranks": 0.21091862133207548,
+          "key_entropies": 0.1418380216002122
+        },
+        "E_DeepSeek-R1-Distill-Qwen-14B": {
+          "norms": 0.29061746154071544,
+          "norms_per_token": 0.35662589552699686,
+          "key_ranks": 0.21091862133207548,
+          "key_entropies": 0.1418380216002122
+        },
+        "E_Mistral-7B-v0.3": {
+          "norms": 0.29061746154071544,
+          "norms_per_token": 0.35662589552699686,
+          "key_ranks": 0.21091862133207548,
+          "key_entropies": 0.1418380216002122
+        },
+        "E_Qwen2.5-14B": {
+          "norms": 0.29061746154071544,
+          "norms_per_token": 0.35662589552699686,
+          "key_ranks": 0.21091862133207548,
+          "key_entropies": 0.1418380216002122
+        }
+      },
+      "feature_confound_analysis": {
+        "norms": {
+          "avg_importance_across_scenarios": 0.31846914385586317,
+          "input_length_r_squared": 0.8002507682469628,
+          "confound_risk": "HIGH"
+        },
+        "norms_per_token": {
+          "avg_importance_across_scenarios": 0.38027168140467416,
+          "input_length_r_squared": 0.8002507682469628,
+          "confound_risk": "HIGH"
+        },
+        "key_ranks": {
+          "avg_importance_across_scenarios": 0.188620900656384,
+          "input_length_r_squared": 0.8908666439010129,
+          "confound_risk": "HIGH"
+        },
+        "key_entropies": {
+          "avg_importance_across_scenarios": 0.11263827408307862,
+          "input_length_r_squared": 0.36578854119654014,
+          "confound_risk": "MODERATE"
+        }
+      },
+      "weighted_confound_r2": 0.7684057409173464,
+      "interpretation": "The transfer classifier's features have a weighted-average R^2 = 0.768 with input length. This means the classifier's decision boundary is substantially aligned with input-length variation. The 'shared suppression geometry' interpretation requires ruling out that the classifier simply learned 'longer inputs -> deceptive' and censored DeepSeek responses happen to have a compatible length/complexity profile."
+    },
+    "f04c_structural": {
+      "deception_models": [
+        "Llama-3.1-8B",
+        "Mistral-7B-v0.3",
+        "Qwen2.5-32B-q4",
+        "Qwen2.5-7B",
+        "TinyLlama-1.1B",
+        "gemma-2-2b-it",
+        "gemma-2-9b-it"
+      ],
+      "natural_models": [
+        "DeepSeek-R1-Distill-Qwen-14B",
+        "Mistral-7B-v0.3",
+        "Qwen2.5-14B"
+      ],
+      "training_setup": "7-model system-prompt-manipulated deception. The deceptive condition uses a different (longer) system prompt than the honest condition. This is the same confound acknowledged in Section 5.1 for step-0 detection.",
+      "same_model_transfer": {
+        "scenarios": [
+          "A_same_model_mistral",
+          "B_same_family_qwen"
+        ],
+        "aurocs": [
+          0.5333333333333333,
+          0.5166666666666667
+        ],
+        "mean_auroc": 0.525,
+        "at_chance": true
+      },
+      "cross_model_transfer": {
+        "scenarios": [
+          "C_cross_model_deepseek",
+          "D_all_to_all",
+          "E_DeepSeek-R1-Distill-Qwen-14B",
+          "E_Mistral-7B-v0.3",
+          "E_Qwen2.5-14B"
+        ],
+        "aurocs": [
+          0.8872222222222222,
+          0.773827160493827,
+          0.8872222222222222,
+          0.8733333333333334,
+          0.6988888888888889
+        ],
+        "mean_auroc": 0.8240987654320989
+      },
+      "interpretation": "Same-model/family transfer is at chance while cross-model transfer reaches AUROC ~0.77-0.89. If the signal were 'shared suppression geometry,' same-model transfer should be STRONGER than cross-model, not weaker. The pattern is more consistent with model-scale or architecture artifacts: the 7 deception models are mostly small (1.1B-9B), and the classifier may have learned features that distinguish small-model cache geometry from 14B DeepSeek/Qwen geometry. The censored/control distinction within DeepSeek then rides on whatever secondary features correlate with the censorship response pattern (likely shorter, more formulaic responses).",
+      "critical_observation": "The same-model failure is devastating for the paper's claim. Mistral deception -> Mistral censorship gets AUROC=0.53 (chance). If deception and censorship shared geometric structure, same-model transfer should be the EASIEST case, not the hardest. The high cross-model transfer is a red herring: it likely reflects model-scale confounds, not suppression alignment."
+    },
+    "f04d_scenario_comparison": {
+      "scenario_table": [
+        {
+          "scenario": "A_same_model_mistral",
+          "name": "Same-model: Mistral-7B-v0.3 -> Mistral-7B-v0.3",
+          "auroc": 0.5333333333333333,
+          "f1": 0.06451612903225806,
+          "accuracy": 0.5166666666666667
+        },
+        {
+          "scenario": "B_same_family_qwen",
+          "name": "Same-family: Qwen2.5-7B -> Qwen2.5-14B",
+          "auroc": 0.5166666666666667,
+          "f1": 0.6666666666666666,
+          "accuracy": 0.5
+        },
+        {
+          "scenario": "C_cross_model_deepseek",
+          "name": "Cross-model: All deception -> DeepSeek-R1-Distill-Qwen-14B",
+          "auroc": 0.8872222222222222,
+          "f1": 0.7307692307692307,
+          "accuracy": 0.7666666666666667
+        },
+        {
+          "scenario": "D_all_to_all",
+          "name": "All-to-all: All deception -> All natural",
+          "auroc": 0.773827160493827,
+          "f1": 0.6265060240963856,
+          "accuracy": 0.6555555555555556
+        },
+        {
+          "scenario": "E_DeepSeek-R1-Distill-Qwen-14B",
+          "name": "All deception -> DeepSeek-R1-Distill-Qwen-14B",
+          "auroc": 0.8872222222222222,
+          "f1": 0.7307692307692307,
+          "accuracy": 0.7666666666666667
+        },
+        {
+          "scenario": "E_Mistral-7B-v0.3",
+          "name": "All deception -> Mistral-7B-v0.3",
+          "auroc": 0.8733333333333334,
+          "f1": 0.725,
+          "accuracy": 0.6333333333333333
+        },
+        {
+          "scenario": "E_Qwen2.5-14B",
+          "name": "All deception -> Qwen2.5-14B",
+          "auroc": 0.6988888888888889,
+          "f1": 0.23529411764705882,
+          "accuracy": 0.5666666666666667
+        }
+      ],
+      "classifier_details": {
+        "A_same_model_mistral": {
+          "n_train": 150,
+          "n_test": 300,
+          "classifiers": {
+            "RandomForest": {
+              "auroc": 0.5333333333333333,
+              "accuracy": 0.5166666666666667,
+              "precision": 1.0,
+              "recall": 0.03333333333333333
+            },
+            "LogisticRegression": {
+              "auroc": 0.6350000000000001,
+              "accuracy": 0.5,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "LinearSVM": {
+              "auroc": 0.8111111111111111,
+              "accuracy": 0.5,
+              "precision": 0.5,
+              "recall": 1.0
+            }
+          }
+        },
+        "B_same_family_qwen": {
+          "n_train": 150,
+          "n_test": 300,
+          "classifiers": {
+            "RandomForest": {
+              "auroc": 0.5166666666666667,
+              "accuracy": 0.5,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "LogisticRegression": {
+              "auroc": 0.8644444444444445,
+              "accuracy": 0.5,
+              "precision": 0.5,
+              "recall": 1.0
+            },
+            "LinearSVM": {
+              "auroc": 0.8655555555555555,
+              "accuracy": 0.5,
+              "precision": 0.5,
+              "recall": 1.0
+            }
+          }
+        },
+        "C_cross_model_deepseek": {
+          "n_train": 990,
+          "n_test": 300,
+          "classifiers": {
+            "RandomForest": {
+              "auroc": 0.8872222222222222,
+              "accuracy": 0.7666666666666667,
+              "precision": 0.8636363636363636,
+              "recall": 0.6333333333333333
+            },
+            "LogisticRegression": {
+              "auroc": 0.8311111111111111,
+              "accuracy": 0.7666666666666667,
+              "precision": 0.7105263157894737,
+              "recall": 0.9
+            },
+            "LinearSVM": {
+              "auroc": 0.8322222222222222,
+              "accuracy": 0.7666666666666667,
+              "precision": 0.7105263157894737,
+              "recall": 0.9
+            }
+          }
+        },
+        "D_all_to_all": {
+          "n_train": 990,
+          "n_test": 900,
+          "classifiers": {
+            "RandomForest": {
+              "auroc": 0.773827160493827,
+              "accuracy": 0.6555555555555556,
+              "precision": 0.6842105263157895,
+              "recall": 0.5777777777777777
+            },
+            "LogisticRegression": {
+              "auroc": 0.8532098765432099,
+              "accuracy": 0.7388888888888889,
+              "precision": 0.6837606837606838,
+              "recall": 0.8888888888888888
+            },
+            "LinearSVM": {
+              "auroc": 0.8551851851851853,
+              "accuracy": 0.7388888888888889,
+              "precision": 0.6837606837606838,
+              "recall": 0.8888888888888888
+            }
+          }
+        },
+        "E_DeepSeek-R1-Distill-Qwen-14B": {
+          "n_train": 990,
+          "n_test": 300,
+          "classifiers": {
+            "RandomForest": {
+              "auroc": 0.8872222222222222,
+              "accuracy": 0.7666666666666667,
+              "precision": 0.8636363636363636,
+              "recall": 0.6333333333333333
+            },
+            "LogisticRegression": {
+              "auroc": 0.8311111111111111,
+              "accuracy": 0.7666666666666667,
+              "precision": 0.7105263157894737,
+              "recall": 0.9
+            },
+            "LinearSVM": {
+              "auroc": 0.8322222222222222,
+              "accuracy": 0.7666666666666667,
+              "precision": 0.7105263157894737,
+              "recall": 0.9
+            }
+          }
+        },
+        "E_Mistral-7B-v0.3": {
+          "n_train": 990,
+          "n_test": 300,
+          "classifiers": {
+            "RandomForest": {
+              "auroc": 0.8733333333333334,
+              "accuracy": 0.6333333333333333,
+              "precision": 0.58,
+              "recall": 0.9666666666666667
+            },
+            "LogisticRegression": {
+              "auroc": 0.8766666666666667,
+              "accuracy": 0.7,
+              "precision": 0.6304347826086957,
+              "recall": 0.9666666666666667
+            },
+            "LinearSVM": {
+              "auroc": 0.8766666666666667,
+              "accuracy": 0.7,
+              "precision": 0.6304347826086957,
+              "recall": 0.9666666666666667
+            }
+          }
+        },
+        "E_Qwen2.5-14B": {
+          "n_train": 990,
+          "n_test": 300,
+          "classifiers": {
+            "RandomForest": {
+              "auroc": 0.6988888888888889,
+              "accuracy": 0.5666666666666667,
+              "precision": 1.0,
+              "recall": 0.13333333333333333
+            },
+            "LogisticRegression": {
+              "auroc": 0.8677777777777776,
+              "accuracy": 0.75,
+              "precision": 0.7272727272727273,
+              "recall": 0.8
+            },
+            "LinearSVM": {
+              "auroc": 0.8688888888888889,
+              "accuracy": 0.75,
+              "precision": 0.7272727272727273,
+              "recall": 0.8
+            }
+          }
+        }
+      },
+      "per_model_E_aurocs": {
+        "DeepSeek-R1-Distill-Qwen-14B": 0.8872222222222222,
+        "Mistral-7B-v0.3": 0.8733333333333334,
+        "Qwen2.5-14B": 0.6988888888888889
+      },
+      "improvement_summary": {
+        "1. Baseline (no normalization)": {
+          "LR_auroc": 0.8555555555555556,
+          "RF_auroc": 0.7517283950617284,
+          "top_feature": "norms_per_token",
+          "top_feature_importance": 0.3471567572921968
+        },
+        "2. Per-model z-score": {
+          "LR_auroc": 0.8282716049382716,
+          "RF_auroc": 0.815679012345679,
+          "top_feature": "norms_per_token",
+          "top_feature_importance": 0.47173118357168936
+        },
+        "3. Robust scaling (median/IQR)": {
+          "LR_auroc": 0.79,
+          "RF_auroc": 0.8179012345679012,
+          "top_feature": "norms_per_token",
+          "top_feature_importance": 0.4362530505418044
+        },
+        "4. Rank transform": {
+          "LR_auroc": 0.8046913580246914,
+          "RF_auroc": 0.8117901234567901,
+          "top_feature": "norms_per_token",
+          "top_feature_importance": 0.39970305489268954
+        },
+        "5. Interaction features": {
+          "LR_auroc": 0.8634567901234567,
+          "RF_auroc": 0.7867283950617283,
+          "top_feature": "norms",
+          "top_feature_importance": 0.19662174431087645
+        },
+        "6. Z-score + interactions": {
+          "LR_auroc": 0.8477777777777777,
+          "RF_auroc": 0.8309876543209876,
+          "top_feature": "norms_per_token",
+          "top_feature_importance": 0.35202816620872085
+        },
+        "7. Rank + interactions": {
+          "LR_auroc": 0.8117283950617284,
+          "RF_auroc": 0.7850617283950617,
+          "top_feature": "norms_per_token",
+          "top_feature_importance": 0.20892245386369027
+        },
+        "8. Per-architecture ensemble": {
+          "LR_auroc": null,
+          "RF_auroc": null,
+          "top_feature": null,
+          "top_feature_importance": null
+        }
+      },
+      "training_size_effect": {
+        "small_train_150_aurocs": [
+          0.5333333333333333,
+          0.5166666666666667
+        ],
+        "large_train_990_aurocs": [
+          0.8872222222222222,
+          0.773827160493827
+        ],
+        "interpretation": "The 6x training set increase (150 -> 990) coincides with adding 6 more models. Larger n from the SAME model does not improve transfer (A, B are at chance). More models at training time introduces cross-architecture variation that may correlate with test-time model differences."
+      },
+      "qwen_14b_anomaly": {
+        "auroc": 0.6988888888888889,
+        "note": "Qwen2.5-14B gets only AUROC=0.70 while DeepSeek gets 0.89 and Mistral gets 0.87. This inconsistency is hard to reconcile with 'universal suppression geometry.' If Qwen censorship geometry differs from DeepSeek/Mistral, the signal is model-specific, not universal."
+      }
+    },
+    "critical_failures": 3,
+    "can_determine": [
+      "The classifier predicts all test samples as 'deceptive' (from per_topic data)",
+      "Same-model transfer fails, cross-model succeeds (from scenario AUROCs)",
+      "Feature importance is dominated by norms_per_token (from RF importances)",
+      "The input-length R^2 for deception features is very high (from F01b-49b)",
+      "Per-model transfer varies: DeepSeek 0.89, Mistral 0.87, Qwen 0.70"
+    ],
+    "cannot_determine": [
+      "We do not have per-item features for the censorship test data, so we cannot directly test whether censored responses are systematically shorter/longer than controls (though the 100% predicted-deceptive pattern suggests the model learned a threshold, not a boundary)",
+      "We do not have the actual system prompts used in the 7-model deception experiment, so we cannot measure the exact input-length difference between honest and deceptive conditions at training time",
+      "We cannot run a direct input-length residualization on the transfer because the cross-condition JSON stores only aggregate metrics, not per-item features. This would require re-running the experiment with input-length controls.",
+      "We cannot definitively distinguish 'model-scale artifact' from 'shared geometry' without matched-scale controls (e.g., train on 14B deception, test on 14B censorship)"
+    ],
+    "elapsed_seconds": 0.014535205904394388
+  },
+  "checksum": "sha256:a12d1aa130eff5a3bece1cb0ec3d733c5fac0b0fbad1815b6b104f5f728d002d"
+}

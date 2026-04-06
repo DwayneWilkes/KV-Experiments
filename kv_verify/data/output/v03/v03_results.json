@@ -1,0 +1,305 @@
+{
+  "experiment": "V03_FWL_Leakage",
+  "finding_id": "C4",
+  "elapsed_seconds": 0.4917336330981925,
+  "leakage_verdict": "confirmed",
+  "polynomial_verdict": "weakened",
+  "n_comparisons": 10,
+  "n_surviving": 7,
+  "n_collapsed_poly2": 1,
+  "leakage_threshold": 0.05,
+  "collapse_auroc_threshold": 0.55,
+  "preserve_auroc_threshold": 0.6,
+  "comparisons": [
+    {
+      "name": "exp31_refusal_vs_benign",
+      "claim_id": "C4-exp31_refusal_vs_benign",
+      "auroc_fwl_full": 0.875,
+      "auroc_fwl_within": 0.85,
+      "auroc_poly2": 0.87,
+      "auroc_poly3": 0.89,
+      "delta": 0.025000000000000022,
+      "leakage_detected": false,
+      "verdict": "indeterminate",
+      "excluded_from_poly_count": false,
+      "r_squared": {
+        "linear": [
+          0.9858256622994774,
+          0.593958588119101,
+          0.6271075935437573
+        ],
+        "poly2": [
+          0.9860619888264271,
+          0.5942195017379706,
+          0.627522358944179
+        ],
+        "poly3": [
+          0.9864719336301021,
+          0.5949906593977743,
+          0.6280465859914102
+        ]
+      }
+    },
+    {
+      "name": "exp32_jailbreak_vs_normal",
+      "claim_id": "C4-exp32_jailbreak_vs_normal",
+      "auroc_fwl_full": 0.7975,
+      "auroc_fwl_within": 0.8150000000000001,
+      "auroc_poly2": 0.8075,
+      "auroc_poly3": 0.7999999999999999,
+      "delta": 0.01750000000000007,
+      "leakage_detected": false,
+      "verdict": "indeterminate",
+      "excluded_from_poly_count": false,
+      "r_squared": {
+        "linear": [
+          0.9836834819566622,
+          0.5827902914479204,
+          0.6207074629155985
+        ],
+        "poly2": [
+          0.9837669706258918,
+          0.5830757026354444,
+          0.621263495247793
+        ],
+        "poly3": [
+          0.9837672309621084,
+          0.583902153975852,
+          0.62250436748112
+        ]
+      }
+    },
+    {
+      "name": "exp32_jailbreak_vs_refusal",
+      "claim_id": "C4-exp32_jailbreak_vs_refusal",
+      "auroc_fwl_full": 0.8500000000000001,
+      "auroc_fwl_within": 0.8525,
+      "auroc_poly2": 0.88,
+      "auroc_poly3": 0.8724999999999999,
+      "delta": 0.0024999999999999467,
+      "leakage_detected": false,
+      "verdict": "indeterminate",
+      "excluded_from_poly_count": true,
+      "r_squared": {
+        "linear": [
+          0.8798745278798552,
+          0.22644582220992282,
+          0.23910859209869872
+        ],
+        "poly2": [
+          0.8879768442216256,
+          0.3565911456057359,
+          0.3531003681850732
+        ],
+        "poly3": [
+          0.8888100944159841,
+          0.4142036461874127,
+          0.40804176343088283
+        ]
+      }
+    },
+    {
+      "name": "exp33_Llama-3.1-8B-Instruct",
+      "claim_id": "C4-exp33_Llama-3.1-8B-Instruct",
+      "auroc_fwl_full": 0.565,
+      "auroc_fwl_within": 0.615,
+      "auroc_poly2": 0.505,
+      "auroc_poly3": 0.48250000000000004,
+      "delta": 0.050000000000000044,
+      "leakage_detected": true,
+      "verdict": "confirmed",
+      "excluded_from_poly_count": false,
+      "r_squared": {
+        "linear": [
+          0.9629597377101508,
+          0.6127411085341438,
+          0.6207991765605806
+        ],
+        "poly2": [
+          0.9825322160303536,
+          0.7533377981926279,
+          0.7611116106187361
+        ],
+        "poly3": [
+          0.9854777818256134,
+          0.800336966308355,
+          0.8071151897808879
+        ]
+      }
+    },
+    {
+      "name": "exp33_Mistral-7B-Instruct-v0.3",
+      "claim_id": "C4-exp33_Mistral-7B-Instruct-v0.3",
+      "auroc_fwl_full": 0.74,
+      "auroc_fwl_within": 0.74,
+      "auroc_poly2": 0.735,
+      "auroc_poly3": 0.7525,
+      "delta": 0.0,
+      "leakage_detected": false,
+      "verdict": "indeterminate",
+      "excluded_from_poly_count": false,
+      "r_squared": {
+        "linear": [
+          0.85583073678126,
+          0.5477549553689443,
+          0.5725395597884393
+        ],
+        "poly2": [
+          0.855850311116193,
+          0.5577988711706536,
+          0.5822035698778539
+        ],
+        "poly3": [
+          0.8578761507696884,
+          0.5584649938304337,
+          0.5825380960897231
+        ]
+      }
+    },
+    {
+      "name": "exp36_impossible_vs_benign",
+      "claim_id": "C4-exp36_impossible_vs_benign",
+      "auroc_fwl_full": 0.8875,
+      "auroc_fwl_within": 0.8649999999999999,
+      "auroc_poly2": 0.8725,
+      "auroc_poly3": 0.8975,
+      "delta": 0.022500000000000075,
+      "leakage_detected": false,
+      "verdict": "indeterminate",
+      "excluded_from_poly_count": false,
+      "r_squared": {
+        "linear": [
+          0.9828948546958672,
+          0.6335913579398604,
+          0.6670667314278651
+        ],
+        "poly2": [
+          0.9870258664312657,
+          0.6340903936573229,
+          0.6681421218044292
+        ],
+        "poly3": [
+          0.9872987155663726,
+          0.6464382787747154,
+          0.68135980837892
+        ]
+      }
+    },
+    {
+      "name": "exp36_harmful_vs_benign",
+      "claim_id": "C4-exp36_harmful_vs_benign",
+      "auroc_fwl_full": 0.875,
+      "auroc_fwl_within": 0.85,
+      "auroc_poly2": 0.87,
+      "auroc_poly3": 0.89,
+      "delta": 0.025000000000000022,
+      "leakage_detected": false,
+      "verdict": "indeterminate",
+      "excluded_from_poly_count": false,
+      "r_squared": {
+        "linear": [
+          0.9858256622994774,
+          0.593958588119101,
+          0.6271075935437573
+        ],
+        "poly2": [
+          0.9860619888264271,
+          0.5942195017379706,
+          0.627522358944179
+        ],
+        "poly3": [
+          0.9864719336301021,
+          0.5949906593977743,
+          0.6280465859914102
+        ]
+      }
+    },
+    {
+      "name": "exp36_impossible_vs_harmful",
+      "claim_id": "C4-exp36_impossible_vs_harmful",
+      "auroc_fwl_full": 0.7324999999999999,
+      "auroc_fwl_within": 0.72,
+      "auroc_poly2": 0.7525,
+      "auroc_poly3": 0.73,
+      "delta": 0.012499999999999956,
+      "leakage_detected": false,
+      "verdict": "indeterminate",
+      "excluded_from_poly_count": false,
+      "r_squared": {
+        "linear": [
+          0.9607027460897872,
+          0.41603860302962914,
+          0.4408807968794467
+        ],
+        "poly2": [
+          0.9646237901164123,
+          0.4176788463410849,
+          0.44180705446525204
+        ],
+        "poly3": [
+          0.9693967448574499,
+          0.43200614895097156,
+          0.45315016771095895
+        ]
+      }
+    },
+    {
+      "name": "exp18b_deception",
+      "claim_id": "C4-exp18b_deception",
+      "auroc_fwl_full": 0.6,
+      "auroc_fwl_within": 0.71,
+      "auroc_poly2": 0.49,
+      "auroc_poly3": 0.12999999999999998,
+      "delta": 0.10999999999999999,
+      "leakage_detected": true,
+      "verdict": "confirmed",
+      "excluded_from_poly_count": true,
+      "r_squared": {
+        "linear": [
+          0.9878426934499047,
+          0.982934920035328,
+          0.9798445701179748
+        ],
+        "poly2": [
+          0.9997185665703708,
+          0.9931156479417513,
+          0.9904621203752086
+        ],
+        "poly3": [
+          0.9998950383438215,
+          0.9964432429371735,
+          0.9952834956692534
+        ]
+      }
+    },
+    {
+      "name": "exp39_sycophancy",
+      "claim_id": "C4-exp39_sycophancy",
+      "auroc_fwl_full": 0.44249999999999995,
+      "auroc_fwl_within": 0.585,
+      "auroc_poly2": 0.5700000000000001,
+      "auroc_poly3": 0.38,
+      "delta": 0.14250000000000002,
+      "leakage_detected": true,
+      "verdict": "confirmed",
+      "excluded_from_poly_count": true,
+      "r_squared": {
+        "linear": [
+          0.9836306320598057,
+          0.9415284222522494,
+          0.9111204046511215
+        ],
+        "poly2": [
+          0.999265613088003,
+          0.9771015759157989,
+          0.9606044950065381
+        ],
+        "poly3": [
+          0.9994993241908903,
+          0.9795708324515385,
+          0.9641555255095625
+        ]
+      }
+    }
+  ]
+}

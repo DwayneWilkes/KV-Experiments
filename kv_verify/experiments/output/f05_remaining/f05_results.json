@@ -1,0 +1,48 @@
+{
+  "analysis": "Comprehensive input-length control on remaining data",
+  "findings": [
+    {
+      "comparison": "Abliterated vs Normal (benign content)",
+      "input_auroc": 0.424,
+      "cache_auroc": 0.412,
+      "resid_auroc": 0.407,
+      "input_diff_tokens": 0.0,
+      "verdict": "COLLAPSED",
+      "note": "Paper claims AUROC=0.118 (benign on abliterated). Our LOO gives 0.412. Neither is meaningful. Abliteration does NOT create detectable geometry on benign content, as the paper claims."
+    },
+    {
+      "comparison": "Abliterated deception (same prompt)",
+      "input_auroc": 1.0,
+      "cache_auroc": 0.91,
+      "resid_auroc": 0.16,
+      "input_diff_tokens": 10.5,
+      "verdict": "FATAL",
+      "note": "Same input-length confound as exp18b. Abliterated model deception is the same artifact."
+    },
+    {
+      "comparison": "Extended features: harmful vs benign",
+      "input_auroc": 0.675,
+      "cache_auroc": 0.897,
+      "resid_auroc": 0.788,
+      "input_diff_tokens": 1.6,
+      "verdict": "SURVIVES",
+      "note": "Same data as exp31 refusal. Confirms refusal detection survives input control even with extended feature set."
+    },
+    {
+      "comparison": "Hardware invariance",
+      "note": "Features are nearly identical across RTX 3090 and H200 (r > 0.994 for all features). Hardware invariance claim is CONFIRMED, though trivially expected for BF16 inference.",
+      "correlations": {
+        "harmful": {
+          "norm_per_token": 0.9999,
+          "key_rank": 0.9943,
+          "key_entropy": 0.9952
+        },
+        "benign": {
+          "norm_per_token": 1.0,
+          "key_rank": 0.999,
+          "key_entropy": 0.9991
+        }
+      }
+    }
+  ]
+}

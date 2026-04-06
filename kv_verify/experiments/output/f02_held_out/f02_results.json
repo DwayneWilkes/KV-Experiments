@@ -1,0 +1,323 @@
+{
+  "experiment": "F02_Held_Out_Input_Length_Control",
+  "timestamp": "2026-03-26T04:06:25.294264+00:00",
+  "parameters": {
+    "seed": 42,
+    "features": [
+      "norm_per_token",
+      "key_rank",
+      "key_entropy"
+    ],
+    "bootstrap_n": 2000
+  },
+  "overall_verdict": "falsified",
+  "paradigms": {
+    "deception": {
+      "verdict": "falsified",
+      "evidence": "deception: Held-out transfer is an input-length artifact. Input tokens differ by 11.0 (p=0.0000). Input-only AUROC=1.000. Baseline transfer AUROC=0.830 drops to 0.385 after residualization (drop=0.445).",
+      "paradigm": "deception",
+      "paper_transfer_auroc": 0.81,
+      "train_length_stats": {
+        "label": "deception_train",
+        "n_pos": 10,
+        "n_neg": 10,
+        "pos_input_tokens_mean": 45.6,
+        "pos_input_tokens_std": 2.973213749463701,
+        "neg_input_tokens_mean": 35.1,
+        "neg_input_tokens_std": 1.7578395831246947,
+        "input_token_diff": 10.5,
+        "pos_words_mean": 16.4,
+        "neg_words_mean": 7.1,
+        "word_count_diff": 9.299999999999999,
+        "welch_t_statistic": 9.11990536854773,
+        "welch_t_p_value": 2.0535951768819458e-07,
+        "mann_whitney_u": 100.0,
+        "mann_whitney_p": 0.0001746242085521927,
+        "cohens_d": 4.0785456704876,
+        "hedges_g": 3.906212754833194
+      },
+      "test_length_stats": {
+        "label": "deception_held_out",
+        "n_pos": 10,
+        "n_neg": 10,
+        "pos_input_tokens_mean": 46.7,
+        "pos_input_tokens_std": 1.4177446878757827,
+        "neg_input_tokens_mean": 35.7,
+        "neg_input_tokens_std": 1.4177446878757827,
+        "input_token_diff": 11.0,
+        "pos_words_mean": 17.4,
+        "neg_words_mean": 7.4,
+        "word_count_diff": 9.999999999999998,
+        "welch_t_statistic": 16.45890404577594,
+        "welch_t_p_value": 2.701453196473343e-12,
+        "mann_whitney_u": 100.0,
+        "mann_whitney_p": 9.225624648599575e-05,
+        "cohens_d": 7.360645656300263,
+        "hedges_g": 7.049632459555181,
+        "welch_t_p_corrected": 8.10435958942003e-12,
+        "reject_null_corrected": true
+      },
+      "baseline_transfer_auroc": 0.8300000000000001,
+      "input_only_auroc_heldout_loo": 1.0,
+      "input_only_transfer_auroc": 1.0,
+      "residualized_transfer_auroc": 0.385,
+      "within_heldout_auroc": 0.76,
+      "within_heldout_resid_auroc": 0.0,
+      "auroc_drop": 0.44500000000000006,
+      "auroc_drop_bootstrap_ci": {
+        "estimate": 0.44500000000000006,
+        "ci_lower": 0.07678571428571436,
+        "ci_upper": 0.734375,
+        "se": 0.17028830581708526
+      },
+      "r_squared_per_feature": {
+        "norm_per_token": 0.5496124450738245,
+        "key_rank": 0.6536295402254146,
+        "key_entropy": 0.7121496838733592
+      },
+      "train_feature_correlations": {
+        "norm_per_token": {
+          "r": -0.7413585131863156,
+          "p": 0.0001837100423882999
+        },
+        "key_rank": {
+          "r": 0.8084735865972458,
+          "p": 1.605407467882455e-05
+        },
+        "key_entropy": {
+          "r": 0.8438896159293339,
+          "p": 2.9246826956254285e-06
+        }
+      },
+      "test_feature_correlations": {
+        "norm_per_token": {
+          "r": -0.5461787624080413,
+          "p": 0.012721880990762513
+        },
+        "key_rank": {
+          "r": 0.6360871561017762,
+          "p": 0.002571269095228788
+        },
+        "key_entropy": {
+          "r": 0.525269835197933,
+          "p": 0.01739293593729263
+        }
+      },
+      "n_train_pos": 10,
+      "n_train_neg": 10,
+      "n_test_pos": 10,
+      "n_test_neg": 10
+    },
+    "refusal": {
+      "verdict": "weakened",
+      "evidence": "refusal: Transfer signal weakened by input-length control. Baseline=0.530, residualized=0.590 (drop=-0.060). Input-only AUROC=0.630.",
+      "paradigm": "refusal",
+      "paper_transfer_auroc": 0.79,
+      "train_length_stats": {
+        "label": "refusal_train",
+        "n_pos": 20,
+        "n_neg": 20,
+        "pos_input_tokens_mean": 38.5,
+        "pos_input_tokens_std": 1.9874606914351791,
+        "neg_input_tokens_mean": 36.9,
+        "neg_input_tokens_std": 1.7,
+        "input_token_diff": 1.6000000000000014,
+        "pos_words_mean": 8.9,
+        "neg_words_mean": 7.4,
+        "word_count_diff": 1.5,
+        "welch_t_statistic": 2.666666666666669,
+        "welch_t_p_value": 0.011283133562397392,
+        "mann_whitney_u": 285.0,
+        "mann_whitney_p": 0.02011443878744558,
+        "cohens_d": 0.8432740427115686,
+        "hedges_g": 0.8265202537835242
+      },
+      "test_length_stats": {
+        "label": "refusal_held_out",
+        "n_pos": 10,
+        "n_neg": 10,
+        "pos_input_tokens_mean": 38.3,
+        "pos_input_tokens_std": 1.9000000000000001,
+        "neg_input_tokens_mean": 36.8,
+        "neg_input_tokens_std": 1.3266499161421599,
+        "input_token_diff": 1.5,
+        "pos_words_mean": 8.4,
+        "neg_words_mean": 7.2,
+        "word_count_diff": 1.2000000000000002,
+        "welch_t_statistic": 1.9418933340094637,
+        "welch_t_p_value": 0.06986767149513762,
+        "mann_whitney_u": 73.5,
+        "mann_whitney_p": 0.07692430681047051,
+        "cohens_d": 0.8684410999797731,
+        "hedges_g": 0.8317464056144307,
+        "welch_t_p_corrected": 0.13973534299027524,
+        "reject_null_corrected": false
+      },
+      "baseline_transfer_auroc": 0.53,
+      "input_only_auroc_heldout_loo": 0.6300000000000001,
+      "input_only_transfer_auroc": 0.7350000000000001,
+      "residualized_transfer_auroc": 0.5900000000000001,
+      "within_heldout_auroc": 0.75,
+      "within_heldout_resid_auroc": 0.8200000000000001,
+      "auroc_drop": -0.06000000000000005,
+      "auroc_drop_bootstrap_ci": {
+        "estimate": -0.06000000000000005,
+        "ci_lower": -0.5121071428571428,
+        "ci_upper": 0.3737689393939393,
+        "se": 0.22464638017261362
+      },
+      "r_squared_per_feature": {
+        "norm_per_token": 0.169145506224898,
+        "key_rank": 0.20121565566859956,
+        "key_entropy": 0.2028445987860129
+      },
+      "train_feature_correlations": {
+        "norm_per_token": {
+          "r": -0.41127303123946435,
+          "p": 0.008378085804698893
+        },
+        "key_rank": {
+          "r": 0.44857068079467666,
+          "p": 0.003695353425636467
+        },
+        "key_entropy": {
+          "r": 0.45038272478639785,
+          "p": 0.003542973039438257
+        }
+      },
+      "test_feature_correlations": {
+        "norm_per_token": {
+          "r": -0.41871818615740997,
+          "p": 0.06613954923825249
+        },
+        "key_rank": {
+          "r": 0.6653337425736514,
+          "p": 0.0013677730885976842
+        },
+        "key_entropy": {
+          "r": -0.376082089632519,
+          "p": 0.1022087775198359
+        }
+      },
+      "n_train_pos": 20,
+      "n_train_neg": 20,
+      "n_test_pos": 10,
+      "n_test_neg": 10
+    },
+    "impossibility": {
+      "verdict": "confirmed",
+      "evidence": "impossibility: Transfer signal survives input-length control. Baseline=0.490, residualized=0.770 (drop=-0.280). Input-only AUROC=0.600.",
+      "paradigm": "impossibility",
+      "paper_transfer_auroc": 0.79,
+      "train_length_stats": {
+        "label": "impossibility_train",
+        "n_pos": 20,
+        "n_neg": 20,
+        "pos_input_tokens_mean": 39.65,
+        "pos_input_tokens_std": 3.5252659474144643,
+        "neg_input_tokens_mean": 36.9,
+        "neg_input_tokens_std": 1.7,
+        "input_token_diff": 2.75,
+        "pos_words_mean": 9.2,
+        "neg_words_mean": 7.4,
+        "word_count_diff": 1.799999999999999,
+        "welch_t_statistic": 3.0627782180442633,
+        "welch_t_p_value": 0.0048773662506939605,
+        "mann_whitney_u": 311.0,
+        "mann_whitney_p": 0.002521091846397765,
+        "cohens_d": 0.9685355136971691,
+        "hedges_g": 0.949293086272722
+      },
+      "test_length_stats": {
+        "label": "impossibility_held_out",
+        "n_pos": 10,
+        "n_neg": 10,
+        "pos_input_tokens_mean": 37.8,
+        "pos_input_tokens_std": 1.32664991614216,
+        "neg_input_tokens_mean": 36.8,
+        "neg_input_tokens_std": 1.3266499161421599,
+        "input_token_diff": 1.0,
+        "pos_words_mean": 7.9,
+        "neg_words_mean": 7.2,
+        "word_count_diff": 0.7000000000000002,
+        "welch_t_statistic": 1.5990053726670783,
+        "welch_t_p_value": 0.12722462889630076,
+        "mann_whitney_u": 69.0,
+        "mann_whitney_p": 0.15287932884330607,
+        "cohens_d": 0.7150969419341942,
+        "hedges_g": 0.6848815781904959,
+        "welch_t_p_corrected": 0.13973534299027524,
+        "reject_null_corrected": false
+      },
+      "baseline_transfer_auroc": 0.49,
+      "input_only_auroc_heldout_loo": 0.6000000000000001,
+      "input_only_transfer_auroc": 0.6900000000000001,
+      "residualized_transfer_auroc": 0.7700000000000001,
+      "within_heldout_auroc": 0.68,
+      "within_heldout_resid_auroc": 0.71,
+      "auroc_drop": -0.28000000000000014,
+      "auroc_drop_bootstrap_ci": {
+        "estimate": -0.28000000000000014,
+        "ci_lower": -0.6250315656565658,
+        "ci_upper": 0.05505952380952321,
+        "se": 0.17586263244388115
+      },
+      "r_squared_per_feature": {
+        "norm_per_token": 0.2585880479613688,
+        "key_rank": 0.3210650040423473,
+        "key_entropy": 0.3283227594837884
+      },
+      "train_feature_correlations": {
+        "norm_per_token": {
+          "r": -0.5085155336480566,
+          "p": 0.0008071674255705314
+        },
+        "key_rank": {
+          "r": 0.5666259824984622,
+          "p": 0.00013804446093378534
+        },
+        "key_entropy": {
+          "r": 0.5729945544974977,
+          "p": 0.00011145271182567698
+        }
+      },
+      "test_feature_correlations": {
+        "norm_per_token": {
+          "r": -0.0249390729353937,
+          "p": 0.9168795499284899
+        },
+        "key_rank": {
+          "r": 0.3553001954897624,
+          "p": 0.12421909663917738
+        },
+        "key_entropy": {
+          "r": -0.32844624108761233,
+          "p": 0.15740285814936278
+        }
+      },
+      "n_train_pos": 20,
+      "n_train_neg": 20,
+      "n_test_pos": 10,
+      "n_test_neg": 10
+    }
+  },
+  "holm_bonferroni_correction": {
+    "deception": {
+      "original_p": 2.701453196473343e-12,
+      "corrected_p": 8.10435958942003e-12,
+      "reject_null": true
+    },
+    "refusal": {
+      "original_p": 0.06986767149513762,
+      "corrected_p": 0.13973534299027524,
+      "reject_null": false
+    },
+    "impossibility": {
+      "original_p": 0.12722462889630076,
+      "corrected_p": 0.13973534299027524,
+      "reject_null": false
+    }
+  },
+  "elapsed_seconds": 23.654854070045985,
+  "checksum": "sha256:1b8d25b2d63949f5b3539988c0b0121a167eb2bf70154cf4e2968034de3106ac"
+}

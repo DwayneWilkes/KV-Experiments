@@ -1,0 +1,29 @@
+{
+  "claim_id": "F01c-format",
+  "verdict": "confirmed",
+  "evidence_summary": "Cache geometry outperforms format classifier for all 3 comparisons. Signal is beyond text statistics.",
+  "stats": {
+    "format_results": {
+      "exp31_refusal_vs_benign": {
+        "format_auroc": 0.8375,
+        "cache_auroc": 0.8975,
+        "delta": 0.05999999999999994,
+        "format_confound": false
+      },
+      "exp18b_deception": {
+        "format_auroc": 0.7900000000000001,
+        "cache_auroc": 0.92,
+        "delta": 0.1299999999999999,
+        "format_confound": false
+      },
+      "exp39_sycophancy": {
+        "format_auroc": 0.8125,
+        "cache_auroc": 0.9375,
+        "delta": 0.125,
+        "format_confound": false
+      }
+    },
+    "confounded_comparisons": [],
+    "elapsed_seconds": 0.05702089797705412
+  }
+}
