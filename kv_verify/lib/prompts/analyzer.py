@@ -206,12 +206,16 @@ def analyze_semantic_clusters(
 
     cluster_sizes = [int(np.sum(labels == i)) for i in range(n_clusters)]
 
-    # Balance score: 0 = perfectly balanced, 1 = all in one cluster
+    # Balance score: 0 = perfectly balanced, 1 = all in one cluster.
+    # Normalize by the maximum possible mean deviation (all items in one cluster)
+    # so the score is always in [0, 1].
     sizes = np.array(cluster_sizes, dtype=float)
     if sizes.sum() > 0:
         proportions = sizes / sizes.sum()
         ideal = 1.0 / n_clusters
-        balance_score = float(np.mean(np.abs(proportions - ideal)) / ideal)
+        mean_dev = float(np.mean(np.abs(proportions - ideal)))
+        max_dev = 2.0 * (n_clusters - 1) / (n_clusters * n_clusters)
+        balance_score = mean_dev / max_dev if max_dev > 0 else 0.0
     else:
         balance_score = 1.0
 
