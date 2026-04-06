@@ -107,7 +107,7 @@ After input-length residualization: deception 0.920 -> 0.160, sycophancy 0.938 -
 
 | Library | Module | Purpose | Tests |
 |---------|--------|---------|-------|
-| experiment-tracker | `tracking.py` | MLflow + disk cache + `@tracked`/`@stage`/`@validated` decorators | 34 |
+| experiment-tracker | `tracking.py` | MLflow + disk cache + `@tracked`/`@stage`/`@validated` decorators, `log_metrics` batch, `stage_cache_key` | 36 |
 | probe-stats | `stats.py` | GroupKFold, FWL, permutation, bootstrap, power | 63 |
 | minimal-pairs | `prompt_gen.py` | BLiMP-style minimal pair generation | 17 |
 | cache-inspector | `feature_extractor.py` | KV-cache feature extraction for HF models | 14 |
@@ -123,17 +123,17 @@ After input-length residualization: deception 0.920 -> 0.160, sycophancy 0.938 -
 | stats.py | 63 | PASS |
 | data_loader.py | 15 | PASS |
 | config.py | 8 | PASS |
-| tracking.py | 34 | PASS |
+| tracking.py | 36 | PASS |
 | prompt_gen.py | 17 | PASS |
 | feature_extractor.py | 14 | PASS |
 | scorers.py | 21 | PASS |
-| pipeline.py | 11 | PASS |
+| pipeline.py | 22 | PASS |
 | v04 experiment | 10 | PASS |
 | v01 experiment | 22 | PASS |
 | v03 experiment | 25 | PASS |
 | v07 experiment | 14 | PASS |
 | v10 experiment | 14 | PASS |
-| **Total** | **~300** | **ALL PASS** |
+| **Total** | **~311** | **ALL PASS** |
 
 ## Submodule Commits
 
@@ -162,16 +162,23 @@ After input-length residualization: deception 0.920 -> 0.160, sycophancy 0.938 -
 | `ca48d0e` | tracking decorators — @tracked, @stage, @validated |
 | `f3ece26` | Retrofit V04 with ExperimentTracker (pattern for all) |
 
+## Recent Changes (Codex review fixes, 2026-04-05)
+
+- [x] Fix `props.total_mem` (PyTorch exposes `total_memory`)
+- [x] Fix `UnboundLocalError` on empty pair sets in tokenization
+- [x] Add config-hash cache invalidation to `@stage` decorator
+- [x] Extract `stage_cache_key()` shared function
+- [x] Add `log_metrics()` batch method (cuts ~30 metadata writes per run)
+- [x] Data-driven `_build_stages` (replaces 8 copy-paste closures)
+- [x] Guard `sys.path` insertion in prompt loaders
+- [x] Recursive key sorting in `_config_hash` for determinism
+- [x] Add CLAUDE.md (pipeline guide, extension patterns, library inventory)
+- [x] Add 3 Claude Code skills: `/write-experiment`, `/review-experiment`, `/summarize-results`
+
 ## In Progress
 
-- [ ] Retrofit remaining 10 experiments with ExperimentTracker (2 agents running)
-- [ ] Run prompt_analyzer tests with real tokenizer
+- [x] Retrofit all experiments with ExperimentTracker (all 10 wired)
+- [x] Refactor pipeline.py to use decorator API (data-driven STAGE_ORDER)
+- [x] Fix prompt_analyzer balance_score normalization (15/15 pass)
 - [ ] Generate 600 minimal pairs with exact token validation
-- [ ] Refactor pipeline.py to use decorator API
-- [ ] Run full pipeline on GPU
-| `2105ee4` | Move results to experiments/output/ |
-| `c99307a` | Pre-register F01 falsification battery |
-| `2e935a3` | F01 falsification battery — input confound is fatal |
-| `455315d` | F01b-49b — paper's "definitive" control is confounded |
-| `f6c13b6` | F01b all-comparisons input-length residualization |
-| `df87b9e` | F02, F03, F04 — held-out, cross-model, cross-condition |
+- [ ] Run full pipeline on GPU (f01d feature re-extraction script ready)
